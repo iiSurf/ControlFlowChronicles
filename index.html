@@ -1,0 +1,1966 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Will It Assemble? A learning game for x86 assembly: mov rules, memory addressing, and control flow.">
+<meta name="color-scheme" content="light dark">
+<style>
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  body{margin:0;font:14px system-ui,sans-serif}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Will It Assemble?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Silkscreen&display=swap">
+<style>
+/* Layout: one-column game cartridge. Section tabs and a level strip on top, one card at a time below. Byte blocks are the recurring motif (progress, scores, sizes); register and memory tables light up to show where a value came from. */
+:root{
+  --bg:#eceef6;
+  --panel:#ffffff;
+  --sunk:#f3f4fa;
+  --ink:#1c1e38;
+  --muted:#575b7c;
+  --line:#d3d6e7;
+  --accent:#4a3fb4;
+  --accent-ink:#ffffff;
+  --accent-soft:#e8e5fb;
+  --byte:#d88a0b;
+  --byte-ink:#8a5000;
+  --byte-soft:#fcefd5;
+  --src:#0c7480;
+  --src-soft:#dcf0f2;
+  --good:#1b7f51;
+  --good-soft:#e1f3e9;
+  --bad:#bf3b28;
+  --bad-soft:#fbe6e2;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-code:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --font-pixel:"Silkscreen","IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131528;--panel:#1c1f37;--sunk:#171930;--ink:#e7e8f6;--muted:#a2a5c6;--line:#33375a;
+    --accent:#a59bff;--accent-ink:#15172b;--accent-soft:#2b2856;
+    --byte:#f0a43c;--byte-ink:#f7bd66;--byte-soft:#3b2d16;
+    --src:#56c8d5;--src-soft:#163a40;--good:#5ad198;--good-soft:#163527;--bad:#ff8069;--bad-soft:#41211c;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131528;--panel:#1c1f37;--sunk:#171930;--ink:#e7e8f6;--muted:#a2a5c6;--line:#33375a;
+  --accent:#a59bff;--accent-ink:#15172b;--accent-soft:#2b2856;
+  --byte:#f0a43c;--byte-ink:#f7bd66;--byte-soft:#3b2d16;
+  --src:#56c8d5;--src-soft:#163a40;--good:#5ad198;--good-soft:#163527;--bad:#ff8069;--bad-soft:#41211c;
+  color-scheme:dark;
+}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55}
+.app{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:24px 56px;display:grid;gap:16px}
+code{font-family:var(--font-code);font-size:.9em;background:var(--sunk);border:1px solid var(--line);border-radius:5px;padding:.05em .3em;white-space:nowrap}
+.mono{font-family:var(--font-code)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card:focus,.card:focus-visible{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px}
+.top h1{margin:0;font-size:clamp(1.6rem,1.1rem + 2.2vw,2.3rem);font-weight:700;letter-spacing:-.015em;line-height:1.1}
+.brand{background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;cursor:pointer;text-align:left}
+.brand .qm{color:var(--accent)}
+.tagline{font-family:var(--font-pixel);font-size:11px;letter-spacing:.08em;color:var(--muted);margin-top:6px;text-transform:uppercase}
+.stats{display:flex;gap:8px}
+.stat{font-family:var(--font-pixel);font-size:11px;letter-spacing:.06em;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:flex;align-items:baseline;gap:6px;text-transform:uppercase}
+.stat b{font-size:15px;color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
+
+/* sections + level strip */
+.map{display:grid;gap:10px}
+.secs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sec-tab{display:grid;gap:1px;align-content:start;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;min-width:0;transition:border-color .15s,background .15s}
+.sec-tab:hover{border-color:var(--accent)}
+.sec-tab.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sec-part{font-family:var(--font-pixel);font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.sec-name{font-weight:600;font-size:15px;line-height:1.25}
+.sec-prog{font-size:12px;opacity:.85}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lv{display:grid;gap:6px;align-content:start;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,background .15s;min-width:0}
+.lv:hover{border-color:var(--accent)}
+.lv.on{border-color:var(--accent);background:var(--accent-soft)}
+.lv-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lv-n{font-family:var(--font-pixel);font-size:11px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.lv-next{font-family:var(--font-pixel);font-size:9px;letter-spacing:.08em;color:var(--accent-ink);background:var(--accent);border-radius:4px;padding:2px 5px;text-transform:uppercase}
+.lv-name{font-size:14px;font-weight:600;line-height:1.25}
+.lv-sub{font-size:12px;color:var(--muted);line-height:1.3}
+.pips{display:flex;gap:3px}
+.pips i{width:10px;height:10px;border-radius:2px;border:1.5px solid var(--line);display:block}
+.pips i.f{background:var(--byte);border-color:var(--byte)}
+@media (max-width:540px){
+  .sec-tab{padding:8px 10px}
+  .sec-name{font-size:13.5px}
+  .strip{display:flex;overflow-x:auto;scroll-snap-type:x proximity;margin-inline:-16px;padding-inline:16px;padding-bottom:4px}
+  .lv{flex:0 0 136px;scroll-snap-align:start}
+}
+
+/* card */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,3.5vw,30px);display:grid;gap:16px;min-width:0}
+.eyebrow{font-family:var(--font-pixel);font-size:11px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+.card h2{margin:0;font-size:clamp(1.25rem,1rem + 1vw,1.55rem);font-weight:600;line-height:1.25;text-wrap:balance}
+.card h2 code{font-size:.85em}
+.card p{margin:0;max-width:65ch}
+.lesson{display:grid;gap:14px;min-width:0}
+.tip{background:var(--byte-soft);border-radius:10px;padding:12px 14px;max-width:65ch}
+.tip .tl{display:block;font-family:var(--font-pixel);font-size:10px;letter-spacing:.08em;color:var(--byte-ink);font-weight:400;margin-bottom:3px;text-transform:uppercase}
+.fine{font-size:13px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent);filter:none}
+.kbd{font-family:var(--font-pixel);font-size:9px;letter-spacing:.06em;border:1px solid currentColor;border-radius:4px;padding:2px 5px;opacity:.75;text-transform:uppercase}
+@media (hover:none){.kbd{display:none}}
+
+/* question */
+.qhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.count{font-family:var(--font-pixel);font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.prog{display:flex;flex-wrap:wrap;gap:4px}
+.prog i{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--line);display:block}
+.prog i.done{background:var(--byte);border-color:var(--byte)}
+.prog i.now{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.tag{font-family:var(--font-pixel);font-size:10px;letter-spacing:.06em;color:var(--src);background:var(--src-soft);border-radius:5px;padding:3px 7px;justify-self:start;text-transform:uppercase}
+.again{font-size:14px;color:var(--bad);font-weight:600}
+
+.instr{font-family:var(--font-code);font-size:clamp(1.3rem,1rem + 1.6vw,1.85rem);font-weight:500;background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-wrap:wrap;align-items:flex-start;column-gap:.55em;row-gap:.3em;overflow-x:auto;line-height:1.3;min-width:0}
+.instr.small{font-size:1.1rem;padding:12px 14px}
+.instr .op{display:inline-flex;flex-direction:column;gap:4px}
+.instr .t{white-space:nowrap;padding-bottom:2px;border-bottom:3px solid transparent}
+.instr .src .t{border-bottom-color:var(--src)}
+.instr .dst .t{border-bottom-color:var(--accent)}
+.instr.plain .src .t,.instr.plain .dst .t{border-bottom-color:transparent}
+.instr .cap{display:none;font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.2}
+.instr.labels .cap{display:block}
+.instr .src .cap{color:var(--src)}
+.instr .dst .cap{color:var(--accent)}
+.instr .mnw .cap{color:var(--byte-ink);text-align:right}
+.instr .comma{margin-left:-.5em}
+.sfx{background:var(--byte-soft);color:var(--byte-ink);border-radius:4px;padding:0 .06em;box-shadow:inset 0 -3px 0 var(--byte)}
+.token{font-family:var(--font-code);font-size:clamp(1.8rem,1.3rem + 2vw,2.4rem);font-weight:500;background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;min-width:0}
+.token.op{font-size:clamp(1.3rem,1rem + 2vw,2.1rem);padding:16px;overflow-x:auto;white-space:nowrap}
+.token.sm{font-size:1.1rem;padding:8px 14px;text-align:left;justify-self:start;max-width:100%}
+
+.opts{display:grid;gap:10px}
+.opts.row{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 15px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-size:1rem;cursor:pointer;transition:border-color .12s,background .12s,transform .08s;min-width:0}
+.opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.opt:active:not(:disabled){transform:translateY(1px)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt .key{flex:none;font-family:var(--font-pixel);font-size:11px;width:24px;height:24px;border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;color:var(--muted)}
+.opt .lbl{min-width:0;overflow-wrap:anywhere}
+.opt .lbl code{white-space:normal}
+.opt.code .lbl{font-family:var(--font-code);font-weight:500}
+.opt .mark{margin-left:auto;font-weight:700}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.right .key,.opt.right .mark{border-color:var(--good);color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .key,.opt.wrong .mark{border-color:var(--bad);color:var(--bad)}
+.opt.dim{opacity:.5}
+
+/* typed answers */
+.ans{display:flex;flex-wrap:wrap;gap:8px}
+.ans .labin{flex:1 1 180px;width:auto;min-width:0}
+.ans-msg{font-size:14px;color:var(--bad);font-weight:600}
+.ans-done{display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:10px;border:1.5px solid var(--line)}
+.ans-done.right{border-color:var(--good);background:var(--good-soft)}
+.ans-done.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.ans-l{font-size:13px;color:var(--muted)}
+.ans-v{font-family:var(--font-code);font-size:1.15rem;font-weight:500;overflow-wrap:anywhere;min-width:0}
+.ans-done .mark{margin-left:auto;font-weight:700}
+.ans-done.right .mark{color:var(--good)}
+.ans-done.wrong .mark{color:var(--bad)}
+
+.hintrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.link{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hint{flex-basis:100%;font-size:15px;color:var(--muted)}
+
+.fb{border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.fb.ok{background:var(--good-soft)}
+.fb.no{background:var(--bad-soft)}
+.fb-h{font-weight:700;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fb.ok .fb-h{color:var(--good)}
+.fb.no .fb-h{color:var(--bad)}
+.gain{font-family:var(--font-pixel);font-size:11px;font-weight:400;letter-spacing:.06em;color:var(--byte-ink)}
+.trap{font-weight:600}
+.fb-note{font-size:14px;color:var(--muted)}
+.fb-act{display:flex;justify-content:flex-end}
+
+.peek{border-top:1px solid var(--line);padding-top:12px}
+.peek summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:14px}
+.peek .lesson{margin-top:14px}
+
+/* breakdowns */
+.bd{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:12px;min-width:0}
+.bd-h{font-family:var(--font-pixel);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.chk{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
+.chk-s{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:14px}
+.chk.pass .chk-s{background:var(--good-soft);color:var(--good)}
+.chk.fail .chk-s{background:var(--bad-soft);color:var(--bad)}
+.chk-t{font-weight:600;font-size:15px;line-height:1.35;padding-top:2px}
+.chk-lead{font-size:14px;color:var(--muted);margin-top:2px}
+.chk ul{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:3px;font-size:14px}
+.chk li{padding-left:18px;position:relative}
+.chk li::before{position:absolute;left:2px;top:0;content:"·";color:var(--muted)}
+.chk li.v::before{content:"✓";color:var(--good)}
+.chk li.x::before{content:"✗";color:var(--bad)}
+.verdict{border-radius:10px;padding:10px 12px;font-size:15px}
+.verdict.ok{background:var(--good-soft)}
+.verdict.no{background:var(--bad-soft)}
+.verdict.idle{background:var(--sunk);color:var(--muted)}
+.verdict .mono{font-size:1.1em}
+.blocks{display:inline-flex;gap:2px;vertical-align:-1px;margin:0 2px}
+.blocks i{width:10px;height:10px;border-radius:2px;background:var(--byte);display:block}
+.blocks.bad i{background:var(--bad)}
+.st{display:grid;gap:6px;min-width:0}
+.st-h{font-family:var(--font-pixel);font-size:10px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+.st-notes{margin:0;padding-left:18px;font-size:14px;color:var(--muted);display:grid;gap:2px}
+.calc{display:grid;grid-template-columns:auto auto auto;justify-content:start;column-gap:12px;row-gap:2px;align-items:baseline;font-variant-numeric:tabular-nums;max-width:100%;overflow-x:auto}
+.calc .cl{font-size:14px;color:var(--muted)}
+.calc .cs{font-family:var(--font-code);color:var(--muted);text-align:center}
+.calc .cv{font-family:var(--font-code);font-size:15px;text-align:right;white-space:nowrap}
+.calc .tot{border-top:1.5px solid var(--ink);padding-top:4px;margin-top:2px;color:var(--ink);font-weight:600}
+
+/* register + memory tables */
+.machine{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:flex-start;min-width:0}
+.machine-cap{flex-basis:100%;font-family:var(--font-pixel);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.mt{border:1px solid var(--line);border-radius:10px;background:var(--sunk);padding:6px 4px;min-width:0;max-width:100%;overflow-x:auto}
+.mt table{border-collapse:separate;border-spacing:0;font-family:var(--font-code);font-size:13.5px;font-variant-numeric:tabular-nums}
+.mt th{font-family:var(--font-pixel);font-size:9px;font-weight:400;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;text-align:left;padding:2px 8px 4px}
+.mt th+th,.mt td+td{text-align:right}
+.mt td{padding:3px 8px;white-space:nowrap}
+.mt tr.hl-r td{background:var(--src-soft);color:var(--src);font-weight:600}
+.mt tr.hl-m td{background:var(--byte-soft);color:var(--byte-ink);font-weight:600}
+.mt tr.hl-r td:first-child,.mt tr.hl-m td:first-child{border-radius:6px 0 0 6px}
+.mt tr.hl-r td:last-child,.mt tr.hl-m td:last-child{border-radius:0 6px 6px 0}
+@media (max-width:540px){.mt{padding:5px 2px}.mt table{font-size:12px}.mt td,.mt th{padding-inline:5px}.machine{column-gap:6px}}
+
+/* lesson pieces */
+.kinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kind{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:6px;align-content:start}
+.kind-n{font-weight:700}
+.kind-r{font-size:14px;color:var(--muted)}
+.kind-ex{display:flex;flex-wrap:wrap;gap:6px}
+.tbl-wrap{overflow-x:auto;min-width:0}
+table.t{border-collapse:collapse;font-size:15px;width:100%}
+table.t th,table.t td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+table.t th{font-family:var(--font-pixel);font-size:10px;font-weight:400;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+table.t td.c{font-family:var(--font-code);font-weight:500;white-space:nowrap}
+table.conv td{text-align:center;font-variant-numeric:tabular-nums}
+.none{color:var(--muted);font-family:var(--font-body);font-size:13px}
+table.grid7 td,table.grid7 th{text-align:center}
+table.grid7 th:first-child,table.grid7 td:first-child{text-align:left}
+table.grid7 td.y{color:var(--good);background:var(--good-soft);font-weight:700}
+table.grid7 td.n{color:var(--bad);background:var(--bad-soft);font-weight:700}
+.regmap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 4px;max-width:380px;font-family:var(--font-code);font-size:14px;padding-top:4px}
+.br{border:2px solid var(--muted);border-bottom:0;height:10px;border-radius:4px 4px 0 0;position:relative;margin-top:24px}
+.br span{position:absolute;top:-24px;left:50%;transform:translateX(-50%);white-space:nowrap;font-weight:600}
+.br small{font-family:var(--font-body);color:var(--muted);font-weight:400;font-size:12px}
+.cell{height:40px;border-radius:6px;border:2px solid var(--byte);background:var(--byte-soft)}
+.under{text-align:center;font-weight:600}
+.under.muted{font-family:var(--font-body);font-size:12px;color:var(--muted);font-weight:400}
+.rule{display:grid;gap:8px;border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.rule > b{font-weight:600}
+.ex{display:grid;gap:6px;min-width:0}
+.ex-l{font-family:var(--font-pixel);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.ex.bad .ex-l{color:var(--bad)}
+.ex.good .ex-l{color:var(--good)}
+.pair{display:grid;gap:8px;min-width:0}
+.pair2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.cbox{display:grid;gap:10px;align-content:start;border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.worked{display:grid;gap:10px;min-width:0}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:8px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.steps li::before{content:counter(s);font-family:var(--font-pixel);font-size:12px;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.steps li span{font-size:12px;color:var(--muted);white-space:nowrap}
+.path{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.path li{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px;align-content:start}
+.path .pn{font-family:var(--font-pixel);font-size:10px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+.path b{font-weight:600}
+.path .pd{font-size:14px;color:var(--muted)}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.fs{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:4px;align-content:center;background:var(--panel)}
+.fs-op{background:var(--sunk);font-size:1.15rem}
+.fs-l{font-family:var(--font-pixel);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.arr{align-self:center;color:var(--muted);font-size:18px}
+.hexstrip{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:2px;font-family:var(--font-code);text-align:center;margin-block:8px;max-width:520px}
+.hexstrip span{display:grid;gap:1px;padding:4px 0;border-radius:5px;background:var(--panel)}
+.hexstrip b{font-weight:600;font-size:14px}
+.hexstrip i{font-style:normal;font-size:10.5px;color:var(--muted)}
+.hexstrip span.hi b{color:var(--byte-ink)}
+.formula{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-family:var(--font-code);font-size:clamp(1.05rem,.95rem + .8vw,1.35rem);background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.formula .fa{color:var(--muted)}
+.fD{color:var(--byte-ink);font-weight:600}
+.fB{color:var(--src);font-weight:600}
+.fI{color:var(--accent);font-weight:600}
+.fS{color:var(--good);font-weight:600}
+.ref{border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:grid;gap:10px}
+.ref summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:15px}
+@media (max-width:560px){
+  .kinds,.path{grid-template-columns:1fr}
+  .flow{flex-direction:column}
+  .arr{transform:rotate(90deg);align-self:flex-start;margin-left:18px;line-height:1}
+}
+
+/* done */
+.bigpips{display:flex;gap:8px}
+.bigpips i{width:34px;height:34px;border-radius:7px;border:2px solid var(--line);display:block}
+.bigpips i.f{background:var(--byte);border-color:var(--byte);animation:pop .35s ease-out both}
+.bigpips i.f:nth-child(2){animation-delay:.12s}
+.bigpips i.f:nth-child(3){animation-delay:.24s}
+.bigpips i.f:nth-child(4){animation-delay:.36s}
+@keyframes pop{from{transform:scale(.6);opacity:.35}to{transform:none;opacity:1}}
+
+/* lab */
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:4px;justify-self:start;max-width:100%}
+.seg button{border:1px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:600;padding:7px 12px;border-radius:7px;cursor:pointer}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.labin{width:100%;box-sizing:border-box;font-family:var(--font-code);font-size:clamp(1.05rem,.95rem + .6vw,1.3rem);padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink)}
+.labin:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chips .lab-l{font-size:13px;color:var(--muted);margin-right:2px}
+.chip{font-family:var(--font-code);font-size:13px;padding:5px 9px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.labout{display:grid;gap:12px;min-width:0}
+
+/* Part 3: flags, code blocks */
+.codeblock{margin:0;font-family:var(--font-code);font-size:14px;line-height:1.5;background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow-x:auto;white-space:pre;min-width:0;max-width:100%}
+.codeblock .cm{color:var(--muted)}
+.codeblock .blank{background:var(--byte-soft);color:var(--byte-ink);border-radius:4px;padding:0 .3em;font-weight:600}
+.vals{display:flex;flex-wrap:wrap;gap:8px}
+.val{display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--panel);min-width:0}
+.val-k{font-size:14px;color:var(--muted)}
+.val-k small{font-size:12px}
+.val-v{font-family:var(--font-code);font-size:1.15rem;font-weight:500}
+.gflags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gflag{font-family:var(--font-code);font-size:15px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel)}
+.gflag b{color:var(--accent);font-weight:600}
+.gflags .gl{font-size:13px;color:var(--muted);flex-basis:100%}
+.flagrows{display:grid;gap:8px}
+.flagrow{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0;flex-wrap:wrap}
+.flagrow.right{border-color:var(--good);background:var(--good-soft)}
+.flagrow.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fl-n{font-family:var(--font-code);font-weight:600;min-width:3.2em}
+.fl-n small{font-family:var(--font-body);font-weight:400;color:var(--muted);font-size:12px}
+.fl-v{font-size:14px;color:var(--muted)}
+.fl-v b{font-family:var(--font-code);color:var(--ink)}
+.flagrow .mark{margin-left:auto;font-weight:700}
+.flagrow.right .mark{color:var(--good)}
+.flagrow.wrong .mark{color:var(--bad)}
+.seg2{display:flex;gap:4px;margin-left:auto}
+.seg2 button{font-family:var(--font-code);font-size:15px;font-weight:600;width:44px;height:36px;border:1.5px solid var(--line);border-radius:8px;background:var(--panel);color:var(--muted);cursor:pointer}
+.seg2 button:hover{border-color:var(--accent)}
+.seg2 button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.flagact{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+table.vals-t{width:auto;font-size:14px}
+table.vals-t td,table.vals-t th{font-variant-numeric:tabular-nums;white-space:nowrap;padding:5px 7px}
+table.condtbl{font-size:14px}
+table.condtbl td,table.condtbl th{padding:6px 8px;vertical-align:top}
+table.condtbl td.c{white-space:normal}
+.flaglist{margin:0;padding-left:18px;display:grid;gap:4px;font-size:15px}
+.flaglist b{font-family:var(--font-code)}
+.condtbl td.on{color:var(--good);font-weight:700}
+.condtbl td.off{color:var(--muted)}
+.labgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.labgrid label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.labgrid select,.labgrid input{font:inherit;font-family:var(--font-code);font-size:1rem;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink);min-width:0;width:100%;box-sizing:border-box}
+.labgrid select:focus,.labgrid input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.bits{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;max-width:320px;font-family:var(--font-code);text-align:center}
+.bits span{border:1px solid var(--line);border-radius:5px;padding:6px 0;font-weight:600;background:var(--panel)}
+.bits span.top{border-color:var(--byte);background:var(--byte-soft);color:var(--byte-ink)}
+.bits-cap{font-size:12px;color:var(--muted)}
+.confirm{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (max-width:540px){.secs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1><button class="brand" data-go="home">Will It Assemble<span class="qm">?</span></button></h1>
+      <div class="tagline">x86 mov · addressing · control flow</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+  <nav class="map" id="map" aria-label="Sections and levels"></nav>
+  <main id="stage"></main>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function $(s){return document.querySelector(s);}
+function blocks(n,cls){return '<span class="blocks'+(cls?' '+cls:'')+'" aria-hidden="true">'+'<i></i>'.repeat(n)+'</span>';}
+function fmtOpt(t){return esc(t).replace(/(%[a-z0-9]+|\$-?0x[0-9a-f]+|\$-?\d+)/gi,'<code>$1</code>');}
+function smooth(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';}catch(e){return 'auto';}}
+function fineHover(){try{return matchMedia('(hover: hover) and (pointer: fine)').matches;}catch(e){return false;}}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function range(n){var a=[];for(var i=0;i<n;i++)a.push(i);return a;}
+
+/* ---------- registers ---------- */
+var REG={};
+[['eax','ax','ah','al'],['ebx','bx','bh','bl'],['ecx','cx','ch','cl'],['edx','dx','dh','dl']].forEach(function(r){REG[r[0]]={s:4};REG[r[1]]={s:2};REG[r[2]]={s:1};REG[r[3]]={s:1};});
+[['esi','si'],['edi','di'],['esp','sp'],['ebp','bp']].forEach(function(r){REG[r[0]]={s:4};REG[r[1]]={s:2};});
+['rax','rbx','rcx','rdx','rsi','rdi','rsp','rbp'].forEach(function(r){REG[r]={s:8,x64:true};});
+['sil','dil','spl','bpl'].forEach(function(r){REG[r]={s:1,x64:true};});
+for(var i=8;i<=15;i++){REG['r'+i]={s:8,x64:true};REG['r'+i+'d']={s:4,x64:true};REG['r'+i+'w']={s:2,x64:true};REG['r'+i+'b']={s:1,x64:true};}
+var SFX={b:1,w:2,l:4,q:8};
+var SIZE_NAME={1:'1 byte',2:'2 bytes',4:'4 bytes',8:'8 bytes'};
+
+function fakeHint(n){
+  var N='<code>%'+esc(n)+'</code>';
+  if(/^e[a-z]{1,2}[lh]$/.test(n)) return N+' isn\'t a register. It mixes <code>e</code> (4 bytes) with a 1-byte ending.';
+  if(/^[a-z][lh]$/.test(n)) return N+' isn\'t a register. Only a, b, c and d have 1-byte versions, like <code>%al</code>.'+(n[0]==='s'?' <code>%esi</code> stops at <code>%si</code>.':'');
+  if(/^e[a-z]{2}$/.test(n)) return N+' isn\'t a register. The 4-byte names are <code>%eax</code> <code>%ebx</code> <code>%ecx</code> <code>%edx</code> <code>%esi</code> <code>%edi</code> <code>%esp</code> <code>%ebp</code>.';
+  if(/^[a-z]x$/.test(n)) return N+' isn\'t a register. The 2-byte names are <code>%ax</code> <code>%bx</code> <code>%cx</code> <code>%dx</code> <code>%si</code> <code>%di</code> <code>%sp</code> <code>%bp</code>.';
+  return N+' isn\'t one of the x86 register names.';
+}
+
+/* ---------- numbers ---------- */
+function parseNum(t){
+  t=String(t).trim();var neg=false;
+  if(t[0]==='-'||t[0]==='+'){neg=t[0]==='-';t=t.slice(1);}
+  var v=null;
+  if(/^0x[0-9a-f]+$/i.test(t))v=parseInt(t.slice(2),16);
+  else if(/^0[0-7]+$/.test(t))v=parseInt(t.slice(1),8);
+  else if(/^(0|[1-9]\d*)$/.test(t))v=parseInt(t,10);
+  if(v===null||!isFinite(v))return null;
+  return neg?-v:v;
+}
+function toHex(n){return (n<0?'−':'')+'0x'+Math.abs(n).toString(16).toUpperCase();}
+function normHex(s){s=String(s==null?'':s).trim().toLowerCase().replace(/\s+/g,'');if(s[0]==='$')s=s.slice(1);if(s.slice(0,2)==='0x')s=s.slice(2);if(!/^[0-9a-f]+$/.test(s))return null;return s.replace(/^0+(?=[0-9a-f])/,'');}
+function numNote(lit){
+  var u=String(lit).trim().replace(/^[-+]/,'');
+  if(/^[1-9]\d+$/.test(u)) return '<code>'+esc(u)+'</code> has no 0x, so it\'s decimal: '+esc(u)+' = '+toHex(parseInt(u,10))+'.';
+  if(/^0[0-7]+$/.test(u)) return '<code>'+esc(u)+'</code> starts with 0, so the assembler reads it as octal (base 8): '+toHex(parseInt(u.slice(1),8))+'.';
+  return '';
+}
+function dispStr(d){var u=String(d).trim().replace(/^[-+]/,'');if(/^0x/i.test(u))return '0x'+u.slice(2).toUpperCase();var v=parseNum(u);return v===null?u:toHex(v);}
+
+/* ---------- parsing ---------- */
+var RSP_IDX='can\'t be the index register';
+function splitOps(s){
+  s=(s||'').trim(); if(!s) return [];
+  var out=[],depth=0,cur='';
+  for(var k=0;k<s.length;k++){var ch=s[k];
+    if(ch==='(')depth++; else if(ch===')')depth=Math.max(0,depth-1);
+    if(ch===','&&depth===0){out.push(cur);cur='';} else cur+=ch;}
+  out.push(cur);
+  return out.map(function(x){return x.trim();});
+}
+function regTok(tok){tok=tok.trim();if(tok[0]!=='%'||!/^%[a-z0-9]+$/i.test(tok))return {bad:true,text:tok};var n=tok.slice(1).toLowerCase();return {name:n,info:REG[n]||null};}
+
+function parseOperand(raw,role){
+  var t=raw.trim(), o={text:t,role:role};
+  if(!t){o.kind='bad';o.why='The '+role+' is missing.';return o;}
+  if(t[0]==='$'){
+    if(parseNum(t.slice(1))!==null){o.kind='imm';}
+    else{o.kind='bad';o.why=t+' isn\'t a valid number. An immediate is $ followed by a number, like $5 or $0x10.';}
+    return o;
+  }
+  if(t[0]==='%'){
+    if(!/^%[a-z0-9]+$/i.test(t)){o.kind='bad';o.why=t+' doesn\'t look like a register name.';return o;}
+    o.kind='reg';o.name=t.slice(1).toLowerCase();o.info=REG[o.name]||null;return o;
+  }
+  var mm=t.match(/^([^()]*)\(([^()]*)\)$/);
+  if(mm){
+    var disp=mm[1].trim(), parts=mm[2].split(',').map(function(x){return x.trim();});
+    o.kind='mem';o.issues=[];o.disp=disp;
+    if(disp&&parseNum(disp)===null) o.issues.push('<code>'+esc(disp)+'</code> isn\'t a valid displacement. It should be a number, like <code>8</code> or <code>0x10</code>.');
+    if(parts.length>3) o.issues.push('Too many commas inside the parentheses. The longest form is <code>D(Rb,Ri,S)</code>.');
+    var b=parts[0]||'', ix=parts[1]||'', sc=parts[2]||'';
+    o.scale=sc;
+    o.base=b?regTok(b):null; o.index=ix?regTok(ix):null;
+    if(o.base&&o.base.bad) o.issues.push('The base <code>'+esc(b)+'</code> should be a register, like <code>%eax</code>.');
+    if(o.index&&o.index.bad) o.issues.push('The index <code>'+esc(ix)+'</code> should be a register, like <code>%ecx</code>.');
+    if(!b&&!ix) o.issues.push('The parentheses need at least one register inside.');
+    if(sc){
+      if(['1','2','4','8'].indexOf(sc)<0) o.issues.push('The scale must be 1, 2, 4 or 8. <code>'+esc(sc)+'</code> isn\'t allowed.');
+      if(!ix) o.issues.push('A scale needs an index register in front of it.');
+    }
+    if(o.index&&o.index.info&&(o.index.name==='esp'||o.index.name==='rsp')){o.rspIndex=true;o.issues.push('<code>%'+o.index.name+'</code> '+RSP_IDX+'. It can only be the base.');}
+    [o.base,o.index].forEach(function(x){if(x&&x.info&&x.info.s<4)o.issues.push('<code>%'+esc(x.name)+'</code> is '+SIZE_NAME[x.info.s]+'. Addresses use 4-byte registers (or 8-byte ones in 64-bit code).');});
+    if(o.base&&o.index&&o.base.info&&o.index.info&&o.base.info.s>=4&&o.index.info.s>=4&&o.base.info.s!==o.index.info.s) o.issues.push('Don\'t mix 32-bit and 64-bit registers inside one address.');
+    var terms=[];
+    if(o.base&&!o.base.bad) terms.push('<code>%'+esc(o.base.name)+'</code>');
+    if(o.index&&!o.index.bad) terms.push((sc&&sc!=='1'?esc(sc)+'×':'')+'<code>%'+esc(o.index.name)+'</code>');
+    var f=terms.join(' + ');
+    if(disp){ if(disp[0]==='-') f+=' − <code>'+esc(disp.slice(1))+'</code>'; else f+=(f?' + ':'')+'<code>'+esc(disp)+'</code>'; }
+    o.formula=f;
+    return o;
+  }
+  if(parseNum(t)!==null){o.kind='mem';o.abs=true;o.issues=[];o.formula='<code>'+esc(t)+'</code> (a fixed address)';return o;}
+  o.kind='bad';o.why=t+' doesn\'t look like an operand. Use $ for a number, % for a register, or parentheses for memory.';
+  return o;
+}
+
+/* ---------- Part 1: the mov checker ---------- */
+function analyze(str){
+  var r={checks:[],problems:[],parseError:null};
+  var s=(str||'').trim();
+  if(!s){r.parseError='Type an instruction above to run the checks.';r.idle=true;return r;}
+  var m=s.match(/^([A-Za-z]+)(?:\s+([\s\S]*))?$/);
+  if(!m){r.parseError='Start with an instruction name, like movl.';return r;}
+  var mn=m[1].toLowerCase();
+  if(!/^mov[bwlq]?$/.test(mn)){r.parseError=mn.indexOf('mov')===0?'This checker covers movb, movw, movl and movq. It doesn\'t know '+mn+'.':'This checker covers the mov family: movb, movw, movl and movq.';return r;}
+  r.mn=mn;r.sfx=mn.slice(3);
+  var raw=splitOps(m[2]||'');
+  if(raw.length!==2){r.parseError='mov needs two operands separated by a comma: a source, then a destination. This one has '+raw.length+'.';return r;}
+  var ops=[parseOperand(raw[0],'source'),parseOperand(raw[1],'destination')];r.ops=ops;
+  var bad=ops.filter(function(o){return o.kind==='bad';});
+  if(bad.length){r.parseError=bad.map(function(o){return o.why;}).join(' ');return r;}
+
+  var refs=[];
+  ops.forEach(function(o){if(o.kind==='reg')refs.push(o);if(o.kind==='mem'){if(o.base&&!o.base.bad)refs.push(o.base);if(o.index&&!o.index.bad)refs.push(o.index);}});
+  var c1={id:'names',title:'Are the register names real?',items:[]};
+  if(!refs.length){c1.items.push({html:'There are no registers in this instruction.'});}
+  refs.forEach(function(x){
+    if(x.info)c1.items.push({ok:true,html:'<code>%'+esc(x.name)+'</code> is real'+(x.info.x64?' (64-bit code only)':'')+'.'});
+    else{c1.items.push({ok:false,html:fakeHint(x.name)});r.problems.push('No register named <code>%'+esc(x.name)+'</code>.');}
+  });
+  c1.status=c1.items.some(function(i){return i.ok===false;})?'fail':'pass';
+  r.checks.push(c1);
+
+  var c2={id:'size',title:'Do the registers match the suffix size?',items:[]};
+  var size=r.sfx?SFX[r.sfx]:null;
+  if(!size){
+    var known=ops.filter(function(o){return o.kind==='reg'&&o.info;});
+    if(known.length){size=known[0].info.s;c2.lead='No suffix, so the size comes from the registers: '+blocks(size)+' '+SIZE_NAME[size]+'.';}
+    else c2.lead='No suffix and no register to tell the size from.';
+  } else c2.lead='<code>'+mn+'</code> moves '+blocks(size)+' '+SIZE_NAME[size]+'.';
+  if(!size){c2.status='fail';c2.items.push({ok:false,html:'Add a suffix, like <code>movl</code>, so the assembler knows how many bytes to move.'});r.problems.push('The assembler can\'t tell how many bytes to move.');}
+  else{
+    ops.forEach(function(o){
+      var R=cap(o.role);
+      if(o.kind==='reg'){
+        if(!o.info){c2.items.push({html:R+' <code>%'+esc(o.name)+'</code> is skipped, because it isn\'t a real register.'});return;}
+        var ok=o.info.s===size;
+        c2.items.push({ok:ok,html:R+' <code>%'+esc(o.name)+'</code> is '+blocks(o.info.s,ok?'':'bad')+' '+SIZE_NAME[o.info.s]+'.'});
+        if(!ok) r.problems.push(r.sfx?R+' operand is the wrong size. <code>'+mn+'</code> moves '+SIZE_NAME[size]+', but <code>%'+esc(o.name)+'</code> is '+SIZE_NAME[o.info.s]+'.':'The two registers are different sizes.');
+      } else if(o.kind==='imm') c2.items.push({html:R+' <code>'+esc(o.text)+'</code> is a number, so it fits whatever size the instruction moves.'});
+      else c2.items.push({html:R+' <code>'+esc(o.text)+'</code> is memory, so it fits whatever size the instruction moves.'});
+    });
+    c2.status=c2.items.some(function(i){return i.ok===false;})?'fail':'pass';
+  }
+  r.checks.push(c2);
+
+  var d=ops[1], c3={id:'dest',title:'Can the destination be written to?',items:[]};
+  if(d.kind==='imm'){c3.status='fail';c3.items.push({ok:false,html:'The destination <code>'+esc(d.text)+'</code> is a number. You can\'t store a value into a number.'});r.problems.push('The destination can\'t be an immediate.');}
+  else{c3.status='pass';c3.items.push({ok:true,html:'The destination is '+(d.kind==='reg'?'a register':'memory')+', so it can hold a value.'});}
+  r.checks.push(c3);
+
+  var nm=ops.filter(function(o){return o.kind==='mem';}).length;
+  var c4={id:'mem',title:'At most one memory operand?',items:[]};
+  if(nm===2){c4.status='fail';c4.items.push({ok:false,html:'Both operands are memory. One mov can only touch memory once, so you\'d go through a register in two steps.'});r.problems.push('The source and destination can\'t both be memory.');}
+  else{c4.status='pass';c4.items.push({ok:true,html:nm===0?'No memory operands.':'One memory operand, which is fine.'});}
+  r.checks.push(c4);
+
+  if(nm){
+    var c5={id:'addr',title:'Is each memory address written correctly?',items:[]};
+    ops.forEach(function(o){
+      if(o.kind!=='mem')return;
+      if(o.issues.length){o.issues.forEach(function(h){c5.items.push({ok:false,html:h});r.problems.push(h);});}
+      else c5.items.push({ok:true,html:'<code>'+esc(o.text)+'</code> means the memory at address '+o.formula+'.'});
+    });
+    c5.status=c5.items.some(function(i){return i.ok===false;})?'fail':'pass';
+    r.checks.push(c5);
+  }
+  return r;
+}
+
+/* ---------- Part 2: tables and the operand solver ---------- */
+var MACHINES={
+  practice:{label:'Practice table',
+    regs:[['rax','0x200'],['rbx','0x20C'],['rcx','0x1'],['rdx','0x3'],['rsi','0x4'],['rdi','0x80'],['rsp','0x208'],['rbp','0x210']],
+    mem:[['0x200','0x5A'],['0x204','0xC3'],['0x208','0x17'],['0x20C','0x8E'],['0x210','0x2D'],['0x214','0xF0']]},
+  fig1:{label:'Figure 1',
+    regs:[['rax','0x2F400440'],['rbx','0x2F40045A'],['rdx','0x04'],['rcx','0x01'],['rdi','0x458'],['rsp','0xBD00110'],['rbp','0x2F400000'],['rsi','0x04']],
+    mem:[['0x2F400440','0xFB08C0'],['0x2F400444','0xAFB002'],['0x2F400448','0x0B'],['0x2F40044C','0x10'],['0x2F400450','0xA017'],['0x2F400454','0x2AFB00'],['0x2F400458','0x21'],['0x2F40045A','0x1FC2A0']]},
+  q4:{label:'Q4 table',
+    regs:[['rax','0x100'],['rcx','0x1'],['rdx','0x3']],
+    mem:[['0x100','0xFF'],['0x104','0xAB'],['0x108','0x13'],['0x10C','0x11']]}
+};
+Object.keys(MACHINES).forEach(function(k){
+  var M=MACHINES[k]; M.id=k; M.R={}; M.Mem={};
+  M.regs.forEach(function(r){M.R[r[0]]={key:r[0],n:parseInt(r[1],16),s:r[1]};});
+  M.mem.forEach(function(m){M.Mem[parseInt(m[0],16)]={a:m[0],s:m[1],n:parseInt(m[1],16)};});
+});
+var E2R={eax:'rax',ebx:'rbx',ecx:'rcx',edx:'rdx',esi:'rsi',edi:'rdi',esp:'rsp',ebp:'rbp'};
+function lookupReg(name,M){
+  var e=M.R[name]; if(e) return {key:name,n:e.n,s:e.s,name:name};
+  var r=E2R[name];
+  if(r&&M.R[r]){var v=M.R[r].n%4294967296;return {key:r,n:v,s:toHex(v),name:name,note:'<code>%'+name+'</code> is the lower 4 bytes of <code>%'+r+'</code>.'};}
+  return null;
+}
+function regMissing(name,M){
+  if(!REG[name]) return fakeHint(name);
+  return '<code>%'+esc(name)+'</code> isn\'t in the '+esc(M.label)+'. It has '+M.regs.map(function(r){return '<code>%'+r[0]+'</code>';}).join(' ')+'.';
+}
+function lookupStep(r,M,addr,num){
+  var row=M.Mem[addr], h='Step '+num+' · Look it up';
+  if(row){r.value=row.n;r.vStr=row.s;r.steps.push({h:h,p:'Find '+esc(row.a)+' in the memory table. It holds <b>'+esc(row.s)+'</b>.'});}
+  else{r.miss=true;r.steps.push({h:h,p:'<b>'+esc(toHex(addr))+' isn\'t in this memory table.</b> On a worksheet, that usually means the address math needs another look.'});}
+}
+function solveOperand(text,M){
+  var t=(text||'').trim();
+  var r={text:t,steps:[],warns:[],valTraps:[],addrTraps:[],hl:{regs:[],addr:null}};
+  if(!t){r.idle=true;return r;}
+  if(/^[a-z]+\s/i.test(t)){r.error='That looks like a whole instruction. Type just one operand, like <code>8(%rax)</code>.';return r;}
+  var o=parseOperand(t,'operand');
+  if(o.kind==='bad'){r.error=esc(o.why);return r;}
+  r.kind=o.kind;
+
+  if(o.kind==='imm'){
+    var lit=t.slice(1).trim(), n=parseNum(lit), nn=numNote(lit);
+    r.value=n; r.vStr=/^0x/i.test(lit)?'0x'+lit.slice(2).toUpperCase():toHex(n);
+    r.steps.push({h:'Step 1 · What kind?',p:'It starts with <code>$</code>, so it\'s an <b>immediate</b>: a plain number.'});
+    r.steps.push({h:'Step 2 · The value',p:'The value is the number itself, <b>'+esc(r.vStr)+'</b>. There\'s nothing to look up.'+(nn?' '+nn:'')});
+    if(M.Mem[n]) r.valTraps.push({v:M.Mem[n].s,msg:'That\'s what\'s stored at address '+esc(M.Mem[n].a)+'. The <code>$</code> makes this a plain number, so there\'s nothing to look up.'});
+    return r;
+  }
+  if(o.kind==='reg'){
+    var R=lookupReg(o.name,M);
+    if(!R){r.error=regMissing(o.name,M);return r;}
+    r.value=R.n; r.vStr=R.s; r.hl.regs.push(R.key);
+    r.steps.push({h:'Step 1 · What kind?',p:'It starts with <code>%</code> and has no parentheses, so it\'s a <b>register</b>.'});
+    r.steps.push({h:'Step 2 · The value',p:'Find <code>%'+esc(o.name)+'</code> in the register table. It holds <b>'+esc(R.s)+'</b>.'+(R.note?' '+R.note:'')});
+    if(M.Mem[R.n]) r.valTraps.push({v:M.Mem[R.n].s,msg:'That\'s what\'s stored at '+esc(M.Mem[R.n].a)+'. Without parentheses you don\'t follow the pointer. The value is just what\'s in the register.'});
+    return r;
+  }
+  if(o.abs){
+    var a=parseNum(t), nn2=numNote(t);
+    r.addr=a; r.hl.addr=a;
+    r.steps.push({h:'Step 1 · What kind?',p:'No <code>$</code> and no <code>%</code>, so <code>'+esc(t)+'</code> is a memory <b>address</b>. This is called absolute addressing.'+(nn2?' '+nn2:'')});
+    lookupStep(r,M,a,2);
+    r.valTraps.push({v:toHex(a),msg:'That\'s the address itself. Without a <code>$</code>, a number is an address, so look up what\'s stored there.'});
+    return r;
+  }
+  var errs=o.issues.filter(function(x){return x.indexOf(RSP_IDX)<0;});
+  if(errs.length){r.error=errs.join(' ');return r;}
+  if(o.rspIndex) r.warns.push('Your slide says <code>%rsp</code> can\'t be the index register, so a real assembler would reject this operand. The worksheet still wants the math, so here it is.');
+  var D=o.disp?parseNum(o.disp):0, SC=o.scale?Number(o.scale):1, B=null, I=null;
+  if(o.base){B=lookupReg(o.base.name,M);if(!B){r.error=regMissing(o.base.name,M);return r;}}
+  if(o.index){I=lookupReg(o.index.name,M);if(!I){r.error=regMissing(o.index.name,M);return r;}}
+  var bv=B?B.n:0, iv=I?I.n*SC:0, addr=bv+iv+D;
+  r.addr=addr; r.hl.addr=addr;
+  if(B) r.hl.regs.push(B.key);
+  if(I&&r.hl.regs.indexOf(I.key)<0) r.hl.regs.push(I.key);
+  var rows=[], notes=[];
+  if(B){rows.push({l:'base <code>%'+esc(o.base.name)+'</code>',s:'',v:B.s});if(B.note)notes.push(B.note);}
+  if(I){
+    rows.push({l:'index <code>%'+esc(o.index.name)+'</code>'+(SC>1?' × '+SC:''),s:rows.length?'+':'',v:SC>1?toHex(iv):I.s});
+    if(SC>1)notes.push(esc(I.s)+' × '+SC+' = '+toHex(iv)+'.');
+    if(I.note)notes.push(I.note);
+  }
+  if(o.disp){rows.push({l:'displacement',s:D<0?'−':'+',v:dispStr(o.disp)});var nn3=numNote(o.disp);if(nn3)notes.push(nn3);}
+  rows.push({l:'address',s:'=',v:toHex(addr),tot:true});
+  r.steps.push({h:'Step 1 · Find the address',calc:rows,notes:notes});
+  lookupStep(r,M,addr,2);
+  if(r.vStr!==undefined){
+    r.valTraps.push({v:toHex(addr),msg:'That\'s the address. The value is what\'s stored there, so look up '+toHex(addr)+' in the memory table.'});
+    r.addrTraps.push({v:r.vStr,msg:'That\'s the value stored at the address. This question asks for the address itself.'});
+  }
+  function variant(x,msg){if(x===addr)return;r.addrTraps.push({v:toHex(x),msg:msg});if(M.Mem[x])r.valTraps.push({v:M.Mem[x].s,msg:msg});}
+  if(I&&SC>1) variant(bv+I.n+D,'It looks like the index wasn\'t multiplied by the scale. Multiply <code>%'+esc(o.index.name)+'</code> by '+SC+' first.');
+  if(o.disp&&/^[-+]?[1-9]\d+$/.test(o.disp)){var u=o.disp.replace(/^[-+]/,''),Dh=parseInt(u,16)*(D<0?-1:1);variant(bv+iv+Dh,'It looks like '+esc(u)+' was read as hex. It has no 0x, so it\'s decimal: '+esc(u)+' = '+toHex(parseInt(u,10))+'.');}
+  if(o.disp&&D<0) variant(bv+iv-D,'A minus sign means subtract. Take '+toHex(-D)+' away instead of adding it.');
+  if(o.disp&&D!==0) variant(bv+iv,'It looks like the displacement was left out. '+(D<0?'Subtract '+esc(o.disp.replace(/^-/,'')):'Add '+esc(o.disp))+' too.');
+  if(I) variant(bv+D,'It looks like the index was left out. Add <code>%'+esc(o.index.name)+'</code>'+(SC>1?' × '+SC:'')+' too.');
+  if(B) variant(iv+D,'It looks like the base register was left out. Add <code>%'+esc(o.base.name)+'</code> too.');
+  return r;
+}
+
+/* ---------- Part 3: condition codes ---------- */
+var FLAGNAMES=['CF','ZF','SF','OF'];
+function maskBits(n,bits){var m=Math.pow(2,bits);return ((n%m)+m)%m;}
+function toSigned(u,bits){var half=Math.pow(2,bits-1);return u>=half?u-Math.pow(2,bits):u;}
+function hexW(u,bits){var s=u.toString(16).toUpperCase();if(bits<=8)s=s.padStart(2,'0');return '0x'+s;}
+function fmtS(s){return (s<0?'−':'+')+Math.abs(s);}
+function bin8(u){return u.toString(2).padStart(8,'0');}
+function opLabel(s,fallback){if(!s)return fallback;if(s.label)return '<i>'+esc(s.label)+'</i>';if(s.reg)return '<code>'+esc(s.reg)+'</code>';return fallback;}
+
+function solveFlags(spec){
+  var bits=spec.bits||8, op=spec.op||'cmp', range=Math.pow(2,bits), half=range/2;
+  var r={bits:bits,op:op,range:range,half:half,warns:[]};
+  var v1=parseNum(spec.s1.val), v2=parseNum(spec.s2.val);
+  if(v1===null||v2===null){r.error='Each value needs to be a number, like 37, -46 or 0xAA.';return r;}
+  function conv(v,given){var u=maskBits(v,bits),s=toSigned(u,bits);if(v<-half||v>=range)r.warns.push('<code>'+esc(given)+'</code> doesn\'t fit in '+bits+' bits, so only its low '+bits+' bits are used: '+hexW(u,bits)+'.');return {given:given,u:u,s:s,hex:hexW(u,bits)};}
+  var A=conv(v1,spec.s1.val), B=conv(v2,spec.s2.val); r.A=A; r.B=B;
+  var res,CF,OF;
+  if(op==='cmp'||op==='sub'){var tu=B.u-A.u,ts=B.s-A.s;res=maskBits(tu,bits);CF=tu<0?1:0;OF=(ts<-half||ts>half-1)?1:0;r.math={kind:'sub',tu:tu,ts:ts};}
+  else if(op==='add'){var tu2=B.u+A.u,ts2=B.s+A.s;res=maskBits(tu2,bits);CF=tu2>=range?1:0;OF=(ts2<-half||ts2>half-1)?1:0;r.math={kind:'add',tu:tu2,ts:ts2};}
+  else {res=maskBits(bits<=32?(B.u&A.u):0,bits);CF=0;OF=0;r.math={kind:'and'};}
+  r.res=res; r.resHex=hexW(res,bits); r.resS=toSigned(res,bits);
+  r.F={CF:CF,ZF:res===0?1:0,SF:res>=half?1:0,OF:OF};
+  return r;
+}
+
+var CONDS={
+  e:{expr:'ZF',desc:'Equal / zero',fam:'eq'},
+  ne:{expr:'~ZF',desc:'Not equal / not zero',fam:'eq'},
+  s:{expr:'SF',desc:'Negative',fam:'sign'},
+  ns:{expr:'~SF',desc:'Nonnegative',fam:'sign'},
+  g:{expr:'~(SF^OF) & ~ZF',desc:'Greater (signed)',fam:'signed'},
+  ge:{expr:'~(SF^OF)',desc:'Greater or equal (signed)',fam:'signed'},
+  l:{expr:'SF^OF',desc:'Less (signed)',fam:'signed'},
+  le:{expr:'(SF^OF) | ZF',desc:'Less or equal (signed)',fam:'signed'},
+  a:{expr:'~CF & ~ZF',desc:'Above (unsigned)',fam:'unsigned'},
+  ae:{expr:'~CF',desc:'Above or equal (unsigned)',fam:'unsigned'},
+  b:{expr:'CF',desc:'Below (unsigned)',fam:'unsigned'},
+  be:{expr:'CF | ZF',desc:'Below or equal (unsigned)',fam:'unsigned'}
+};
+var COND_ORDER=['e','ne','s','ns','g','ge','l','le','a','ae','b','be'];
+var SYN={z:'e',nz:'ne',nle:'g',nl:'ge',nge:'l',ng:'le',nbe:'a',nb:'ae',nae:'b',na:'be',c:'b',nc:'ae'};
+var JSYN={e:'jz',ne:'jnz',g:'jnle',ge:'jnl',l:'jnge',le:'jng',a:'jnbe',ae:'jnb',b:'jnae',be:'jna'};
+function condCode(name){var m=String(name).toLowerCase().match(/^(set|j|cmov)([a-z]+)$/);if(!m)return null;var c=m[2];if(SYN[c])c=SYN[c];return CONDS[c]?c:null;}
+function condEval(name,F){
+  var c=condCode(name); if(!c) return null;
+  var SF=F.SF,OF=F.OF,ZF=F.ZF,CF=F.CF,x=SF^OF,v,calc;
+  switch(c){
+    case 'e':v=ZF;calc='ZF = '+ZF;break;
+    case 'ne':v=1-ZF;calc='~ZF = ~'+ZF+' = '+(1-ZF);break;
+    case 's':v=SF;calc='SF = '+SF;break;
+    case 'ns':v=1-SF;calc='~SF = ~'+SF+' = '+(1-SF);break;
+    case 'g':v=(1-x)&(1-ZF);calc='~(SF^OF) & ~ZF = ~('+SF+'^'+OF+') & ~'+ZF+' = '+(1-x)+' & '+(1-ZF)+' = '+v;break;
+    case 'ge':v=1-x;calc='~(SF^OF) = ~('+SF+'^'+OF+') = ~'+x+' = '+v;break;
+    case 'l':v=x;calc='SF^OF = '+SF+'^'+OF+' = '+v;break;
+    case 'le':v=x|ZF;calc='(SF^OF) | ZF = ('+SF+'^'+OF+') | '+ZF+' = '+x+' | '+ZF+' = '+v;break;
+    case 'a':v=(1-CF)&(1-ZF);calc='~CF & ~ZF = ~'+CF+' & ~'+ZF+' = '+(1-CF)+' & '+(1-ZF)+' = '+v;break;
+    case 'ae':v=1-CF;calc='~CF = ~'+CF+' = '+v;break;
+    case 'b':v=CF;calc='CF = '+CF;break;
+    case 'be':v=CF|ZF;calc='CF | ZF = '+CF+' | '+ZF+' = '+v;break;
+  }
+  return {code:c,val:v,calc:calc,expr:CONDS[c].expr,desc:CONDS[c].desc,fam:CONDS[c].fam};
+}
+function plainWords(ev,r,spec){
+  if(!r||r.op!=='cmp'||!ev)return '';
+  var A=r.A,B=r.B,L1=opLabel(spec.s1,'the first value'),L2=opLabel(spec.s2,'the second value');
+  if(ev.fam==='eq') return 'In plain words: '+L2+' and '+L1+(B.u===A.u?' are equal.':' are different.');
+  if(ev.fam==='sign') return 'In plain words: the result is '+(r.F.SF?'negative.':'not negative.');
+  if(ev.fam==='signed') return 'In plain words: as signed numbers, '+L2+' ('+fmtS(B.s)+') is '+(B.s>A.s?'greater than':B.s<A.s?'less than':'equal to')+' '+L1+' ('+fmtS(A.s)+').';
+  return 'In plain words: as unsigned numbers, '+L2+' ('+B.u+') is '+(B.u>A.u?'above':B.u<A.u?'below':'equal to')+' '+L1+' ('+A.u+').';
+}
+
+/* ---------- render pieces ---------- */
+function instrHTML(str,opt){
+  opt=opt||{};
+  var m=str.trim().match(/^([A-Za-z]+)(?:\s+([\s\S]*))?$/);
+  var cls='instr'+(opt.labels?' labels':'')+(opt.plain?' plain':'')+(opt.small?' small':'');
+  if(!m) return '<div class="'+cls+'">'+esc(str)+'</div>';
+  var mn=m[1], base=mn, sfx='';
+  if(/^mov[bwlq]$/i.test(mn)){base=mn.slice(0,3);sfx=mn.slice(3);}
+  var ops=splitOps(m[2]||'');
+  var html='<span class="op mnw"><span class="t">'+esc(base)+(sfx?'<span class="sfx">'+esc(sfx)+'</span>':'')+'</span><span class="cap">'+(sfx?'size':'')+'</span></span>';
+  ops.forEach(function(o,i){
+    var role=i===0?'src':i===1?'dst':'';
+    if(i>0) html+='<span class="comma">,</span>';
+    html+='<span class="op '+role+'"><span class="t">'+esc(o)+'</span><span class="cap">'+(i===0?'source':i===1?'destination':'')+'</span></span>';
+  });
+  return '<div class="'+cls+'" role="img" aria-label="'+esc(str)+'">'+html+'</div>';
+}
+
+function breakdownHTML(r,mode){
+  if(r.parseError) return '<div class="bd"><div class="verdict '+(r.idle?'idle':'no')+'">'+esc(r.parseError)+'</div></div>';
+  var checks=mode==='size'?r.checks.filter(function(c){return c.id==='size';}):r.checks;
+  var body=checks.map(function(c){
+    return '<div class="chk '+c.status+'"><span class="chk-s" aria-label="'+(c.status==='pass'?'passes':'fails')+'">'+(c.status==='pass'?'✓':'✗')+'</span><div><div class="chk-t">'+c.title+'</div>'+(c.lead?'<div class="chk-lead">'+c.lead+'</div>':'')+'<ul>'+c.items.map(function(it){return '<li class="'+(it.ok===true?'v':it.ok===false?'x':'n')+'">'+it.html+'</li>';}).join('')+'</ul></div></div>';
+  }).join('');
+  var verdict='';
+  if(mode!=='size'){
+    verdict=r.problems.length?'<div class="verdict no"><b>Won\'t assemble.</b> '+r.problems.join(' ')+'</div>':'<div class="verdict ok"><b>Assembles.</b> Every check passes.</div>';
+  }
+  return '<div class="bd"><div class="bd-h">'+(mode==='size'?'Size check':'The checks, in order')+'</div>'+body+verdict+'</div>';
+}
+
+function pips(n){var s='';for(var k=0;k<4;k++)s+='<i class="'+(k<n?'f':'')+'"></i>';return '<span class="pips" aria-label="'+n+' of 4 blocks earned">'+s+'</span>';}
+
+function machineHTML(M,hl){
+  var used=hl&&(hl.regs.length||hl.addr!==null);
+  var rr=M.regs.map(function(r){var on=hl&&hl.regs.indexOf(r[0])>=0;return '<tr'+(on?' class="hl-r"':'')+'><td>%'+r[0]+'</td><td>'+r[1]+'</td></tr>';}).join('');
+  var mm=M.mem.map(function(m){var on=hl&&hl.addr!==null&&parseInt(m[0],16)===hl.addr;return '<tr'+(on?' class="hl-m"':'')+'><td>'+m[0]+'</td><td>'+m[1]+'</td></tr>';}).join('');
+  return '<div class="machine"><div class="machine-cap">'+esc(M.label)+(used?' · highlighted rows were used':'')+'</div>'+
+    '<div class="mt"><table aria-label="Registers"><thead><tr><th>Register</th><th>Value</th></tr></thead><tbody>'+rr+'</tbody></table></div>'+
+    '<div class="mt"><table aria-label="Memory"><thead><tr><th>Address</th><th>Value</th></tr></thead><tbody>'+mm+'</tbody></table></div></div>';
+}
+function calcHTML(rows){
+  return '<div class="calc">'+rows.map(function(r){var t=r.tot?' tot':'';return '<span class="cl'+t+'">'+r.l+'</span><span class="cs'+t+'">'+(r.s||'')+'</span><span class="cv'+t+'">'+esc(r.v)+'</span>';}).join('')+'</div>';
+}
+function stepsHTML(sol,title){
+  if(!sol) return '';
+  if(sol.idle) return '<div class="bd"><div class="verdict idle">Type an operand above, like <code>(%rax)</code> or <code>4(%rbx,%rsi,2)</code>.</div></div>';
+  if(sol.error) return '<div class="bd"><div class="verdict no">'+sol.error+'</div></div>';
+  var h='<div class="bd"><div class="bd-h">'+(title||'How to get there')+'</div>';
+  sol.steps.forEach(function(s){
+    h+='<div class="st"><div class="st-h">'+s.h+'</div>';
+    if(s.p) h+='<p>'+s.p+'</p>';
+    if(s.calc) h+=calcHTML(s.calc);
+    if(s.notes&&s.notes.length) h+='<ul class="st-notes">'+s.notes.map(function(n){return '<li>'+n+'</li>';}).join('')+'</ul>';
+    h+='</div>';
+  });
+  sol.warns.forEach(function(w){h+='<div class="tip"><span class="tl">Heads-up</span>'+w+'</div>';});
+  return h+'</div>';
+}
+function workedHTML(op,mid){var s=solveOperand(op,MACHINES[mid]);return '<div class="worked"><div class="token op sm">'+esc(op)+'</div>'+stepsHTML(s,'Worked example')+'</div>';}
+
+function codeBlock(text){
+  var h=esc(text).replace(/(\/\/[^\n]*|#[^\n]*)/g,'<span class="cm">$1</span>').replace(/\[\[([^\]]+)\]\]/g,'<span class="blank">$1</span>');
+  return '<pre class="codeblock">'+h+'</pre>';
+}
+function valLabel(s){if(!s)return '';if(s.label)return esc(s.label)+(s.reg?' <small>(in '+esc(s.reg)+')</small>':'');return esc(s.reg||'');}
+function flagsSetupHTML(fl){
+  var h='';
+  if(fl.text) h+=instrHTML(fl.text,{plain:true});
+  h+='<div class="vals"><div class="val"><span class="val-k">'+valLabel(fl.s1)+' =</span><span class="val-v">'+esc(fl.s1.val)+'</span></div><div class="val"><span class="val-k">'+valLabel(fl.s2)+' =</span><span class="val-v">'+esc(fl.s2.val)+'</span></div></div>';
+  return h;
+}
+function givenHTML(g,note){
+  return '<div class="gflags"><span class="gl">'+(note||'The flags right now')+'</span>'+FLAGNAMES.map(function(k){return '<span class="gflag">'+k+' <b>'+g[k]+'</b></span>';}).join('')+'</div>';
+}
+function stBlock(h,body){return '<div class="st"><div class="st-h">'+h+'</div>'+body+'</div>';}
+function condStepHTML(name,F,r,spec){
+  var ev=condEval(name,F); if(!ev)return '';
+  var kind=name[0]==='j'?'jump':name.indexOf('cmov')===0?'cmov':'set';
+  var what=kind==='set'?'so <code>%al</code> = <b>'+ev.val+'</b>.':kind==='jump'?'so it <b>'+(ev.val?'jumps':'falls through to the next instruction')+'</b>.':'so it <b>'+(ev.val?'does the copy':'leaves the destination alone')+'</b>.';
+  var pw=r&&spec?plainWords(ev,r,spec):'';
+  return '<p><code>'+esc(name)+'</code> means <i>'+ev.desc.toLowerCase()+'</i> and uses <code>'+ev.expr+'</code>. Here '+ev.calc+', '+what+(pw?' '+pw:'')+'</p>';
+}
+function flagsStepsHTML(r,spec,opt){
+  opt=opt||{}; var only=opt.only||FLAGNAMES;
+  if(r.error) return '<div class="bd"><div class="verdict no">'+r.error+'</div></div>';
+  var bits=r.bits, word=bits===8?'byte':bits===16?'2-byte value':bits===32?'4-byte int':'8-byte value';
+  var A=r.A,B=r.B,L1=opLabel(spec.s1,'the first operand'),L2=opLabel(spec.s2,'the second operand'),half=r.half,range=r.range;
+  var h='<div class="bd"><div class="bd-h">'+(opt.title||'How to get there')+'</div>';
+  var ins=spec.text?'<code>'+esc(spec.text)+'</code>':'<code>'+r.op+'</code>';
+  var what;
+  if(r.op==='cmp') what=ins+' computes <b>'+L2+' − '+L1+'</b>, second minus first. It keeps the flags and throws the result away, so neither operand changes.';
+  else if(r.op==='sub') what=ins+' computes <b>'+L2+' − '+L1+'</b>, second minus first, and stores the result in '+L2+'.';
+  else if(r.op==='add') what=ins+' computes <b>'+L2+' + '+L1+'</b> and stores the result in '+L2+'.';
+  else what=ins+' computes <b>'+L2+' & '+L1+'</b>, a bitwise AND. It keeps the flags and throws the result away. After <code>test</code>, CF and OF are always 0.';
+  h+=stBlock('Step 1 · What gets computed','<p>'+what+'</p>');
+  var row=function(L,V){return '<tr><td>'+L+'</td><td class="c">'+esc(V.given)+'</td><td class="c">'+V.hex+'</td><td>'+V.u+'</td><td>'+fmtS(V.s)+'</td></tr>';};
+  var tbl='<div class="tbl-wrap"><table class="t vals-t"><thead><tr><th></th><th>Given</th><th>As a '+word+'</th><th>Unsigned</th><th>Signed</th></tr></thead><tbody>'+row(L1,A)+row(L2,B)+'</tbody></table></div>';
+  if(r.warns.length) tbl+='<p class="fine">'+r.warns.join(' ')+'</p>';
+  h+=stBlock('Step 2 · Both values as a '+word,tbl);
+  var m=r.math,p='';
+  if(m.kind==='and'){
+    p='<p>'+B.hex+' & '+A.hex+' = <b class="mono">'+r.resHex+'</b>'+(bits===8?' <span class="fine">('+bin8(B.u)+' & '+bin8(A.u)+' = '+bin8(r.res)+')</span>':'')+'. A bit is 1 only where both inputs have a 1.</p>';
+  } else {
+    var sym=m.kind==='sub'?'−':'+';
+    var un='Unsigned: '+B.u+' '+sym+' '+A.u+' = '+m.tu;
+    if(m.kind==='sub'&&m.tu<0) un+=', which is below 0, so it wraps around to '+(m.tu+range)+' = '+r.resHex;
+    else if(m.kind==='add'&&m.tu>=range) un+=', which is past the top ('+(range-1)+'), so the carry is lost and '+(m.tu-range)+' = '+r.resHex+' is stored';
+    else un+=' = '+r.resHex;
+    var sg='Signed: '+fmtS(B.s)+' '+sym+' ('+fmtS(A.s)+') = '+fmtS(m.ts);
+    if(m.ts<-half||m.ts>half-1) sg+=', which doesn\'t fit in '+(-half)+' to '+(half-1)+', so it wraps to '+fmtS(r.resS);
+    p='<p>'+un+'.</p><p>'+sg+'.</p><p>Stored result: <b class="mono">'+r.resHex+'</b>'+(r.op==='cmp'?', though <code>cmp</code> only keeps the flags':'')+'.</p>';
+  }
+  h+=stBlock('Step 3 · The result',p);
+  var why={
+    ZF:r.F.ZF?'the result is exactly zero':'the result '+r.resHex+' isn\'t zero',
+    SF:r.F.SF?'the top bit of '+r.resHex+' is 1, so as a signed number it\'s negative ('+fmtS(r.resS)+')':'the top bit of '+r.resHex+' is 0, so as a signed number it isn\'t negative ('+fmtS(r.resS)+')'
+  };
+  if(m.kind==='sub'){why.CF=r.F.CF?'the unsigned subtraction went below 0: '+B.u+' is below '+A.u+', so there\'s a borrow':'the unsigned subtraction stayed at 0 or above: '+B.u+' isn\'t below '+A.u+', so no borrow';why.OF=r.F.OF?'the signed answer '+fmtS(m.ts)+' doesn\'t fit in '+(-half)+' to '+(half-1):'the signed answer '+fmtS(m.ts)+' fits in '+(-half)+' to '+(half-1);}
+  else if(m.kind==='add'){why.CF=r.F.CF?'the unsigned sum '+m.tu+' is past '+(range-1)+', so a 1 carried out the top':'the unsigned sum '+m.tu+' fits, so nothing carried out';why.OF=r.F.OF?'the signed sum '+fmtS(m.ts)+' doesn\'t fit in '+(-half)+' to '+(half-1):'the signed sum '+fmtS(m.ts)+' fits in '+(-half)+' to '+(half-1);}
+  else {why.CF='<code>test</code> always clears CF';why.OF='<code>test</code> always clears OF';}
+  h+=stBlock('Step 4 · The flags','<ul class="flaglist">'+only.map(function(k){return '<li><b>'+k+' = '+r.F[k]+'</b> because '+why[k]+'.</li>';}).join('')+'</ul>');
+  var n=5;
+  if(opt.set) h+=stBlock('Step '+(n++)+' · '+esc(opt.set),condStepHTML(opt.set,r.F,r,spec));
+  if(opt.jmp) h+=stBlock('Step '+(n++)+' · '+esc(opt.jmp),condStepHTML(opt.jmp,r.F,r,spec));
+  return h+'</div>';
+}
+function flagsWorked(spec,opt){opt=opt||{};opt.title=opt.title||'Worked example';return '<div class="worked">'+flagsSetupHTML(spec)+flagsStepsHTML(solveFlags(spec),spec,opt)+'</div>';}
+function flagsWidgetHTML(q,a,picks){
+  var keys=q.flags.slice(); if(q.set)keys.push('al');
+  var rows=keys.map(function(k){
+    var label=k==='al'?'%al <small>after '+esc(q.set)+'</small>':k;
+    if(a){var x=a.res[k];return '<div class="flagrow '+(x.ok?'right':'wrong')+'"><span class="fl-n">'+label+'</span><span class="fl-v">you said <b>'+x.picked+'</b></span>'+(x.ok?'':'<span class="fl-v">answer <b>'+x.actual+'</b></span>')+'<span class="mark" aria-hidden="true">'+(x.ok?'✓':'✗')+'</span></div>';}
+    var p=picks[k];
+    return '<div class="flagrow"><span class="fl-n">'+label+'</span><div class="seg2" role="group" aria-label="'+(k==='al'?'%al':k)+'"><button type="button" data-fl="'+k+'" data-v="0" class="'+(p===0?'on':'')+'" aria-pressed="'+(p===0)+'">0</button><button type="button" data-fl="'+k+'" data-v="1" class="'+(p===1?'on':'')+'" aria-pressed="'+(p===1)+'">1</button></div></div>';
+  }).join('');
+  var h='<div class="flagrows" role="group" aria-label="Flags">'+rows+'</div>';
+  if(!a) h+='<div class="flagact"><button class="btn" data-act="checkflags">Check <span class="kbd">Enter</span></button><span class="ans-msg" id="ans-msg" role="alert" hidden></span></div>';
+  return h;
+}
+function condTableHTML(F){
+  return '<div class="tbl-wrap"><table class="t condtbl"><thead><tr><th>set / jump</th><th>condition</th><th>result</th></tr></thead><tbody>'+COND_ORDER.map(function(c){var ev=condEval('set'+c,F);return '<tr><td class="c">set'+c+' · j'+c+(JSYN[c]?'<br><span class="none">'+JSYN[c]+'</span>':'')+'</td><td class="c">'+CONDS[c].expr+'<br><span class="none">'+CONDS[c].desc+'</span></td><td class="'+(ev.val?'on':'off')+'">'+(ev.val?'1 · jumps':'0 · no jump')+'</td></tr>';}).join('')+'</tbody></table></div>';
+}
+function calcBox(op,rows){return '<div class="cbox"><div class="token op sm">'+esc(op)+'</div>'+calcHTML(rows.map(function(r){return {l:r[0],s:r[1],v:r[2],tot:!!r[3]};}))+'</div>';}
+function hexStrip(){var s='';for(var k=0;k<16;k++){s+='<span'+(k>9?' class="hi"':'')+'><b>'+k.toString(16).toUpperCase()+'</b><i>'+k+'</i></span>';}return '<div class="hexstrip" aria-hidden="true">'+s+'</div>';}
+
+/* ---------- levels ---------- */
+var KIND=['Immediate','Register','Memory'];
+var BYTES4=['1 byte','2 bytes','4 bytes','8 bytes'];
+var BYTES3=['1 byte','2 bytes','4 bytes'];
+var MATCH=['Yes, everything matches','No, the source is the wrong size','No, the destination is the wrong size'];
+var LEGAL=['Yes, it\'s allowed','No, the destination is an immediate','No, memory to memory'];
+var MULT_EXPLAIN='Multiply 0xBD00110 by 4 from right to left: 0 × 4 = 0, 1 × 4 = 4, 1 × 4 = 4, then 0 and 0. Next, D × 4 = 52 = 0x34, so write 4 and carry 3. Last, B × 4 = 44, plus the 3 is 47 = 0x2F. That gives 0x2F400440, the first row of the memory table.';
+
+var LEVELS=[
+/* ===== Part 1 · Moving Data ===== */
+{id:'dir',sec:'p1',name:'Which way does it go?',short:'Which way',
+lesson:'<p>A <code>mov</code> instruction copies data from one place to another. After <code>mov</code> come two operands, separated by a comma.</p>'+
+instrHTML('movl %eax, %edx',{labels:true})+
+'<p>The first operand is the <b>source</b>, where the data comes from. The second is the <b>destination</b>, where the copy goes. Read it as <i>move from, to</i>.</p>'+
+'<div class="tip"><span class="tl">In C</span><code>movl %eax, %edx</code> does the same thing as <code>edx = eax;</code> The destination is the one that changes. The source keeps its value.</div>',
+qs:[
+{instr:'movl %ecx, %ebx',plain:true,prompt:'Which register gets changed?',options:['%ecx','%ebx'],code:true,answer:1,hint:'The destination is the second operand.',explain:'<code>%ebx</code> is the destination, so it gets a copy of <code>%ecx</code>. The source, <code>%ecx</code>, keeps its value.'},
+{instr:'movl %edx, %eax',plain:true,prompt:'Which line of C does the same thing?',options:['eax = edx;','edx = eax;'],code:true,answer:0,hint:'In C, the variable that changes goes on the left of the =.',explain:'Data moves from <code>%edx</code> into <code>%eax</code>. In C the destination goes on the left, so it\'s <code>eax = edx;</code>'},
+{instr:'movb %al, %bl',plain:true,prompt:'Which one is the source?',options:['%al','%bl'],code:true,answer:0,hint:'The source always comes first.',explain:'The source comes first, so <code>%al</code> gets copied into <code>%bl</code>.'},
+{instr:'movl $5, %eax',plain:true,prompt:'What does this instruction do?',options:['Puts the number 5 into %eax','Puts %eax into the number 5','Adds 5 to %eax'],answer:0,hint:'mov only copies. Find the source and the destination.',explain:'The source is 5 and the destination is <code>%eax</code>, so <code>%eax</code> ends up holding 5. The <code>$</code> marks a plain number, which Level 2 covers.'},
+{prompt:'You want to copy <code>%esi</code> into <code>%edi</code>. Which instruction does that?',options:['movl %esi, %edi','movl %edi, %esi'],code:true,answer:0,hint:'Move from, to.',explain:'Copy from <code>%esi</code>, to <code>%edi</code>. The source goes first.'},
+{instr:'movl %ebx, %ecx',plain:true,prompt:'After this runs, which register has a new value?',options:['%ebx','%ecx'],code:true,answer:1,hint:'Which one is the destination?',explain:'<code>%ecx</code> is the destination, so it now holds a copy of <code>%ebx</code>.'}
+]},
+
+{id:'kind',sec:'p1',name:'What kind of operand?',short:'Operand kinds',
+defaults:{prompt:'What kind of operand is this?',options:KIND,hint:'Look at the first character, and check for parentheses.'},
+lesson:'<p>Every operand is one of three kinds. The way it\'s written tells you which.</p>'+
+'<div class="kinds">'+
+'<div class="kind"><div class="kind-n">Immediate</div><div class="kind-r">Starts with <code>$</code>. A plain number.</div><div class="kind-ex"><code>$5</code><code>$0x123</code><code>$-147</code></div></div>'+
+'<div class="kind"><div class="kind-n">Register</div><div class="kind-r">Starts with <code>%</code>. A storage slot inside the CPU.</div><div class="kind-ex"><code>%eax</code><code>%dx</code><code>%al</code></div></div>'+
+'<div class="kind"><div class="kind-n">Memory</div><div class="kind-r">Has parentheses. A spot in RAM.</div><div class="kind-ex"><code>(%eax)</code><code>8(%ebp)</code></div></div>'+
+'</div>'+
+'<p><code>(%eax)</code> means <i>the memory at the address stored in %eax</i>, like <code>*p</code> in C. <code>8(%ebp)</code> means <i>the address in %ebp, plus 8</i>.</p>'+
+'<div class="tip"><span class="tl">Tip</span>Look for parentheses first. A register inside parentheses makes the whole operand memory.</div>',
+qs:[
+{token:'$0x123',answer:0,explain:'It starts with <code>$</code>, so it\'s a plain number, an immediate.'},
+{token:'%edx',answer:1,explain:'It starts with <code>%</code> and has no parentheses, so it\'s a register.'},
+{token:'(%esp)',answer:2,hint:'Are there parentheses?',explain:'The parentheses make it memory. <code>%esp</code> holds an address, and this operand is the memory at that address.'},
+{token:'$-147',answer:0,explain:'Negative numbers still start with <code>$</code>, so it\'s an immediate.'},
+{token:'4(%esp)',answer:2,explain:'A number in front of parentheses is still memory. It means the address in <code>%esp</code>, plus 4.'},
+{token:'%al',answer:1,explain:'It starts with <code>%</code>, so it\'s a register. A small one, which Level 4 explains.'},
+{instr:'movl $0x10, %ecx',labels:true,prompt:'What kind of operand is the source?',answer:0,hint:'The source is the first operand.',explain:'The source is <code>$0x10</code>. It starts with <code>$</code>, so it\'s an immediate.'},
+{instr:'movl (%eax), 4(%esp)',labels:true,prompt:'How many memory operands does this instruction have?',options:['0','1','2'],answer:2,hint:'Count the operands with parentheses.',explain:'Both operands have parentheses, so both are memory. Remember this one. It comes back in Level 7.'}
+]},
+
+{id:'sfx',sec:'p1',name:'Read the suffix',short:'Suffix size',
+defaults:{options:BYTES4},
+lesson:'<p>The letter right after <code>mov</code> is the <b>suffix</b>. It says how many bytes get copied. Picture each byte as one block.</p>'+
+'<div class="tbl-wrap"><table class="t"><thead><tr><th>Instruction</th><th>Your slides call it</th><th>Size</th></tr></thead><tbody>'+
+'<tr><td class="c">mov<span class="sfx">b</span></td><td>byte</td><td>'+blocks(1)+' 1 byte</td></tr>'+
+'<tr><td class="c">mov<span class="sfx">w</span></td><td>word</td><td>'+blocks(2)+' 2 bytes</td></tr>'+
+'<tr><td class="c">mov<span class="sfx">l</span></td><td>double word <span class="none">(l for long)</span></td><td>'+blocks(4)+' 4 bytes</td></tr>'+
+'<tr><td class="c">mov<span class="sfx">q</span></td><td>quad word</td><td>'+blocks(8)+' 8 bytes <span class="none">(64-bit code)</span></td></tr>'+
+'</tbody></table></div>'+
+'<p>Each step doubles: 1, 2, 4, 8.</p>'+
+'<div class="tip"><span class="tl">Watch out</span>The suffix in <code>movl</code> is the letter L, for <i>long</i>. It isn\'t the number 1. Your slides call this 4-byte size a <i>double word</i>.</div>',
+qs:[
+{instr:'movl %eax, %ebx',labels:true,prompt:'How many bytes does <code>movl</code> copy?',answer:2,hint:'The l stands for long.',explain:'<code>l</code> is for <i>long</i>, which your slides call a <i>double word</i>: 4 bytes. '+blocks(4)},
+{instr:'movb %al, %bl',labels:true,prompt:'How many bytes does <code>movb</code> copy?',answer:0,hint:'The b stands for byte.',explain:'<code>b</code> stands for <i>byte</i>, exactly 1. '+blocks(1)},
+{instr:'movw %ax, %bx',labels:true,prompt:'How many bytes does <code>movw</code> copy?',answer:1,hint:'The w stands for word.',explain:'<code>w</code> stands for <i>word</i>, which is 2 bytes. '+blocks(2)},
+{prompt:'Which suffix copies 2 bytes?',options:['b','w','l'],code:true,answer:1,explain:'<code>w</code> (word) is 2 bytes. <code>b</code> is 1 and <code>l</code> is 4.'},
+{prompt:'Which suffix copies 4 bytes?',options:['b','w','l','q'],code:true,answer:2,hint:'It\'s the letter in movl.',explain:'<code>l</code> (long, or double word) is 4 bytes. <code>q</code> (quad word) is 8.'},
+{prompt:'Which suffix copies 1 byte?',options:['b','w','l'],code:true,answer:0,explain:'<code>b</code> is for byte. One byte, one block.'},
+{instr:'movq %rax, %rbx',labels:true,prompt:'How many bytes does <code>movq</code> copy?',answer:3,hint:'Each step doubles: 1, 2, 4, and then?',explain:'<code>q</code> stands for <i>quad word</i>, 8 bytes. You\'ll see it in 64-bit code, with registers that start with <code>r</code>.'}
+]},
+
+{id:'rsize',sec:'p1',name:'How big is the register?',short:'Register size',
+defaults:{prompt:'How many bytes is this register?',options:BYTES3},
+lesson:'<p>Registers have sizes too, and the name tells you the size. <code>%eax</code> holds 4 bytes. Its lower 2 bytes have their own name, <code>%ax</code>. And <code>%ax</code> splits into two single bytes, <code>%ah</code> (high) and <code>%al</code> (low).</p>'+
+'<div class="regmap" role="img" aria-label="%eax is 4 bytes. Its lower 2 bytes are %ax. %ax is made of %ah and %al, 1 byte each.">'+
+'<div class="br" style="grid-column:1/5;grid-row:1"><span>%eax <small>4 bytes</small></span></div>'+
+'<div class="br" style="grid-column:3/5;grid-row:2"><span>%ax <small>2 bytes</small></span></div>'+
+'<div class="cell" style="grid-row:3;grid-column:1"></div><div class="cell" style="grid-row:3;grid-column:2"></div><div class="cell" style="grid-row:3;grid-column:3"></div><div class="cell" style="grid-row:3;grid-column:4"></div>'+
+'<div class="under muted" style="grid-row:4;grid-column:1/3">no names of their own</div>'+
+'<div class="under" style="grid-row:4;grid-column:3">%ah</div><div class="under" style="grid-row:4;grid-column:4">%al</div>'+
+'</div>'+
+'<p>So the name gives the size away.</p>'+
+'<div class="tbl-wrap"><table class="t"><thead><tr><th>Name looks like</th><th>Size</th><th>Examples</th></tr></thead><tbody>'+
+'<tr><td>Starts with <code>e</code></td><td>'+blocks(4)+' 4 bytes</td><td><code>%eax</code> <code>%esi</code></td></tr>'+
+'<tr><td>2 letters ending in <code>x</code>, <code>i</code> or <code>p</code></td><td>'+blocks(2)+' 2 bytes</td><td><code>%ax</code> <code>%si</code> <code>%sp</code></td></tr>'+
+'<tr><td>2 letters ending in <code>h</code> or <code>l</code></td><td>'+blocks(1)+' 1 byte</td><td><code>%ah</code> <code>%al</code></td></tr>'+
+'</tbody></table></div>'+
+'<div class="tip"><span class="tl">Watch out</span>The <code>l</code> in <code>movl</code> means <i>long</i>, 4 bytes. The <code>l</code> at the end of <code>%al</code> means <i>low</i>, 1 byte. Same letter, different jobs.</div>',
+qs:[
+{token:'%eax',answer:2,hint:'Does it start with e?',explain:'It starts with <code>e</code>, so it\'s the full 4 bytes. '+blocks(4)},
+{token:'%ax',answer:1,hint:'Two letters, ending in x.',explain:'Two letters ending in <code>x</code>, so it\'s the 2-byte lower half of <code>%eax</code>. '+blocks(2)},
+{token:'%al',answer:0,hint:'What does the l at the end stand for here?',explain:'It ends in <code>l</code> for <i>low</i>, so it\'s 1 byte. '+blocks(1)},
+{token:'%dx',answer:1,explain:'Two letters ending in <code>x</code>, so 2 bytes. It\'s the lower half of <code>%edx</code>.'},
+{token:'%bh',answer:0,explain:'It ends in <code>h</code> for <i>high</i>, so 1 byte. It\'s the upper byte of <code>%bx</code>.'},
+{token:'%esi',answer:2,explain:'It starts with <code>e</code>, so 4 bytes.'},
+{token:'%si',answer:1,hint:'Two letters, ending in i.',explain:'Two letters ending in <code>i</code>, so it\'s the 2-byte lower half of <code>%esi</code>.'},
+{token:'%cl',answer:0,explain:'It ends in <code>l</code> for <i>low</i>, so 1 byte. This is the <code>l</code> that means low, not long.'},
+{prompt:'Which register is the low byte of <code>%edx</code>?',options:['%dh','%dl','%dx'],code:true,answer:1,hint:'Drop the e, then pick high or low.',explain:'Drop the <code>e</code> to get <code>%dx</code> (2 bytes). Its two bytes are <code>%dh</code> (high) and <code>%dl</code> (low).'}
+]},
+
+{id:'real',sec:'p1',name:'Real or fake?',short:'Real or fake',
+defaults:{prompt:'Is this a real register?',options:['Real','Fake']},
+lesson:'<p>Only four registers split all the way down to single bytes: the a, b, c and d registers. The other four stop at 2 bytes.</p>'+
+'<div class="tbl-wrap"><table class="t"><thead><tr><th>4 bytes</th><th>2 bytes</th><th>High byte</th><th>Low byte</th></tr></thead><tbody>'+
+'<tr><td class="c">%eax</td><td class="c">%ax</td><td class="c">%ah</td><td class="c">%al</td></tr>'+
+'<tr><td class="c">%ebx</td><td class="c">%bx</td><td class="c">%bh</td><td class="c">%bl</td></tr>'+
+'<tr><td class="c">%ecx</td><td class="c">%cx</td><td class="c">%ch</td><td class="c">%cl</td></tr>'+
+'<tr><td class="c">%edx</td><td class="c">%dx</td><td class="c">%dh</td><td class="c">%dl</td></tr>'+
+'<tr><td class="c">%esi</td><td class="c">%si</td><td><span class="none">none</span></td><td><span class="none">none</span></td></tr>'+
+'<tr><td class="c">%edi</td><td class="c">%di</td><td><span class="none">none</span></td><td><span class="none">none</span></td></tr>'+
+'<tr><td class="c">%esp</td><td class="c">%sp</td><td><span class="none">none</span></td><td><span class="none">none</span></td></tr>'+
+'<tr><td class="c">%ebp</td><td class="c">%bp</td><td><span class="none">none</span></td><td><span class="none">none</span></td></tr>'+
+'</tbody></table></div>'+
+'<p>So <code>%si</code> is real, but <code>%sl</code> isn\'t. A name also never mixes sizes. <code>%edl</code> is fake, because <code>e</code> means 4 bytes and <code>l</code> means 1 byte.</p>'+
+'<p class="fine">64-bit code adds more names, like <code>%rax</code> and <code>%sil</code>. Your Part 1 class questions use the 32-bit names in this table.</p>',
+qs:[
+{token:'%al',answer:0,explain:'Real. It\'s the low byte of <code>%eax</code>.'},
+{token:'%sl',answer:1,hint:'Does %esi have a 1-byte version?',explain:'Fake. <code>%esi</code> shrinks to <code>%si</code> and stops there. Only a, b, c and d have 1-byte versions. This is the bug in class question Q3.'},
+{token:'%si',answer:0,explain:'Real. It\'s the 2-byte lower half of <code>%esi</code>.'},
+{token:'%dh',answer:0,explain:'Real. It\'s the high byte of <code>%dx</code>.'},
+{token:'%edl',answer:1,hint:'Can a name be 4 bytes and 1 byte at once?',explain:'Fake. It mixes <code>e</code> (4 bytes) with <code>l</code> (1 byte). The real names are <code>%edx</code>, <code>%dx</code>, <code>%dh</code> and <code>%dl</code>.'},
+{token:'%bp',answer:0,explain:'Real. It\'s the 2-byte lower half of <code>%ebp</code>.'},
+{token:'%ex',answer:1,explain:'Fake. The a register\'s names are <code>%eax</code>, <code>%ax</code>, <code>%ah</code> and <code>%al</code>. There\'s no <code>%ex</code>.'},
+{token:'%sh',answer:1,explain:'Fake, for the same reason as <code>%sl</code>. <code>%si</code> doesn\'t split into bytes.'},
+{token:'%di',answer:0,explain:'Real. It\'s the 2-byte lower half of <code>%edi</code>.'}
+]},
+
+{id:'match',sec:'p1',name:'Do the sizes match?',short:'Size match',
+defaults:{prompt:'Do the registers match the suffix size?',options:MATCH,bd:'size',labels:true,hint:'Compare each register to the suffix, one at a time.'},
+lesson:'<p>Now put Levels 3 and 4 together. The suffix sets the size, and every register in the instruction has to be that same size. Count the blocks.</p>'+
+'<div class="pair">'+instrHTML('movl %eax, %edx',{labels:true,small:true})+breakdownHTML(analyze('movl %eax, %edx'),'size')+'</div>'+
+'<div class="pair">'+instrHTML('movb %eax, (%esp)',{labels:true,small:true})+breakdownHTML(analyze('movb %eax, (%esp)'),'size')+'</div>'+
+'<div class="tip"><span class="tl">Only check registers</span>Numbers like <code>$5</code> and memory like <code>(%esp)</code> have no size of their own, so they fit any suffix. A register inside parentheses is only holding an address, so it doesn\'t get checked either.</div>',
+qs:[
+{instr:'movl %eax, %ebx',answer:0,explain:'<code>movl</code> is 4 bytes, and both registers are 4 bytes.'},
+{instr:'movb %eax, (%esp)',answer:1,tag:'From class · Q1',explain:'<code>movb</code> is 1 byte, but <code>%eax</code> is 4 bytes. <code>(%esp)</code> is memory, so it fits any size.'},
+{instr:'movl %eax, %dx',answer:2,tag:'From class · Q5',explain:'<code>movl</code> is 4 bytes. <code>%eax</code> is 4, which fits. <code>%dx</code> is only 2, so the destination is wrong.'},
+{instr:'movb %al, %bl',answer:0,explain:'<code>movb</code> is 1 byte, and <code>%al</code> and <code>%bl</code> are both 1 byte.'},
+{instr:'movw %ax, %ecx',answer:2,explain:'<code>movw</code> is 2 bytes. <code>%ax</code> is 2, but <code>%ecx</code> is 4.'},
+{instr:'movb %si, 8(%ebp)',answer:1,tag:'From class · Q6',hint:'%si is real. How big is it?',explain:'<code>%si</code> is a real register, but it\'s 2 bytes and <code>movb</code> wants 1.'},
+{instr:'movw $0x10, %bx',answer:0,hint:'Numbers fit any size.',explain:'<code>$0x10</code> is a number, so it fits. <code>%bx</code> is 2 bytes, the same as <code>movw</code>.'},
+{instr:'movl %ax, (%edx)',answer:1,hint:'The register inside parentheses doesn\'t get checked.',explain:'<code>%ax</code> is 2 bytes, and <code>movl</code> wants 4. <code>%edx</code> is inside parentheses, so it\'s only holding an address.'}
+]},
+
+{id:'legal',sec:'p1',name:'Legal moves',short:'Legal moves',
+defaults:{prompt:'Is this allowed?',options:LEGAL,bd:'full',labels:true,hint:'Is the destination a number? Are both operands memory?'},
+lesson:'<p>Two rules are about the kind of operand, not the size.</p>'+
+'<div class="rule"><b>Rule A. The destination can\'t be an immediate.</b><p>A number like <code>$5</code> is a value, not a place. You can\'t store anything into it.</p><div class="ex bad"><span class="ex-l">✗ Won\'t assemble</span>'+instrHTML('movl %eax, $5',{small:true,labels:true})+'</div></div>'+
+'<div class="rule"><b>Rule B. No memory to memory.</b><p>One instruction can only touch memory once. To copy from memory to memory, go through a register in two steps.</p><div class="ex bad"><span class="ex-l">✗ Won\'t assemble</span>'+instrHTML('movl (%eax), 4(%esp)',{small:true,labels:true})+'</div><div class="ex good"><span class="ex-l">✓ Works, in two steps</span>'+instrHTML('movl (%eax), %edx',{small:true})+instrHTML('movl %edx, 4(%esp)',{small:true})+'</div></div>'+
+'<p>Here is every combination. Rows are the source and columns are the destination.</p>'+
+'<div class="tbl-wrap"><table class="t grid7"><thead><tr><th>Source</th><th>To immediate</th><th>To register</th><th>To memory</th></tr></thead><tbody>'+
+'<tr><td>Immediate</td><td class="n">✗</td><td class="y">✓</td><td class="y">✓</td></tr>'+
+'<tr><td>Register</td><td class="n">✗</td><td class="y">✓</td><td class="y">✓</td></tr>'+
+'<tr><td>Memory</td><td class="n">✗</td><td class="y">✓</td><td class="n">✗</td></tr>'+
+'</tbody></table></div>',
+qs:[
+{instr:'movl $5, %eax',answer:0,explain:'A number into a register is allowed.'},
+{instr:'movl %eax, $0x123',answer:1,tag:'From class · Q4',explain:'The destination <code>$0x123</code> is a number. You can\'t store a value into a number.'},
+{instr:'movl (%eax), 4(%esp)',answer:2,tag:'From class · Q2',explain:'Both operands are memory. You\'d have to go through a register in two steps.'},
+{instr:'movl $-147, (%eax)',answer:0,explain:'A number into memory is allowed. The <code>l</code> suffix says to write 4 bytes.'},
+{instr:'movl (%eax), %edx',answer:0,explain:'Memory into a register is allowed. This is like <code>temp = *p;</code> in C.'},
+{instr:'movb 8(%ebp), (%esp)',answer:2,explain:'Both operands have parentheses, so it\'s memory to memory.'},
+{instr:'movw %ax, $10',answer:1,explain:'The destination <code>$10</code> is a number, so nothing can be stored there.'},
+{instr:'movl %eax, (%edx)',answer:0,explain:'A register into memory is allowed. This is like <code>*p = temp;</code> in C.'},
+{prompt:'You want to copy 4 bytes from the address in <code>%eax</code> to the address <code>%esp</code> + 4. What do you write?',options:['movl (%eax), 4(%esp)','movl (%eax), %edx  then  movl %edx, 4(%esp)'],code:true,bd:null,answer:1,hint:'One mov can only touch memory once.',explain:'Load the value into a register first, then store it from that register into memory.'}
+]},
+
+{id:'boss',sec:'p1',name:'Find the bug',short:'Find the bug',
+defaults:{prompt:'What\'s wrong with this instruction?',bd:'full',labels:true},
+lesson:'<p>These questions use the same format as class. Each instruction has one problem, or none. Run these checks in order and stop at the first one that fails.</p>'+
+'<ol class="steps"><li><b>Are the register names real?</b><span>Level 5</span></li><li><b>Do the registers match the suffix size?</b><span>Level 6</span></li><li><b>Can the destination be written to?</b><span>Level 7</span></li><li><b>At most one memory operand?</b><span>Level 7</span></li></ol>'+
+'<p>After each answer you\'ll see all four checks run on the instruction, so you can see exactly where it fails.</p>',
+qs:[
+{instr:'movb %eax, (%esp)',tag:'From class · Q1',options:['Cannot use %eax register in mov-family instructions.','Mismatch between instruction suffix and register ID.','Cannot use %esp as address register.','Cannot use %esp register in mov-family instructions.'],answer:1,hint:'Compare the suffix to the register size.',explain:'Check 2 fails. <code>movb</code> moves 1 byte, but <code>%eax</code> is 4 bytes. Using <code>%esp</code> as an address is fine.'},
+{instr:'movl (%eax),4(%esp)',tag:'From class · Q2',options:['Cannot have destination be memory reference.','Cannot have both source and destination be memory references.','Cannot have source be memory reference.','Cannot use %eax as memory reference.'],answer:1,hint:'Count the parentheses.',explain:'Check 4 fails. Both operands have parentheses, so both are memory.'},
+{instr:'movb %al,%sl',tag:'From class · Q3',options:['No register named %sl.','Mismatch between instruction suffix and register ID.','Cannot have both source and destination be registers.','No register named %al.'],answer:0,hint:'Is every register name real?',explain:'Check 1 fails. <code>%esi</code> only shrinks to <code>%si</code>. There\'s no 1-byte version, so <code>%sl</code> doesn\'t exist.'},
+{instr:'movl %eax,$0x123',tag:'From class · Q4',options:['Cannot have immediate as destination.','Cannot have register as source.','Cannot have immediate as source.','Cannot have register as destination.'],answer:0,hint:'Look at the first character of the destination.',explain:'Check 3 fails. The destination <code>$0x123</code> is a number, and you can\'t store into a number.'},
+{instr:'movl %eax,%dx',tag:'From class · Q5',options:['Cannot have both source and destination be registers.','Cannot use %dx register in mov-family instructions.','Source operand incorrect size.','Destination operand incorrect size.'],answer:3,hint:'Check each register against the suffix separately.',explain:'Check 2 fails on the destination. <code>movl</code> is 4 bytes and <code>%eax</code> is 4, but <code>%dx</code> is only 2.'},
+{instr:'movb %si, 8(%ebp)',tag:'From class · Q6',options:['Cannot have register as source.','No register named %si.','Cannot have destination be memory reference.','Mismatch between instruction suffix and register ID.'],answer:3,hint:'%si is real. How big is it?',explain:'Check 1 passes, because <code>%si</code> is real (the 2-byte half of <code>%esi</code>). Check 2 fails, because <code>%si</code> is 2 bytes and <code>movb</code> wants 1.'},
+{instr:'movw %eax, %bx',options:['Source operand incorrect size.','Destination operand incorrect size.','No register named %bx.','Cannot have both source and destination be registers.'],answer:0,hint:'movw is 2 bytes. Check each register.',explain:'<code>movw</code> is 2 bytes. <code>%bx</code> is 2, so the destination is fine. <code>%eax</code> is 4, so the source is wrong.'},
+{instr:'movb $0x7, %di',options:['No register named %di.','Mismatch between instruction suffix and register ID.','Cannot have immediate as source.','Cannot have register as destination.'],answer:1,hint:'%di is real. How big is it?',explain:'<code>%di</code> is real, but it\'s 2 bytes. <code>movb</code> needs a 1-byte register.'},
+{instr:'movl 4(%ebp), (%eax)',options:['Cannot have destination be memory reference.','Cannot have both source and destination be memory references.','Cannot use %ebp as memory reference.','Mismatch between instruction suffix and register ID.'],answer:1,hint:'How many operands have parentheses?',explain:'Both operands are memory. One <code>mov</code> can only touch memory once.'},
+{instr:'movb %ah, %el',options:['No register named %el.','No register named %ah.','Mismatch between instruction suffix and register ID.','Cannot have both source and destination be registers.'],answer:0,hint:'Which a, b, c, d names have 1-byte versions?',explain:'<code>%ah</code> is real (the high byte of <code>%ax</code>). <code>%el</code> doesn\'t exist. The 1-byte names are al, ah, bl, bh, cl, ch, dl and dh.'},
+{instr:'movl $0x10, (%ecx)',prompt:'What happens when this is assembled?',options:['Nothing is wrong. It assembles.','Cannot have immediate as source.','Cannot have destination be memory reference.','Mismatch between instruction suffix and register ID.'],answer:0,hint:'Run all four checks. Does any of them fail?',explain:'All four checks pass. A number into memory is allowed, and memory takes its size from the <code>l</code> suffix.'},
+{instr:'movw %dx, %eax',options:['Source operand incorrect size.','Destination operand incorrect size.','No register named %dx.','Cannot have both source and destination be registers.'],answer:1,hint:'movw is 2 bytes. Which register isn\'t?',explain:'<code>movw</code> is 2 bytes. <code>%dx</code> is 2, which fits. <code>%eax</code> is 4, so the destination is wrong.'}
+]},
+
+/* ===== Part 2 · Memory Addressing ===== */
+{id:'val',sec:'p2',name:'What value does it give?',short:'Operand values',shuffleOpts:true,
+defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?',hint:'Look at the first character. $ means a plain number, % means a register, and a number with neither is an address.'},
+lesson:`<p>Part 1 asked whether an instruction is legal. Part 2 asks what <b>value</b> an operand gives you. You read it off two tables, one for registers and one for memory. This practice table appears on every question in Levels 9–14.</p>`+
+machineHTML(MACHINES.practice)+
+`<p>The first character tells you where to look.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Operand</th><th>Kind</th><th>Where to look</th><th>Value</th></tr></thead><tbody>
+<tr><td class="c">$0x20C</td><td>Immediate</td><td>Nowhere. It's the number itself.</td><td class="c">0x20C</td></tr>
+<tr><td class="c">%rbx</td><td>Register</td><td>The register table</td><td class="c">0x20C</td></tr>
+<tr><td class="c">0x20C</td><td>Memory</td><td>The memory table, at address 0x20C</td><td class="c">0x8E</td></tr>
+</tbody></table></div>
+<div class="tip"><span class="tl">Watch out</span>The <code>$</code> makes all the difference. <code>$0x20C</code> is the number 0x20C. A plain <code>0x20C</code> is an address, so you look up what's stored there. Your textbook calls that <i>absolute</i> addressing.</div>
+<p class="fine">Part 2 uses x86-64, so the registers have 8-byte <code>r</code> names. <code>%eax</code> is the lower 4 bytes of <code>%rax</code>. Some questions ask you to type the answer. Capital letters and leading zeros don't matter, so 0x0b and 0xB both count.</p>`,
+qs:[
+{op:'$0x208',options:['0x208','0x17','0x20C'],answer:0},
+{op:'%rsp',options:['0x208','0x17','0x210'],answer:0},
+{op:'0x208',options:['0x17','0x208','0x8E'],answer:0},
+{op:'0x214',options:['0xF0','0x214','0x2D'],answer:0},
+{op:'%rdi',options:['0x80','0x5A','0x200'],answer:0},
+{prompt:'Which operand gives the value 0x2D?',gives:'0x2D',options:['0x210','$0x210','%rbp'],answer:0,explain:'A plain 0x210 is an address, and memory at 0x210 holds 0x2D. <code>$0x210</code> is just the number 0x210, and <code>%rbp</code> holds 0x210 too.'},
+{prompt:'Which operand is the number 0x40 itself, with no lookup?',m:null,options:['$0x40','0x40'],answer:0,hint:'Which one is an immediate?',explain:'Only the <code>$</code> version is a plain number. A plain <code>0x40</code> would mean the memory at address 0x40.'},
+{op:'0x204',input:true,prompt:'Type the value this operand gives.'},
+{op:'%rbx',input:true,prompt:'Type the value this operand gives.'}
+]},
+
+{id:'ptr',sec:'p2',name:'Follow the pointer',short:'Follow the pointer',shuffleOpts:true,
+defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?',hint:'Two steps: the register holds an address, then look up that address in memory.'},
+lesson:`<p>Parentheses mean <i>go to memory</i>. The register inside holds an address, so look up that address in the memory table.</p>
+<div class="flow" role="img" aria-label="(%rbx): %rbx holds 0x20C, and memory at 0x20C holds 0x8E.">
+<div class="fs fs-op"><code>(%rbx)</code></div><span class="arr" aria-hidden="true">→</span>
+<div class="fs"><span class="fs-l">Step 1 · Register</span><span><code>%rbx</code> holds 0x20C</span></div><span class="arr" aria-hidden="true">→</span>
+<div class="fs"><span class="fs-l">Step 2 · Memory</span><span>0x20C holds <b>0x8E</b></span></div>
+</div>
+<p>So <code>%rbx</code> gives 0x20C, but <code>(%rbx)</code> gives 0x8E. In C terms, if the pointer <code>p</code> is in <code>%rbx</code>, then <code>%rbx</code> is <code>p</code> and <code>(%rbx)</code> is <code>*p</code>.</p>
+<div class="tip"><span class="tl">Two steps, every time</span>Every operand with parentheses works this way: find the address, then look up what's stored there. Levels 11–14 only change how you find the address.</div>`,
+qs:[
+{op:'(%rsp)',ask:'address',prompt:'Step 1: what address does this point to?',options:['0x208','0x17','0x200'],answer:0,hint:'The address is whatever the register holds.'},
+{op:'(%rsp)',prompt:'Step 2: what value does it give?',options:['0x17','0x208','0x2D'],answer:0},
+{op:'(%rax)',options:['0x5A','0x200','0xC3'],answer:0},
+{op:'(%rbp)',options:['0x2D','0x210','0xF0'],answer:0},
+{prompt:'In C, if the pointer <code>p</code> is in <code>%rax</code>, which operand means <code>*p</code>?',m:null,options:['(%rax)','%rax'],answer:0,hint:'*p means "what p points to".',explain:'<code>%rax</code> is the pointer <code>p</code>. The parentheses follow it, so <code>(%rax)</code> is <code>*p</code>.'},
+{op:'%rbp',input:true,prompt:'No parentheses this time. Type the value.',hint:'No parentheses means no lookup.'},
+{op:'(%rbx)',input:true,prompt:'Type the value this operand gives.'}
+]},
+
+{id:'disp',sec:'p2',name:'Add a displacement',short:'Displacement',shuffleOpts:true,
+defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?',hint:'Add the displacement to the register, then look up that address.'},
+lesson:`<p>A number in front of the parentheses is the <b>displacement</b>. Add it to the register to get the address, then look up that address.</p>`+
+workedHTML('4(%rax)','practice')+
+`<p>A negative displacement subtracts. <code>-4(%rbx)</code> points to 0x20C − 4 = 0x208.</p>
+<div class="tip"><span class="tl">Counting in hex</span>After 9, hex uses the letters A to F for 10 to 15.`+hexStrip()+`After F comes 0x10, so adding can carry. For example, 0x20C + 4 = 0x210, because C is 12 and 12 + 4 = 16.</div>
+<p class="fine">From your slides: if <code>%edx</code> holds 0xF000, then <code>0x8(%edx)</code> points to 0xF000 + 0x8 = 0xF008.</p>`,
+qs:[
+{op:'4(%rax)',ask:'address',prompt:'What address does this point to?',options:['0x204','0x200','0x4'],answer:0},
+{op:'4(%rax)',options:['0xC3','0x204','0x5A'],answer:0},
+{op:'8(%rax)',options:['0x17','0x5A','0x208'],answer:0},
+{op:'4(%rsp)',options:['0x8E','0x17','0x20C'],answer:0},
+{op:'-4(%rbx)',options:['0x17','0x2D','0x8E'],answer:0,hint:'A minus sign means subtract.'},
+{op:'0xC(%rsp)',options:['0xF0','0x8E','0x17'],answer:0,hint:'C is 12, and 8 + 12 = 20. What is 20 in hex?',explain:'8 + C is 8 + 12 = 20, and 20 is 0x14 in hex. So 0x208 + 0xC = 0x214.'},
+{op:'0x10(%rax)',input:true,prompt:'Type the value this operand gives.'},
+{op:'4(%rbp)',input:true,prompt:'Type the value this operand gives.'}
+]},
+
+{id:'dec',sec:'p2',name:'Decimal or hex?',short:'Decimal or hex',shuffleOpts:true,
+defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?',hint:'No 0x means decimal. Convert to hex before adding.'},
+lesson:`<p>Look for <code>0x</code> on the displacement. With <code>0x</code>, it's hex. Without it, it's an ordinary decimal number, so convert it to hex before you add.</p>
+<div class="pair2">`+calcBox('0x10(%rax)',[['base <code>%rax</code>','','0x200'],['displacement 0x10','+','0x10'],['address','=','0x210',1]])+calcBox('10(%rax)',[['base <code>%rax</code>','','0x200'],['displacement 10 = 0xA','+','0xA'],['address','=','0x20A',1]])+`</div>
+<p>From 0 to 9 it doesn't matter, because those digits mean the same thing in both. From 10 up, it does.</p>
+<div class="tbl-wrap"><table class="t conv"><tbody>
+<tr><th scope="row">Decimal</th><td>10</td><td>12</td><td>16</td><td>20</td><td>32</td><td>256</td><td>260</td></tr>
+<tr><th scope="row">Hex</th><td class="c">0xA</td><td class="c">0xC</td><td class="c">0x10</td><td class="c">0x14</td><td class="c">0x20</td><td class="c">0x100</td><td class="c">0x104</td></tr>
+</tbody></table></div>
+<div class="tip"><span class="tl">Shortcut</span>Remember two landmarks: 16 = 0x10 and 256 = 0x100. Then 20 = 16 + 4 = 0x14, and 260 = 256 + 4 = 0x104.</div>`,
+qs:[
+{prompt:'What is decimal 12 in hex?',m:null,options:['0xC','0x12','0x10'],answer:0,hint:'Count past 9: A is 10, B is 11, C is 12.',explain:'After 9, hex uses letters: A = 10, B = 11, C = 12. So 12 = 0xC.'},
+{prompt:'What is decimal 16 in hex?',m:null,options:['0x10','0x16','0xF'],answer:0,hint:'F is 15. What comes after F?',explain:'F is 15, so 16 rolls over to 0x10, the same way 9 rolls over to 10 in decimal.'},
+{op:'16(%rax)',ask:'address',prompt:'What address does this point to?',options:['0x210','0x216','0x200'],answer:0},
+{op:'12(%rax)',options:['0x8E','0x2D','0x20C'],answer:0},
+{prompt:'What is decimal 260 in hex?',m:null,options:['0x104','0x260','0x1004'],answer:0,hint:'256 is 0x100.',explain:'256 = 0x100, so 260 = 256 + 4 = 0x104. This exact trick shows up in class Q4.'},
+{op:'20(%rax)',options:['0xF0','0x2D','0x214'],answer:0,hint:'20 = 16 + 4.'},
+{prompt:'Which operand points to address 0x210?',points:'0x210',options:['16(%rax)','10(%rax)','0x16(%rax)'],answer:0,explain:'Decimal 16 is 0x10, and 0x200 + 0x10 = 0x210. <code>10(%rax)</code> adds only 0xA, and <code>0x16(%rax)</code> adds 22.'},
+{prompt:'Type decimal 20 in hex.',m:null,input:true,expect:'0x14',hint:'20 = 16 + 4, and 16 is 0x10.',traps:[{v:'0x20',msg:'0x20 is 32. Convert first: 20 = 16 + 4.'}],explain:'20 = 16 + 4 = 0x10 + 0x4 = 0x14.'}
+]},
+
+{id:'idx',sec:'p2',name:'Add an index',short:'Index',shuffleOpts:true,
+defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?',hint:'Add the base and the index (and the displacement, if there is one), then look it up.'},
+lesson:`<p>Two registers inside the parentheses: the first is the <b>base</b> and the second is the <b>index</b>. Add them to get the address. For example, <code>(%rax,%rsi)</code> points to 0x200 + 0x4 = 0x204.</p>
+<p>With a displacement in front, add all three.</p>`+
+workedHTML('8(%rax,%rsi)','practice')+
+`<p class="fine">From your slides: with <code>%edx</code> = 0xF000 and <code>%ecx</code> = 0x100, <code>(%edx,%ecx)</code> points to 0xF000 + 0x100 = 0xF100.</p>`,
+qs:[
+{op:'(%rax,%rsi)',ask:'address',prompt:'What address does this point to?',options:['0x204','0x200','0x4'],answer:0},
+{op:'(%rax,%rsi)',options:['0xC3','0x5A','0x204'],answer:0},
+{op:'(%rsp,%rsi)',options:['0x8E','0x17','0x2D'],answer:0},
+{op:'8(%rax,%rsi)',options:['0x8E','0x17','0xC3'],answer:0},
+{prompt:'In <code>(%rbp,%rdx)</code>, which register is the index?',m:null,options:['%rbp','%rdx'],answer:1,explain:'The first register is the base and the second is the index.'},
+{op:'(%rbx,%rsi)',options:['0x2D','0x8E','0x210'],answer:0},
+{op:'4(%rbx,%rsi)',input:true,prompt:'Type the value this operand gives.'},
+{op:'-4(%rbp,%rsi)',input:true,prompt:'Type the value this operand gives.',hint:'The −4 and the index cancel out.'}
+]},
+
+{id:'scale',sec:'p2',name:'Scale the index',short:'Scale',shuffleOpts:true,
+defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?',hint:'Multiply the index by the scale first. Then add the base and the displacement.'},
+lesson:`<p>A third number inside the parentheses is the <b>scale</b>. Multiply the index by it first, then add everything. The scale can only be 1, 2, 4 or 8.</p>
+<div class="formula" role="img" aria-label="D(Rb,Ri,S) points to the address Rb + Ri × S + D"><span><span class="fD">D</span>(<span class="fB">Rb</span>,<span class="fI">Ri</span>,<span class="fS">S</span>)</span><span class="fa" aria-hidden="true">→</span><span>address = <span class="fB">Rb</span> + <span class="fI">Ri</span> × <span class="fS">S</span> + <span class="fD">D</span></span></div>`+
+workedHTML('(%rax,%rdx,4)','practice')+
+`<p>Any part that's left out counts as 0, and a missing scale counts as 1. A comma right after the opening parenthesis means there's no base, so <code>(,%rdi,4)</code> points to just 0x80 × 4 = 0x200.</p>
+<div class="tip"><span class="tl">Multiplying hex</span>Go right to left, one digit at a time, and carry every 16. For 0x80 × 4: 0 × 4 = 0, then 8 × 4 = 32, which is 0x20. So the result is 0x200.</div>
+<div class="tip"><span class="tl">Why only 1, 2, 4, 8?</span>They're the sizes of data types: a char is 1 byte, a short 2, an int 4, and a long or pointer 8. So <code>(%rax,%rcx,4)</code> finds item number <code>%rcx</code> in an array of ints that starts at <code>%rax</code>.</div>
+<p>Your slide adds one more rule: any register can be the base, but <code>%rsp</code> can't be the index.</p>
+<details class="ref"><summary>The examples from your slide</summary><p class="fine">With <code>%edx</code> = 0xF000 and <code>%ecx</code> = 0x100:</p><div class="tbl-wrap"><table class="t"><thead><tr><th>Expression</th><th>Computation</th><th>Address</th></tr></thead><tbody>
+<tr><td class="c">0x8(%edx)</td><td class="c">0xF000 + 0x8</td><td class="c">0xF008</td></tr>
+<tr><td class="c">(%edx,%ecx)</td><td class="c">0xF000 + 0x100</td><td class="c">0xF100</td></tr>
+<tr><td class="c">(%edx,%ecx,4)</td><td class="c">0xF000 + 4 × 0x100</td><td class="c">0xF400</td></tr>
+<tr><td class="c">0x80(,%edx,2)</td><td class="c">2 × 0xF000 + 0x80</td><td class="c">0x1E080</td></tr>
+</tbody></table></div></details>
+<details class="ref"><summary>Every form in one table (like Figure 3.3 in your textbook)</summary><div class="tbl-wrap"><table class="t"><thead><tr><th>Form</th><th>Gives you</th><th>Name</th></tr></thead><tbody>
+<tr><td class="c">$Imm</td><td>the number Imm</td><td>Immediate</td></tr>
+<tr><td class="c">%r</td><td>what's in register r</td><td>Register</td></tr>
+<tr><td class="c">Imm</td><td>memory at Imm</td><td>Absolute</td></tr>
+<tr><td class="c">(Rb)</td><td>memory at Rb</td><td>Indirect</td></tr>
+<tr><td class="c">D(Rb)</td><td>memory at Rb + D</td><td>Base + displacement</td></tr>
+<tr><td class="c">(Rb,Ri)</td><td>memory at Rb + Ri</td><td>Indexed</td></tr>
+<tr><td class="c">D(Rb,Ri)</td><td>memory at Rb + Ri + D</td><td>Indexed</td></tr>
+<tr><td class="c">(,Ri,S)</td><td>memory at Ri × S</td><td>Scaled indexed</td></tr>
+<tr><td class="c">D(,Ri,S)</td><td>memory at Ri × S + D</td><td>Scaled indexed</td></tr>
+<tr><td class="c">(Rb,Ri,S)</td><td>memory at Rb + Ri × S</td><td>Scaled indexed</td></tr>
+<tr><td class="c">D(Rb,Ri,S)</td><td>memory at Rb + Ri × S + D</td><td>Scaled indexed</td></tr>
+</tbody></table></div></details>`,
+qs:[
+{op:'(%rax,%rdx,4)',ask:'address',prompt:'What address does this point to?',options:['0x20C','0x203','0x212'],answer:0,traps:[{v:'0x212',msg:'3 × 4 is twelve in decimal. Convert it before adding: 12 = 0xC.'}]},
+{op:'(%rax,%rsi,4)',options:['0x2D','0xC3','0x210'],answer:0},
+{op:'(,%rdi,4)',options:['0x5A','0x80','0x200'],answer:0,hint:'Nothing before the first comma means there\'s no base. Just multiply.',traps:[{v:'0x80',msg:'That\'s just what\'s in %rdi. Multiply it by 4 to get the address, then look it up.'}]},
+{op:'0x8(,%rdi,4)',options:['0x17','0x5A','0x208'],answer:0},
+{prompt:'Which scale is not allowed?',m:null,keep:true,options:['2','3','4','8'],answer:1,explain:'The scale can only be 1, 2, 4 or 8.'},
+{prompt:'Why can the scale only be 1, 2, 4 or 8?',m:null,code:false,options:['They\'re the sizes of data types, so the index can step through an array','The CPU can only multiply by even numbers','They\'re the only numbers that fit in one hex digit'],answer:0,explain:'A char is 1 byte, a short 2, an int 4, and a long or pointer 8. In <code>(%rax,%rcx,4)</code>, <code>%rcx</code> can count through an array of 4-byte ints.'},
+{prompt:'Which register can\'t be the index?',m:null,options:['%rsp','%rbp','%rax','%rdi'],answer:0,explain:'Your slide says the index can be any register except <code>%rsp</code> (or <code>%esp</code>). It can still be the base.'},
+{op:'4(%rax,%rdx,4)',input:true,prompt:'Type the value this operand gives.'},
+{op:'-4(%rbp,%rcx,8)',input:true,prompt:'Type the value this operand gives.',hint:'1 × 8 = 8. Then subtract 4.'}
+]},
+
+{id:'fig1',sec:'p2',name:'Class Q1–Q3',short:'Class Q1–Q3',
+defaults:{m:'fig1',ask:'value',input:true},
+lesson:`<p>These are the questions from In-Class Practice 2 that use Figure 1. Type each answer the way you'd write it on the worksheet.</p>`+
+machineHTML(MACHINES.fig1)+
+`<div class="tip"><span class="tl">Check your math</span>Every address in these questions lands on a row of the memory table. If yours doesn't, recheck the address math before you look anything up.</div>`,
+qs:[
+{tag:'From class · Q1',m:null,input:false,code:true,prompt:'Which of these is an appropriate representation of an immediate operand in the AT&amp;T format?',options:['267','(%0x10AC)','0xF10ABC','(0x123A)','$0354'],answer:4,hint:'Immediates have one special character in front.',explain:'Immediates start with <code>$</code>. Without it, <code>267</code> and <code>0xF10ABC</code> would be memory addresses, and the ones in parentheses aren\'t immediates either.'},
+{tag:'From class · Q1',op:'$0x2F40044C',prompt:'What value is contained in this operand?',hint:'Look at the first character.'},
+{tag:'From class · Q1',op:'%rbx',prompt:'What value is contained in this operand?',hint:'It\'s a register with no parentheses.'},
+{tag:'From class · Q1',op:'0x2F400450',prompt:'What value is contained in this operand?',hint:'No $ means it\'s an address.'},
+{tag:'From class · Q1',op:'(%rax)',prompt:'What value is contained in this operand?',hint:'%rax holds an address. Look it up.'},
+{tag:'From class · Q2',op:'0x04 (%rax)',prompt:'What value is at this operand\'s effective address?',hint:'Add 0x04 to %rax, then look it up.'},
+{tag:'From class · Q2',op:'(%rbp, %rdi)',prompt:'What value is at this operand\'s effective address?',hint:'Base plus index: 0x2F400000 + 0x458.'},
+{tag:'From class · Q2',op:'0x10 (%rax, %rsi)',prompt:'What value is at this operand\'s effective address?',hint:'Add all three: base, index and displacement.'},
+{tag:'From class · Q2',op:'(, %rsp, 4)',prompt:'What value is at this operand\'s effective address?',hint:'There\'s no base. Multiply 0xBD00110 by 4 one digit at a time from the right, and carry every 16.',explain:MULT_EXPLAIN},
+{tag:'From class · Q3',op:'0x08 (%rsi, %rsp, 4)',prompt:'What content is contained at this effective address?',hint:'%rsp × 4 is the same as in the (, %rsp, 4) question. Then add %rsi and 0x08.',explain:'%rsp × 4 = 0x2F400440, as in the (, %rsp, 4) question. Then add 0x04 and 0x08.'}
+]},
+
+{id:'q4',sec:'p2',name:'Class Q4',short:'Class Q4',
+defaults:{m:'q4',ask:'value',input:true,tag:'From class · Q4',prompt:'What value does this operand give?'},
+lesson:`<p>Question 4 has its own small table. Watch for the two classic traps: a <code>$</code> or no <code>$</code>, and displacements written in decimal.</p>`+
+machineHTML(MACHINES.q4),
+qs:[
+{op:'%rax',hint:'It\'s a register with no parentheses.'},
+{op:'0x104',hint:'No $ means it\'s an address.'},
+{op:'$0x108',hint:'Look at the first character.'},
+{op:'(%rax)',hint:'%rax holds an address. Look it up.'},
+{op:'4(%rax)',hint:'Add 4 to %rax, then look it up.'},
+{op:'9(%rax, %rdx)',hint:'9 + 3 = 12, and 12 is 0xC in hex.'},
+{op:'260(%rcx, %rdx)',hint:'260 has no 0x, so it\'s decimal. 256 is 0x100.'},
+{op:'0xFC(, %rcx, 4)',hint:'There\'s no base. 0x1 × 4 = 0x4, then add 0xFC. Watch the carry.',explain:'0xFC + 0x4: C + 4 = 16, which is 0x10, so write 0 and carry 1. Then F + 1 = 16 again, so write 0 and carry 1. The result is 0x100.'},
+{op:'(%rax, %rdx, 4)',hint:'0x3 × 4 = 12 = 0xC.'}
+]},
+
+/* ===== Part 3 · Control Flow ===== */
+{id:'cmpdir',sec:'p3',name:'Which way does cmp subtract?',short:'cmp order',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>Part 3 is about changing what runs next. It starts with one instruction that does a subtraction and then throws the answer away.</p>
+<p><code>cmp S1, S2</code> computes <b>S2 − S1</b>, second minus first. It doesn't store the result anywhere. It only records four facts about the result, called the <b>condition codes</b> or flags. The next levels cover them one at a time.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Instruction</th><th>Computes</th><th>Stores the result?</th></tr></thead><tbody>
+<tr><td class="c">cmpl %esi, %edi</td><td class="c">%edi − %esi</td><td>No, only the flags</td></tr>
+<tr><td class="c">subl %esi, %edi</td><td class="c">%edi − %esi</td><td>Yes, into %edi</td></tr>
+<tr><td class="c">testl %esi, %edi</td><td class="c">%edi &amp; %esi <span class="none">(bitwise AND)</span></td><td>No, only the flags</td></tr>
+</tbody></table></div>
+<p>Your slide says it in capitals: NOTE REVERSED ORDERING. <code>cmpl %eax, %ecx</code> means "compare %ecx with %eax", so it computes %ecx − %eax. Same direction as <code>sub</code>, where the destination is the one that gets subtracted from.</p>
+<div class="tip"><span class="tl">From your slide</span>With %rax = 5 and %rbx = 10: <code>cmpq %rax, %rbx</code> computes 10 − 5, and <code>cmpq %rbx, %rax</code> computes 5 − 10.</div>
+<p class="fine">Two new byte names show up in Part 3. In 64-bit code, the low byte of %rdi is <code>%dil</code> and the low byte of %rsi is <code>%sil</code>. Function arguments arrive as a in %rdi and b in %rsi, which the worksheet uses.</p>`,
+qs:[
+{instr:'cmpl %esi, %edi',plain:true,prompt:'What does this compute?',options:['%edi − %esi','%esi − %edi','%edi + %esi'],answer:0,hint:'Second minus first.',explain:'cmp computes second minus first: <code>%edi − %esi</code>.'},
+{instr:'cmpl %esi, %edi',plain:true,prompt:'With a in <code>%edi</code> and b in <code>%esi</code>, what does this compute?',options:['a − b','b − a','a &amp; b'],answer:0,explain:'<code>%edi − %esi</code>, and %edi holds a, so it\'s a − b. This is the setup in worksheet Q2.'},
+{instr:'cmpb %rdi, %rsi',plain:true,prompt:'With a in <code>%rdi</code> and b in <code>%rsi</code>, what does this compute?',options:['b − a','a − b','a + b'],answer:0,hint:'Second minus first. Which argument is second here?',explain:'Second minus first is <code>%rsi − %rdi</code>, which is b − a. Worksheet Q1 is written this way, so the subtraction goes the other direction from Q2.'},
+{instr:'cmpl %esi, %edi',plain:true,prompt:'After this runs, what\'s in <code>%edi</code>?',code:false,options:['The same value as before','a − b','0'],answer:0,hint:'cmp throws the result away.',explain:'cmp only sets the flags. Neither operand changes.'},
+{prompt:'Which instruction changes <code>%edi</code>?',options:['subl %esi, %edi','cmpl %esi, %edi','testl %esi, %edi'],answer:0,explain:'<code>sub</code> stores the difference in its destination. <code>cmp</code> and <code>test</code> only set the flags.'},
+{instr:'testl %eax, %eax',plain:true,prompt:'What does this compute?',code:false,options:['%eax &amp; %eax, which is just %eax','%eax − %eax, which is 0','%eax + %eax'],answer:0,hint:'test uses AND, not subtraction.',explain:'<code>test</code> ANDs the two operands. A value ANDed with itself is itself, so this just checks whether <code>%eax</code> is zero or negative.'},
+{instr:'cmpq %rbx, %rax',plain:true,prompt:'With %rax = 5 and %rbx = 10, what does this compute?',options:['5 − 10','10 − 5','5 + 10'],answer:0,explain:'Second minus first: <code>%rax − %rbx</code> = 5 − 10. This is the second question on your slide.'},
+{prompt:'Which instructions set the flags without storing a result?',code:false,options:['cmp and test','sub and add','mov and lea'],answer:0,explain:'<code>cmp</code> and <code>test</code> exist only to set flags. <code>sub</code> and <code>add</code> set flags too, but they also store their result. <code>mov</code> and <code>lea</code> don\'t touch the flags at all.'}
+]},
+
+{id:'zfsf',sec:'p3',name:'ZF and SF',short:'ZF and SF',shuffleOpts:true,
+defaults:{m:null,only:['ZF','SF']},
+lesson:`<p>After cmp, sub, add or test, the CPU records four one-bit flags. Start with the two that only look at the result itself.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Flag</th><th>Name</th><th>Set to 1 when</th></tr></thead><tbody>
+<tr><td class="c">ZF</td><td>zero flag</td><td>the result is exactly zero</td></tr>
+<tr><td class="c">SF</td><td>sign flag</td><td>the result is negative as a signed number. SF is a copy of the result's top bit.</td></tr>
+</tbody></table></div>`+
+flagsWorked({op:'cmp',bits:32,text:'cmpl %eax, %ebx',s1:{reg:'%eax',val:'5'},s2:{reg:'%ebx',val:'10'}},{only:['ZF','SF']})+
+flagsWorked({op:'cmp',bits:32,text:'cmpl %ebx, %eax',s1:{reg:'%ebx',val:'10'},s2:{reg:'%eax',val:'5'}},{only:['ZF','SF']})+
+`<div class="tip"><span class="tl">test with itself</span><code>testl %edi, %edi</code> ANDs a register with itself, which gives the register back unchanged. So ZF = 1 exactly when the register is zero, and SF = 1 exactly when it's negative. Loops use this constantly.</div>`,
+qs:[
+{fl:{op:'cmp',bits:32,text:'cmpl %eax, %ebx',s1:{reg:'%eax',val:'5'},s2:{reg:'%ebx',val:'10'}},prompt:'After this, what is ZF?',options:['ZF = 0','ZF = 1'],answer:0,hint:'Second minus first. Is the result zero?',explain:'10 − 5 = 5, which isn\'t zero.'},
+{fl:{op:'cmp',bits:32,text:'cmpl %ebx, %eax',s1:{reg:'%ebx',val:'10'},s2:{reg:'%eax',val:'5'}},prompt:'After this, what is SF?',options:['SF = 1','SF = 0'],answer:0,hint:'5 − 10 is negative.',explain:'5 − 10 = −5, a negative result, so SF = 1.'},
+{fl:{op:'cmp',bits:32,text:'cmpl %esi, %edi',s1:{label:'b',reg:'%esi',val:'49'},s2:{label:'a',reg:'%edi',val:'49'}},prompt:'After this, what is ZF?',options:['ZF = 1','ZF = 0'],answer:0,explain:'49 − 49 = 0, so ZF = 1. Equal operands always set ZF.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'14'},s2:{label:'b',reg:'%sil',val:'37'}},prompt:'After this, what is SF?',options:['SF = 0','SF = 1'],answer:0,hint:'This computes b − a.',explain:'b − a = 37 − 14 = 23, positive, so SF = 0.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %sil, %dil',s1:{label:'b',reg:'%sil',val:'37'},s2:{label:'a',reg:'%dil',val:'14'}},prompt:'Same values, operands swapped. What is SF now?',options:['SF = 1','SF = 0'],answer:0,hint:'Now it computes a − b.',explain:'a − b = 14 − 37 = −23, negative, so SF = 1. Swapping the operands flips the sign.'},
+{fl:{op:'cmp',bits:32,text:'cmpl %esi, %edi',s1:{label:'b',reg:'%esi',val:'7'},s2:{label:'a',reg:'%edi',val:'7'}},flags:['ZF','SF'],prompt:'Set ZF and SF.',hint:'a − b = 0.'},
+{fl:{op:'cmp',bits:32,text:'cmpl %esi, %edi',s1:{label:'b',reg:'%esi',val:'8'},s2:{label:'a',reg:'%edi',val:'3'}},flags:['ZF','SF'],prompt:'Set ZF and SF.',hint:'a − b = 3 − 8.'},
+{fl:{op:'test',bits:32,text:'testl %edi, %edi',s1:{reg:'%edi',val:'0'},s2:{reg:'%edi',val:'0'}},prompt:'%edi holds 0. After this, what is ZF?',options:['ZF = 1','ZF = 0'],answer:0,hint:'0 & 0 = 0.',explain:'test ANDs %edi with itself: 0 & 0 = 0, so ZF = 1. This is how a loop checks whether a counter has hit zero.'},
+{fl:{op:'test',bits:32,text:'testl %edi, %edi',s1:{reg:'%edi',val:'-3'},s2:{reg:'%edi',val:'-3'}},prompt:'%edi holds −3. After this, what are ZF and SF?',code:false,options:['ZF = 0, SF = 1','ZF = 1, SF = 0','ZF = 0, SF = 0'],answer:0,hint:'A value ANDed with itself is itself.',explain:'−3 & −3 = −3. Not zero, so ZF = 0, and negative, so SF = 1.'}
+]},
+
+{id:'cf',sec:'p3',name:'CF: the unsigned borrow',short:'Carry flag',shuffleOpts:true,
+defaults:{m:null,only:['CF']},
+lesson:`<p>CF is about <b>unsigned</b> math. Every byte has two readings: unsigned (0 to 255) and signed (−128 to 127). The top bit decides. If a byte is 0x80 or more, its signed reading is negative, and equals the unsigned reading minus 256.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Byte</th><th>Unsigned</th><th>Signed</th></tr></thead><tbody>
+<tr><td class="c">0x53</td><td>83</td><td>+83</td></tr>
+<tr><td class="c">0x7F</td><td>127</td><td>+127</td></tr>
+<tr><td class="c">0x80</td><td>128</td><td>−128</td></tr>
+<tr><td class="c">0xAA</td><td>170</td><td>−86</td></tr>
+<tr><td class="c">0xD2</td><td>210</td><td>−46</td></tr>
+<tr><td class="c">0xFF</td><td>255</td><td>−1</td></tr>
+</tbody></table></div>
+<p><b>CF for subtraction:</b> 1 when the unsigned math goes below zero, which happens when the second value is below the first. Your slide puts it as "if the subtrahend is greater than the minuend, CF = 1". <b>CF for addition:</b> 1 when the unsigned sum is bigger than 255, so a 1 carries out the top and is lost.</p>`+
+flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},{only:['CF']})+
+`<div class="tip"><span class="tl">Negative numbers in the question</span>A value like −46 is stored as the byte 0xD2, which is 210 unsigned. Convert first, then compare as unsigned.</div>`,
+qs:[
+{token:'0xAA',prompt:'As an unsigned byte, what is this?',options:['170','−86','10'],answer:0,hint:'A is 10, so 0xAA = 10 × 16 + 10.',explain:'0xAA = 10 × 16 + 10 = 170.'},
+{token:'0xAA',prompt:'As a signed byte, what is this?',options:['−86','170','−10'],answer:0,hint:'It\'s 0x80 or more, so subtract 256.',explain:'0xAA is 0x80 or more, so its signed reading is 170 − 256 = −86.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},prompt:'After this, what is CF?',options:['CF = 1','CF = 0'],answer:0,hint:'b − a as unsigned: 83 − 170.',explain:'Unsigned, 83 − 170 goes below zero, so there\'s a borrow and CF = 1.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %sil, %dil',s1:{label:'b',reg:'%sil',val:'0x53'},s2:{label:'a',reg:'%dil',val:'0xaa'}},prompt:'Same values, operands swapped. What is CF now?',options:['CF = 0','CF = 1'],answer:0,hint:'Now it\'s a − b: 170 − 83.',explain:'Unsigned, 170 − 83 = 87 stays above zero, so CF = 0.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x10'},s2:{label:'b',reg:'%sil',val:'0x10'}},prompt:'After this, what is CF?',options:['CF = 0','CF = 1'],answer:0,explain:'16 − 16 = 0. Nothing went below zero, so no borrow. Equal values never set CF.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},prompt:'After this, what is CF?',options:['CF = 0','CF = 1'],answer:0,hint:'Convert first: −46 is the byte 0xD2 = 210, and −101 is 0x9B = 155.',explain:'As unsigned bytes, b = 210 and a = 155. 210 − 155 = 55 stays above zero, so CF = 0. This is the last case in worksheet Q1.'},
+{fl:{op:'add',bits:8,text:'addb $1, %al',s1:{label:'$1',val:'1'},s2:{reg:'%al',val:'0xff'}},prompt:'%al holds 0xFF. After this, what is CF?',options:['CF = 1','CF = 0'],answer:0,hint:'255 + 1 doesn\'t fit in a byte.',explain:'255 + 1 = 256, which needs a ninth bit. That bit carries out and is lost, so CF = 1 and %al becomes 0x00. Your slide shows the same thing with 1111 + 0001.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x80'},s2:{label:'b',reg:'%sil',val:'0x7f'}},flags:['CF','ZF','SF'],prompt:'Set CF, ZF and SF.',hint:'b − a: unsigned 127 − 128.'}
+]},
+
+{id:'of',sec:'p3',name:'OF: the signed overflow',short:'Overflow flag',shuffleOpts:true,
+defaults:{m:null,only:['OF']},
+lesson:`<p>OF is about <b>signed</b> math. It's 1 when the true signed answer doesn't fit in the signed range: −128 to 127 for a byte, about ±2.1 billion for a 4-byte int.</p>
+<ol class="steps"><li><b>Read both values as signed.</b> 0xAA is −86, not 170.</li><li><b>Do the real math</b>, like on paper.</li><li><b>Check the range.</b> Outside it means OF = 1.</li></ol>`+
+flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},{only:['OF']})+
+flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},{only:['OF']})+
+`<div class="tip"><span class="tl">Two shortcuts</span>Subtracting two numbers with the <b>same</b> sign can never overflow. Adding two numbers with <b>different</b> signs can never overflow. Overflow needs the real answer to be pushed past the edge, and those combinations pull it toward the middle.</div>
+<p class="fine">Your slide's formula for t = b − a: OF = (a&lt;0 &amp;&amp; b&gt;0 &amp;&amp; t&lt;0) || (a&gt;0 &amp;&amp; b&lt;0 &amp;&amp; t&gt;0). That's the same test written as sign checks. The "does it fit?" method gives the same answer and is easier to do by hand.</p>`,
+qs:[
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},prompt:'After this, what is OF?',options:['OF = 1','OF = 0'],answer:0,hint:'Signed: +83 − (−86).',explain:'Signed, +83 − (−86) = +169, which is bigger than 127, so OF = 1.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x53'},s2:{label:'b',reg:'%sil',val:'0xaa'}},prompt:'Values swapped. What is OF now?',options:['OF = 1','OF = 0'],answer:0,hint:'Signed: −86 − (+83).',explain:'Signed, −86 − 83 = −169, which is below −128, so OF = 1 again. Different signs, big gap, overflow in either direction.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},prompt:'After this, what is OF?',options:['OF = 0','OF = 1'],answer:0,hint:'Both negative. Can same-sign subtraction overflow?',explain:'−46 − (−101) = +55, which fits. Same-sign subtraction never overflows.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'49'},s2:{label:'b',reg:'%sil',val:'49'}},prompt:'After this, what is OF?',options:['OF = 0','OF = 1'],answer:0,explain:'49 − 49 = 0 fits comfortably, so OF = 0.'},
+{fl:{op:'add',bits:8,text:'addb $1, %al',s1:{label:'$1',val:'1'},s2:{reg:'%al',val:'0x7f'}},prompt:'%al holds 0x7F. After this, what is OF?',options:['OF = 1','OF = 0'],answer:0,hint:'127 + 1 as a signed byte.',explain:'+127 + 1 = +128, which doesn\'t fit in −128 to 127, so OF = 1. The stored byte 0x80 reads as −128. Notice CF = 0 here: unsigned, 127 + 1 = 128 is fine.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x7f'},s2:{label:'b',reg:'%sil',val:'0xff'}},prompt:'After this, what is OF?',options:['OF = 0','OF = 1'],answer:0,hint:'Signed: −1 − 127. Does −128 fit?',explain:'−1 − 127 = −128, which is the smallest byte value, so it still fits. OF = 0.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x01'},s2:{label:'b',reg:'%sil',val:'0x80'}},flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.',hint:'Unsigned: 128 − 1. Signed: −128 − 1.'},
+{prompt:'Can <code>b − a</code> overflow when a and b are both negative?',code:false,options:['No. Same-sign subtraction never overflows.','Yes, whenever the result is positive.','Yes, whenever CF is also set.'],answer:0,explain:'Two negatives are at most 127 apart, so their difference always fits.'}
+]},
+
+{id:'allflags',sec:'p3',name:'All four flags',short:'All four flags',
+defaults:{m:null,flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.'},
+lesson:`<p>Now run the whole checklist on one instruction.</p>
+<ol class="steps"><li><b>What gets computed?</b> cmp: second minus first.</li><li><b>Convert both values</b> to hex, unsigned and signed.</li><li><b>Work out the result</b> as a byte.</li><li><b>ZF and SF</b> come from the result. <b>CF</b> comes from the unsigned math. <b>OF</b> comes from the signed math.</li></ol>`+
+flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}})+
+`<div class="tip"><span class="tl">test is simpler</span>After <code>test</code>, CF and OF are always 0. Only ZF and SF can be 1, based on the AND result.</div>`,
+qs:[
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'14'},s2:{label:'b',reg:'%sil',val:'37'}},hint:'b − a = 23. Nothing unusual happens.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},hint:'This is the worked example from the lesson.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'49'},s2:{label:'b',reg:'%sil',val:'49'}},hint:'Equal values.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},hint:'Convert both negatives to bytes first.'},
+{fl:{op:'cmp',bits:32,text:'cmpl %ebx, %eax',s1:{reg:'%ebx',val:'10'},s2:{reg:'%eax',val:'5'}},hint:'5 − 10. Your slide\'s answer was CF and SF.'},
+{fl:{op:'test',bits:32,text:'testl %eax, %ebx',s1:{reg:'%eax',val:'5'},s2:{reg:'%ebx',val:'10'}},hint:'5 is 0101 and 10 is 1010 in binary.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x90'},s2:{label:'b',reg:'%sil',val:'0x90'}},hint:'Equal, and both negative as signed.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x01'},s2:{label:'b',reg:'%sil',val:'0x00'}},hint:'0 − 1 wraps around.'}
+]},
+
+{id:'setx',sec:'p3',name:'SET: flags into a byte',short:'SET',shuffleOpts:true,
+defaults:{m:null},
+lesson:`<p>A <code>setX</code> instruction turns the flags into a 0 or 1 in a byte register, usually <code>%al</code>. The letters after <code>set</code> say which condition to check.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>setX</th><th>Condition</th><th>Meaning</th></tr></thead><tbody>
+<tr><td class="c">sete</td><td class="c">ZF</td><td>Equal / zero</td></tr>
+<tr><td class="c">setne</td><td class="c">~ZF</td><td>Not equal / not zero</td></tr>
+<tr><td class="c">sets</td><td class="c">SF</td><td>Negative</td></tr>
+<tr><td class="c">setns</td><td class="c">~SF</td><td>Nonnegative</td></tr>
+<tr><td class="c">setg</td><td class="c">~(SF^OF) &amp; ~ZF</td><td>Greater (signed)</td></tr>
+<tr><td class="c">setge</td><td class="c">~(SF^OF)</td><td>Greater or equal (signed)</td></tr>
+<tr><td class="c">setl</td><td class="c">SF^OF</td><td>Less (signed)</td></tr>
+<tr><td class="c">setle</td><td class="c">(SF^OF) | ZF</td><td>Less or equal (signed)</td></tr>
+<tr><td class="c">seta</td><td class="c">~CF &amp; ~ZF</td><td>Above (unsigned)</td></tr>
+<tr><td class="c">setae</td><td class="c">~CF</td><td>Above or equal (unsigned)</td></tr>
+<tr><td class="c">setb</td><td class="c">CF</td><td>Below (unsigned)</td></tr>
+<tr><td class="c">setbe</td><td class="c">CF | ZF</td><td>Below or equal (unsigned)</td></tr>
+</tbody></table></div>
+<div class="tip"><span class="tl">The naming pattern</span><b>e</b> equal, <b>ne</b> not equal, <b>s</b> sign. <b>g</b>reater and <b>l</b>ess are the <b>signed</b> compares, using SF and OF. <b>a</b>bove and <b>b</b>elow are the <b>unsigned</b> compares, using CF. Adding <b>e</b> means "or equal", which brings ZF in.</div>
+<p>Why SF^OF means "less"? If there was no overflow, a negative result means less. If there was an overflow, the sign bit is backwards, so flip it. XOR with OF does exactly that.</p>`+
+flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},{set:'setb',only:['CF','ZF']})+
+`<p class="fine">set only writes one byte and leaves the other bytes of the register alone, so compilers usually follow it with <code>movzbl %al, %eax</code> to zero the rest. ~ means NOT, ^ means XOR, &amp; means AND and | means OR.</p>`,
+qs:[
+{given:{CF:0,ZF:1,SF:0,OF:0},cond:'sete',instr:'sete %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 1','%al = 0'],answer:0,hint:'sete uses ZF.',explain:'sete copies ZF, and ZF is 1.'},
+{given:{CF:1,ZF:0,SF:1,OF:1},cond:'setb',instr:'setb %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 1','%al = 0'],answer:0,hint:'setb uses CF.',explain:'setb copies CF, and CF is 1.'},
+{given:{CF:1,ZF:0,SF:1,OF:1},cond:'setl',instr:'setl %al',plain:true,prompt:'Same flags. What does <code>setl</code> put in <code>%al</code>?',options:['%al = 0','%al = 1'],answer:0,hint:'setl uses SF^OF. 1^1 is 0.',explain:'setl is SF^OF = 1^1 = 0. The same flags gave setb a 1, so these values are below as unsigned but not less as signed. That\'s 0x53 vs 0xAA again.'},
+{given:{CF:0,ZF:0,SF:1,OF:0},cond:'setg',instr:'setg %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 0','%al = 1'],answer:0,hint:'SF is 1 with no overflow, so the result was really negative.',explain:'setg is ~(SF^OF) &amp; ~ZF = ~(1^0) &amp; ~0 = 0 &amp; 1 = 0. A negative result without overflow means less, not greater.'},
+{prompt:'Which instruction means "greater than, unsigned"?',code:true,options:['seta','setg','setge','setb'],answer:0,hint:'above and below are the unsigned words.',explain:'<b>a</b>bove is the unsigned greater-than. <code>setg</code> is the signed one.'},
+{prompt:'Which instruction means "less than or equal, signed"?',code:true,options:['setle','setbe','setl','setb'],answer:0,hint:'less is signed, and e adds "or equal".',explain:'<b>l</b>ess is signed, and the <b>e</b> adds "or equal". <code>setbe</code> is the unsigned version.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'14'},s2:{label:'b',reg:'%sil',val:'37'}},flags:['CF','ZF','SF','OF'],set:'setne',prompt:'Set the flags, then what <code>setne %al</code> gives.',hint:'b − a = 23. Not equal.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},flags:['CF','ZF','SF','OF'],set:'setb',prompt:'Set the flags, then what <code>setb %al</code> gives.',hint:'setb copies CF.'},
+{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'49'},s2:{label:'b',reg:'%sil',val:'49'}},flags:['CF','ZF','SF','OF'],set:'setge',prompt:'Set the flags, then what <code>setge %al</code> gives.',hint:'setge is ~(SF^OF). Equal counts as "or equal".'},
+{prompt:'After <code>setl %al</code>, what does <code>movzbl %al, %eax</code> do?',code:false,options:['Zeroes the upper 3 bytes of %eax, so the whole register is 0 or 1','Moves %eax into %al','Sets %eax to −1'],answer:0,explain:'set writes only one byte. movzbl copies that byte into the full register and fills the rest with zeros, so the function can return a clean 0 or 1.'}
+]},
+
+{id:'jumps',sec:'p3',name:'Jumps: same letters',short:'Jumps',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>A <code>jX label</code> instruction jumps to the label when its condition is true. Otherwise execution falls through to the next instruction. The conditions are the same ones setX uses, with the same letters.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>jX</th><th>Synonym</th><th>Condition</th><th>Meaning</th></tr></thead><tbody>
+<tr><td class="c">jmp</td><td></td><td class="c">1</td><td>Always</td></tr>
+<tr><td class="c">je</td><td class="c">jz</td><td class="c">ZF</td><td>Equal / zero</td></tr>
+<tr><td class="c">jne</td><td class="c">jnz</td><td class="c">~ZF</td><td>Not equal / not zero</td></tr>
+<tr><td class="c">js</td><td></td><td class="c">SF</td><td>Negative</td></tr>
+<tr><td class="c">jns</td><td></td><td class="c">~SF</td><td>Nonnegative</td></tr>
+<tr><td class="c">jg</td><td class="c">jnle</td><td class="c">~(SF^OF) &amp; ~ZF</td><td>Greater (signed)</td></tr>
+<tr><td class="c">jge</td><td class="c">jnl</td><td class="c">~(SF^OF)</td><td>Greater or equal (signed)</td></tr>
+<tr><td class="c">jl</td><td class="c">jnge</td><td class="c">SF^OF</td><td>Less (signed)</td></tr>
+<tr><td class="c">jle</td><td class="c">jng</td><td class="c">(SF^OF) | ZF</td><td>Less or equal (signed)</td></tr>
+<tr><td class="c">ja</td><td class="c">jnbe</td><td class="c">~CF &amp; ~ZF</td><td>Above (unsigned)</td></tr>
+<tr><td class="c">jae</td><td class="c">jnb, jnc</td><td class="c">~CF</td><td>Above or equal (unsigned)</td></tr>
+<tr><td class="c">jb</td><td class="c">jnae, jc</td><td class="c">CF</td><td>Below (unsigned)</td></tr>
+<tr><td class="c">jbe</td><td class="c">jna</td><td class="c">CF | ZF</td><td>Below or equal (unsigned)</td></tr>
+</tbody></table></div>
+<div class="tip"><span class="tl">Fake names</span>There is no <code>jlt</code>, <code>jgt</code>, <code>jeq</code>, <code>jet</code> or <code>jlte</code>. The real letters are <b>e, ne, s, ns, g, ge, l, le, a, ae, b, be</b>. Your worksheet lists fake names as answer choices, so this is the same "real or fake" game as Part 1's registers.</div>`,
+qs:[
+{prompt:'Which jump means "greater than, unsigned"?',options:['ja','jg','jgt','jae'],answer:0,hint:'above is unsigned.',explain:'<b>a</b>bove is the unsigned greater-than. <code>jg</code> is signed, and <code>jgt</code> doesn\'t exist.'},
+{prompt:'Which jump means "less than or equal, signed"?',options:['jle','jbe','jl','jlte'],answer:0,hint:'less is signed, e adds or-equal.',explain:'<b>l</b>ess is signed and <b>e</b> adds "or equal". <code>jbe</code> is the unsigned one. <code>jlte</code> doesn\'t exist.'},
+{prompt:'Which jump means "less than, unsigned"?',options:['jb','jl','jlt','jbe'],answer:0,hint:'below is unsigned.',explain:'<b>b</b>elow is the unsigned less-than. <code>jl</code> is signed, and <code>jlt</code> doesn\'t exist.'},
+{token:'jlt',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,hint:'Check the letters: is "lt" on the list?',explain:'Fake. Less-than is spelled <code>jl</code>. There is no "lt".'},
+{token:'jge',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:0,keep:true,explain:'Real. Greater or equal, signed.'},
+{token:'jeq',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. Equal is spelled <code>je</code> (or <code>jz</code>).'},
+{token:'jet',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. It\'s on your worksheet as a distractor.'},
+{prompt:'Which jump is the same as <code>jz</code>?',options:['je','jne','js','jmp'],answer:0,explain:'Zero and equal are the same test, ZF, so <code>jz</code> and <code>je</code> are two names for one instruction.'},
+{prompt:'Which jump always jumps, no matter the flags?',options:['jmp','je','ja','jns'],answer:0,explain:'<code>jmp</code> is unconditional. Loops use it to go back to the top.'},
+{prompt:'<code>jnb</code> is another name for which jump?',options:['jae','jb','jbe','jg'],answer:0,hint:'Not below means…',explain:'Not below is the same as above or equal, so <code>jnb</code> = <code>jae</code>.'},
+{given:{CF:0,ZF:0,SF:0,OF:0},cond:'jg',instr:'jg .L2',plain:true,prompt:'After <code>cmpl %esi, %edi</code> set these flags, does this jump?',code:false,options:['Jumps to .L2','Falls through to the next instruction'],answer:0,hint:'jg is ~(SF^OF) & ~ZF.',explain:'~(0^0) &amp; ~0 = 1, so it jumps. The compare found a greater than b.'},
+{given:{CF:1,ZF:0,SF:1,OF:0},cond:'jae',instr:'jae .L5',plain:true,prompt:'With these flags, does this jump?',code:false,options:['Falls through to the next instruction','Jumps to .L5'],answer:0,hint:'jae is ~CF.',explain:'~CF = ~1 = 0, so it falls through. CF = 1 means the unsigned compare found "below".'}
+]},
+
+{id:'ifelse',sec:'p3',name:'if/else: jump over the body',short:'if / else',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>C runs the body of an <code>if</code> when the test is true. Assembly usually does the opposite: it <b>jumps past the body when the test is false</b>. So the jump often uses the opposite condition from the C code. Always check where the label leads.</p>
+<p>Your slide's <code>absdiff</code>, with x in %edx and y in %eax:</p>`+
+codeBlock('int absdiff(int x, int y) {\n    if (x > y)  result = x - y;\n    else        result = y - x;\n}\n\n    cmpl  %eax, %edx     # x - y\n    jle   .L6            # if (x <= y) go to the else part\n    subl  %eax, %edx     # result = x - y\n    movl  %edx, %eax\n    jmp   .L7            # skip the else part\n.L6:\n    subl  %edx, %eax     # result = y - x\n.L7:')+
+`<p>The C says <code>x &gt; y</code>, but the jump is <code>jle</code>, because it goes to the <b>else</b> part. The worksheet\'s function has the same shape, twice:</p>`+
+codeBlock('int function(int a, int b) {      // a in %edi, b in %esi\n    if (a == b) return 0;\n    if (a condition b) return a;\n    else return b;\n}\n\nfunction:\n      cmpl      %esi, %edi    # a - b\n      [[jne]]       .L1           # not equal? skip the return 0\n      xor       %eax, %eax    # return 0\n      ret\n.L1:  [[cond_jmp]]  .L2           # a condition b? go return a\n      movl      %esi, %eax    # return b\n      ret\n.L2:  movl      %edi, %eax    # return a\n      ret')+
+`<p>The first blank jumps <b>over</b> the <code>return 0</code>, so it fires when a and b are <i>not</i> equal: <code>jne</code>. The second blank jumps <b>to</b> the <code>return a</code>, so it uses the condition itself, with no flip. Since the compare computed a − b, "a &gt; b unsigned" is simply <code>ja</code>.</p>
+<div class="tip"><span class="tl">Two idioms</span><code>xor %eax, %eax</code> sets %eax to 0 (anything XOR itself is 0). And <code>cmovg %edx, %eax</code> copies %edx into %eax only if the last compare said greater, which avoids a jump entirely. Your slide uses it for absdiff.</div>`,
+qs:[
+{prompt:'In absdiff, after <code>cmpl %eax, %edx</code> (x − y), which jump goes to the <b>else</b> part of <code>if (x &gt; y)</code>?',options:['jle','jg','jl','jge'],answer:0,hint:'The jump fires when the test is false.',explain:'The else part runs when x &gt; y is false, which is x ≤ y, so <code>jle</code>.'},
+{prompt:'<code>if (a == b) return 0;</code> compiles to a compare, then a jump that <b>skips</b> the <code>return 0</code>. Which jump?',options:['jne','je','jz','jeq'],answer:0,hint:'Skip the return when they are not equal.',explain:'The jump skips the return when the test is false, so it fires when a ≠ b: <code>jne</code>. <code>jeq</code> doesn\'t exist.'},
+{instr:'xor %eax, %eax',plain:true,prompt:'What does this do?',code:false,options:['Sets %eax to 0','Flips every bit of %eax','Compares %eax with itself'],answer:0,explain:'Anything XOR itself is 0, so this is a short way to write <code>movl $0, %eax</code>. The worksheet uses it for <code>return 0</code>.'},
+{prompt:'At .L1, <code>cond_jmp .L2</code> jumps to <code>return a</code> when <code>a condition b</code> is true, after <code>cmpl %esi, %edi</code> computed a − b. If the condition is <code>a &gt; b</code> (unsigned), cond_jmp is',options:['ja','jg','jbe','jle'],answer:0,hint:'This jump goes to the then-part, so no flip. Unsigned greater is…',explain:'The jump goes to the then-part, so it uses the condition as written. Unsigned greater-than is <code>ja</code>.'},
+{prompt:'Same setup. If the condition is <code>a &lt;= b</code> (signed), cond_jmp is',options:['jle','jbe','jg','jl'],answer:0,explain:'Signed less-or-equal is <code>jle</code>.'},
+{prompt:'Same setup. If the condition is <code>a &lt; b</code> (unsigned), cond_jmp is',options:['jb','jl','jbe','jae'],answer:0,explain:'Unsigned less-than is <code>jb</code>.'},
+{prompt:'For <code>if (x &lt; y) { A } else { B }</code>, after <code>cmpl %eax, %edx</code> (x − y), which jump goes to the else part?',options:['jge','jl','jle','jg'],answer:0,hint:'Opposite of less-than.',explain:'The else part runs when x &lt; y is false, which is x ≥ y: <code>jge</code>.'},
+{instr:'cmovg %edx, %eax',plain:true,prompt:'What does this do?',code:false,options:['Copies %edx into %eax only if the last compare was greater (signed)','Always copies %edx into %eax','Jumps to the address in %edx'],answer:0,explain:'A conditional move. The copy happens only when the condition holds. Otherwise %eax keeps its value, and no jump is needed.'},
+{prompt:'Why does the compiler sometimes use <code>cmov</code> instead of a jump?',code:false,options:['Jumps disrupt the instruction pipeline. cmov doesn\'t transfer control.','cmov is faster because it skips the compare.','Jumps can\'t be used inside functions.'],answer:0,explain:'From your slide: branches are disruptive to the pipeline, and a conditional move doesn\'t need a control transfer. It only makes sense when both sides are cheap and safe to compute.'}
+]},
+
+{id:'loops',sec:'p3',name:'Loops: test, then jump out',short:'Loops',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>A <code>while</code> loop in assembly checks the condition at the top and <b>jumps out</b> when it fails. At the bottom, an unconditional <code>jmp</code> goes back to the top.</p>`+
+codeBlock('while (Test)          Loop:  if (!Test) goto Done\n    Body                      Body\n                              goto Loop\n                       Done:')+
+`<p>The worksheet\'s <code>array_sum</code>, with size in %edi and the array pointer in %esi:</p>`+
+codeBlock('int array_sum(int size, int *array) {\n    int sum = 0;\n    while (size)\n        sum += array[--size];\n    return sum;\n}\n\narray_sum:\n        xor   %eax, %eax          # sum = 0\n.L1:    [[test  %edi, %edi]]        # is size zero?\n        [[jz]]    .L2                 # yes: leave the loop\n        dec   %edi                # --size\n        add   (%esi, %edi, 4), %eax   # sum += array[size]\n        jmp   .L1                 # back to the test\n.L2:    ret')+
+`<p><code>test %edi, %edi</code> sets ZF = 1 exactly when size is 0, and <code>jz</code> (same as <code>je</code>) leaves the loop then. The <code>add</code> line is Part 2 again: base %esi, index %edi, scale 4, because ints are 4 bytes. That\'s <code>array[size]</code>.</p>
+<div class="tip"><span class="tl">do-while is the other way around</span>A do-while runs the body first, then jumps <b>back</b> while the test is still true. Your slide\'s pcount ends with <code>shrl %edx</code> then <code>jne .L2</code>: shift sets the flags, and jne loops again while x isn\'t zero.</div>`,
+qs:[
+{instr:'test %edi, %edi',plain:true,prompt:'When does this set ZF = 1?',code:false,options:['When %edi is 0','When %edi is negative','Always'],answer:0,explain:'%edi &amp; %edi is %edi, so the result is zero exactly when %edi is zero.'},
+{prompt:'In array_sum, the loop must stop when size is 0. Which jump leaves the loop after the test?',options:['jz','jnz','jmp','jg'],answer:0,hint:'Jump out when the result was zero.',explain:'<code>jz</code> jumps when ZF = 1, which test set because size was zero. <code>je</code> is the same instruction.'},
+{prompt:'Why is the test <code>test %edi, %edi</code> and not <code>test %esi, %esi</code>?',code:false,options:['size is in %edi. %esi is the array pointer, which isn\'t what the loop counts.','%esi can\'t be used with test.','Either one works the same.'],answer:0,explain:'The C says <code>while (size)</code>, and size lives in %edi. Testing the pointer would check whether the array address is zero, which is a different question.'},
+{instr:'add (%esi, %edi, 4), %eax',plain:true,prompt:'After <code>dec %edi</code>, which element does this add to the sum?',code:false,options:['array[size], at address %esi + 4 × %edi','array[0]','The address itself, not the element'],answer:0,hint:'Part 2: base + index × scale.',explain:'Base %esi, index %edi, scale 4. That\'s the address of <code>array[size]</code> with the new, decremented size, and the parentheses fetch the value stored there.'},
+{instr:'jmp .L1',plain:true,prompt:'At the bottom of the loop, what does this do?',code:false,options:['Goes back to the test at the top','Leaves the loop','Jumps only if the sum is zero'],answer:0,explain:'<code>jmp</code> is unconditional. The test at .L1 decides whether the loop continues.'},
+{prompt:'In your slide\'s do-while, <code>shrl %edx</code> is followed by <code>jne .L2</code>. When does it jump back?',code:false,options:['When x is not zero after the shift','When x is zero','Always'],answer:0,explain:'The shift sets ZF based on its result. <code>jne</code> jumps back while the result isn\'t zero, so the loop runs until every 1 bit has been shifted out.'},
+{prompt:'If size starts at 3, how many times does the <code>add</code> instruction run?',code:false,options:['3','2','4'],answer:0,hint:'Each pass decrements size before the add, and the loop stops when size hits 0.',explain:'Pass 1: size 3 → 2, add array[2]. Pass 2: 2 → 1, add array[1]. Pass 3: 1 → 0, add array[0]. Then the test sees 0 and jz leaves.'},
+{instr:'cmpl $10, %ecx',plain:true,prompt:'This is followed by <code>jl .L1</code>. When does it jump?',code:false,options:['When %ecx &lt; 10 (signed)','When %ecx &gt; 10','When 10 &lt; %ecx'],answer:0,hint:'Second minus first: %ecx − 10.',explain:'cmp computes %ecx − 10. jl means "less", so it jumps when %ecx &lt; 10 as a signed number.'},
+{prompt:'Which loop shape checks the condition <b>before</b> running the body the first time?',code:false,options:['while','do-while','Both check only at the end'],answer:0,explain:'while tests first and may run the body zero times. do-while runs the body once, then tests. Your slide turns a while into a do-while by adding an initial "if (!Test) goto done".'}
+]},
+
+{id:'cls3',sec:'p3',name:'Class Q1–Q3',short:'Class Q1–Q3',
+defaults:{m:null,flags:['CF','ZF','SF','OF']},
+lesson:`<p>These are the questions from In-Class Practice 3, in the worksheet\'s format. Q1 asks for all four flags and the byte that the set instruction produces.</p>`+
+codeBlock('byte comp(byte a, byte b);   // a in %rdi, b in %rsi\n\n    cmpb      %rdi, %rsi      # computes b - a\n    set_inst  %al\n    ret')+
+`<div class="tip"><span class="tl">A Part 1 callback</span>The worksheet writes <code>cmpb</code> with 64-bit registers. A real assembler would reject that size mismatch and want <code>cmpb %dil, %sil</code>. The math is the same either way: b − a, as bytes.</div>
+<p>Q2 and Q3 are fill-in-the-blank with the worksheet\'s answer choices, including the fake jump names.</p>`,
+qs:[
+{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'14'},s2:{label:'b',reg:'%rsi',val:'37'}},set:'setne',prompt:'Set the flags, then what <code>setne %al</code> gives.',hint:'b − a = 37 − 14.'},
+{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'0xaa'},s2:{label:'b',reg:'%rsi',val:'0x53'}},set:'setb',prompt:'Set the flags, then what <code>setb %al</code> gives.',hint:'Unsigned: 83 − 170. Signed: +83 − (−86).'},
+{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'49'},s2:{label:'b',reg:'%rsi',val:'49'}},set:'setge',prompt:'Set the flags, then what <code>setge %al</code> gives.',hint:'Equal values. setge is ~(SF^OF).'},
+{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'-101'},s2:{label:'b',reg:'%rsi',val:'-46'}},set:'seta',prompt:'Set the flags, then what <code>seta %al</code> gives.',hint:'As bytes: −46 is 0xD2 (210), −101 is 0x9B (155). seta is ~CF &amp; ~ZF.'},
+{tag:'From class · Q2',flags:null,code:true,keep:true,pre:'function:\n      cmpl        %esi, %edi    # a - b\n      [[____]]        .L1\n      xor         %eax, %eax\n      ret\n.L1:  cond_jmp    .L2\n      movl        %esi, %eax    # return b\n      ret\n.L2:  movl        %edi, %eax    # return a\n      ret',prompt:'1. The conditional jump to .L1 should be',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:7,hint:'It skips the return 0 when a and b are not equal. Four of these names are fake.',explain:'The jump skips <code>return 0</code>, so it fires when a ≠ b: <code>jne</code>. jet, jlt, jgt and jeq don\'t exist.'},
+{tag:'From class · Q2',flags:null,code:true,keep:true,prompt:'2. The greater than (unsigned) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:0,hint:'above is the unsigned word.',explain:'Unsigned greater-than is <code>ja</code>. <code>jgt</code> is a fake name.'},
+{tag:'From class · Q2',flags:null,code:true,keep:true,prompt:'3. The less than or equal to (signed) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:3,explain:'Signed less-or-equal is <code>jle</code>.'},
+{tag:'From class · Q2',flags:null,code:true,keep:true,prompt:'4. The less than (unsigned) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:2,explain:'Unsigned less-than is <code>jb</code>. <code>jlt</code> is a fake name.'},
+{tag:'From class · Q3',flags:null,code:true,keep:true,pre:'array_sum:\n        xor   %eax, %eax\n.L1:    [[[A]]]                   # test instruction\n        [[[B]]]    .L2            # conditional jump instruction\n        dec   %edi\n        add   (%esi, %edi, 4), %eax\n        jmp   .L1\n.L2:    ret',prompt:'[A] The test instruction is',options:['jz | je','jae | jnc','jb | jnae','cmp %esi, %edi','test %esi, %esi','test %edi, %edi'],answer:5,hint:'size is in %edi, and while (size) asks whether it is zero.',explain:'<code>test %edi, %edi</code> checks whether size is zero. %esi is the array pointer, so testing it would ask the wrong question.'},
+{tag:'From class · Q3',flags:null,code:true,keep:true,prompt:'[B] The conditional jump instruction is',options:['jz | je','jae | jnc','jb | jnae','cmp %esi, %edi','test %esi, %esi','test %edi, %edi'],answer:0,hint:'Leave the loop when the test found zero.',explain:'<code>jz</code> (same as <code>je</code>) jumps to .L2 when ZF = 1, which is when size hit zero.'}
+]},
+
+/* ===== Review ===== */
+{id:'mix',sec:'rev',name:'Quiz 1 mix: Parts 1–2',short:'Quiz 1 mix',shuffleOpts:true,pick:{p1:4,p2:5,both:3},
+defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?'},
+lesson:`<p>A quiz won't tell you which part a question comes from. This round mixes Parts 1 and 2 in a random order, and picks 12 new questions every time you play.</p>
+<p>Questions about values use the practice table from Levels 9–14.</p>`+machineHTML(MACHINES.practice),
+qs:[
+{grp:'p1',m:null,code:false,bd:'full',labels:true,instr:'movw %ax, %cl',prompt:'What\'s wrong with this instruction?',options:['Source operand incorrect size.','Destination operand incorrect size.','No register named %cl.','Cannot have both source and destination be registers.'],answer:1,explain:'<code>movw</code> moves 2 bytes. <code>%ax</code> is 2, but <code>%cl</code> is only 1.'},
+{grp:'p1',m:null,code:false,bd:'full',labels:true,instr:'movq %rax, $0x10',prompt:'What\'s wrong with this instruction?',options:['Cannot have immediate as destination.','Mismatch between instruction suffix and register ID.','No register named %rax.','Cannot have register as source.'],answer:0,explain:'The destination <code>$0x10</code> is a number, and you can\'t store a value into a number.'},
+{grp:'p1',m:null,code:false,bd:'full',labels:true,instr:'movl 8(%rax), (%rbx)',prompt:'What\'s wrong with this instruction?',options:['Cannot have both source and destination be memory references.','Cannot have destination be memory reference.','Mismatch between instruction suffix and register ID.','Cannot use %rax as memory reference.'],answer:0,explain:'Both operands have parentheses, so it\'s memory to memory.'},
+{grp:'p1',m:null,code:false,bd:'full',labels:true,instr:'movl %eax, %rbx',prompt:'What\'s wrong with this instruction?',options:['Source operand incorrect size.','Destination operand incorrect size.','No register named %rbx.','Cannot have both source and destination be registers.'],answer:1,explain:'<code>movl</code> moves 4 bytes. <code>%eax</code> is 4, but <code>%rbx</code> is 8.'},
+{grp:'p1',m:null,code:false,bd:'full',labels:true,instr:'movb %dl, (%rax,%rsi,4)',prompt:'Is this allowed?',options:['Yes, it\'s allowed','No, the sizes don\'t match','No, memory to memory'],answer:0,explain:'<code>%dl</code> is 1 byte, which matches <code>movb</code>. The memory operand fits any size, and there\'s only one memory operand.'},
+{grp:'p1',m:null,code:false,bd:'full',labels:true,instr:'movl (%rax,%rsi,3), %ecx',prompt:'What\'s wrong with this instruction?',options:['The scale can only be 1, 2, 4 or 8.','Destination operand incorrect size.','Cannot have source be memory reference.','Nothing. It assembles.'],answer:0,explain:'A scale of 3 isn\'t allowed. Everything else is fine.'},
+{grp:'p1',m:null,code:false,keep:true,token:'%rax',prompt:'How many bytes is this register?',options:['1 byte','2 bytes','4 bytes','8 bytes'],answer:3,explain:'The <code>r</code> registers are the full 8 bytes. <code>%eax</code> is the lower 4 bytes of <code>%rax</code>.'},
+{grp:'p1',m:null,code:false,bd:'full',labels:true,instr:'movw $0x10, %si',prompt:'Is this allowed?',options:['Yes, it\'s allowed','No, the sizes don\'t match','No register named %si.'],answer:0,explain:'<code>%si</code> is real and 2 bytes, which matches <code>movw</code>. A number fits any size.'},
+{grp:'p2',op:'0x8(%rsp)',options:['0x2D','0x17','0x210'],answer:0},
+{grp:'p2',op:'$0x214',options:['0x214','0xF0','0x2D'],answer:0},
+{grp:'p2',op:'0x204',input:true,prompt:'Type the value this operand gives.'},
+{grp:'p2',op:'(%rbp)',input:true,prompt:'Type the value this operand gives.'},
+{grp:'p2',op:'12(%rsp)',options:['0xF0','0x17','0x214'],answer:0},
+{grp:'p2',op:'(%rax,%rdx,4)',input:true,prompt:'Type the value this operand gives.'},
+{grp:'p2',op:'-8(%rbp)',input:true,prompt:'Type the value this operand gives.'},
+{grp:'p2',op:'0x14(,%rdi,4)',input:true,prompt:'Type the value this operand gives.'},
+{grp:'p2',prompt:'Which operand gives the value 0x2D?',gives:'0x2D',options:['(%rbp)','%rbp','(%rsp)'],answer:0,explain:'<code>%rbp</code> holds 0x210, and memory at 0x210 holds 0x2D.'},
+{grp:'p2',m:null,prompt:'Which register can\'t be the index?',options:['%rsp','%rbp','%rax','%rdi'],answer:0,explain:'Your slide says the index can be any register except <code>%rsp</code>.'},
+{grp:'p2',op:'(%rax,%rsi,2)',input:true,prompt:'Type the value this operand gives.'},
+{grp:'p2',m:null,prompt:'What is decimal 260 in hex?',options:['0x104','0x260','0x10A'],answer:0,explain:'256 = 0x100, so 260 = 256 + 4 = 0x104.'},
+{grp:'both',labels:true,instr:'movq (%rbx), %rcx',solve:'(%rbx)',prompt:'After this runs, what\'s in <code>%rcx</code>?',options:['0x8E','0x20C','0x1'],answer:0,explain:'The source <code>(%rbx)</code> gives 0x8E, and mov copies it into <code>%rcx</code>.'},
+{grp:'both',labels:true,instr:'movq %rbx, %rcx',solve:'%rbx',prompt:'After this runs, what\'s in <code>%rcx</code>?',options:['0x20C','0x8E','0x1'],answer:0,explain:'There are no parentheses, so the source is just what\'s in <code>%rbx</code>.'},
+{grp:'both',labels:true,instr:'movq $0x210, %rdx',solve:'$0x210',prompt:'After this runs, what\'s in <code>%rdx</code>?',options:['0x210','0x2D','0x3'],answer:0,explain:'The source is the number 0x210 itself.'},
+{grp:'both',labels:true,instr:'movq 4(%rax,%rcx,8), %rdx',solve:'4(%rax,%rcx,8)',prompt:'After this runs, what\'s in <code>%rdx</code>?',options:['0x8E','0xC3','0x17'],answer:0,explain:'The source address is 0x200 + 0x1 × 8 + 0x4 = 0x20C, which holds 0x8E.'},
+{grp:'both',labels:true,instr:'movq 0x210, %rax',solve:'0x210',prompt:'After this runs, what\'s in <code>%rax</code>?',options:['0x2D','0x210','0x200'],answer:0,explain:'No <code>$</code>, so 0x210 is an address. Memory there holds 0x2D.'}
+]},
+
+{id:'mix3',sec:'rev',name:'Part 3 mix',short:'Part 3 mix',shuffleOpts:true,pick:{p3:10},
+defaults:{m:null,code:true},
+lesson:`<p>Ten questions from across Part 3, in a random order, with a new pick every time you play. Flags, set, jumps and loops all show up.</p>`,
+qs:[
+{grp:'p3',instr:'cmpl %edi, %esi',plain:true,prompt:'What does this compute?',options:['%esi − %edi','%edi − %esi','%esi + %edi'],answer:0,explain:'Second minus first: <code>%esi − %edi</code>.'},
+{grp:'p3',fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x20'},s2:{label:'b',reg:'%sil',val:'0x10'}},only:['CF'],prompt:'After this, what is CF?',options:['CF = 1','CF = 0'],answer:0,hint:'b − a as unsigned: 16 − 32.',explain:'Unsigned, 16 − 32 goes below zero, so CF = 1.'},
+{grp:'p3',fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x7f'},s2:{label:'b',reg:'%sil',val:'0x80'}},flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.',hint:'Unsigned: 128 − 127. Signed: −128 − 127.'},
+{grp:'p3',fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0'},s2:{label:'b',reg:'%sil',val:'0'}},flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.',hint:'0 − 0.'},
+{grp:'p3',given:{CF:1,ZF:0,SF:0,OF:0},cond:'setae',instr:'setae %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 0','%al = 1'],answer:0,hint:'setae is ~CF.',explain:'~CF = ~1 = 0. CF = 1 means below, so "above or equal" is false.'},
+{grp:'p3',given:{CF:0,ZF:1,SF:0,OF:0},cond:'setle',instr:'setle %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 1','%al = 0'],answer:0,hint:'setle is (SF^OF) | ZF.',explain:'(0^0) | 1 = 1. Equal counts as less-or-equal.'},
+{grp:'p3',prompt:'Which jump means "greater than or equal, signed"?',options:['jge','jae','jgte','jg'],answer:0,explain:'<b>g</b>reater is signed, <b>e</b> adds or-equal. <code>jae</code> is unsigned, and <code>jgte</code> doesn\'t exist.'},
+{grp:'p3',token:'jgt',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. Greater-than is spelled <code>jg</code>.'},
+{grp:'p3',prompt:'For <code>if (x != y) { A } else { B }</code>, after a compare, which jump goes to the else part?',options:['je','jne','jz | jnz','jmp'],answer:0,hint:'The else runs when the test is false.',explain:'The else part runs when x ≠ y is false, which is x == y: <code>je</code>.'},
+{grp:'p3',instr:'test %ecx, %ecx',plain:true,prompt:'This is followed by <code>jnz .L3</code>. When does it jump?',code:false,options:['When %ecx is not zero','When %ecx is zero','When %ecx is negative'],answer:0,explain:'test sets ZF when %ecx is zero. jnz jumps when ZF is 0, so when %ecx is not zero.'},
+{grp:'p3',instr:'cmovl %esi, %eax',plain:true,prompt:'What does this do?',code:false,options:['Copies %esi into %eax only if the last compare was less (signed)','Always copies %esi into %eax','Jumps to .L if less'],answer:0,explain:'A conditional move with the "less" condition. No jump involved.'},
+{grp:'p3',instr:'cmpq %rbx, %rax',plain:true,prompt:'With %rax = 5 and %rbx = 10, which flags are set?',code:false,options:['CF and SF','ZF only','None','OF only'],answer:0,hint:'5 − 10 is negative, and unsigned 5 is below 10.',explain:'5 − 10 = −5: SF = 1 because it\'s negative, and CF = 1 because the unsigned subtraction borrowed. This is the second question on your slide.'},
+{grp:'p3',prompt:'<code>while (n) { … }</code> with n in %eax starts with <code>test %eax, %eax</code>. Which jump leaves the loop?',options:['jz | je','jnz | jne','jmp','jg'],answer:0,explain:'Leave when n is zero, which is when test set ZF: <code>jz</code>.'},
+{grp:'p3',prompt:'Which set instruction means "below or equal, unsigned"?',options:['setbe','setle','setb','setae'],answer:0,explain:'<b>b</b>elow is unsigned, and <b>e</b> adds or-equal.'},
+{grp:'p3',fl:{op:'add',bits:8,text:'addb $1, %al',s1:{label:'$1',val:'1'},s2:{reg:'%al',val:'0xff'}},flags:['CF','ZF','SF','OF'],prompt:'%al holds 0xFF. Set all four flags.',hint:'255 + 1 as unsigned, −1 + 1 as signed.'}
+]}
+];
+LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o={};for(var k in d)o[k]=d[k];for(var k2 in q)o[k2]=q[k2];return o;});});
+(function(){
+  var m12=null,m3=null;LEVELS.forEach(function(L){if(L.id==='mix')m12=L;if(L.id==='mix3')m3=L;});
+  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',shuffleOpts:true,pick:{p1:3,p2:3,both:1,p3:5},
+    lesson:'<p>Twelve questions drawn from all three parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Levels 9–14.</p>'+machineHTML(MACHINES.practice),
+    qs:m12.qs.concat(m3.qs)});
+})();
+
+var SECTIONS=[
+  {id:'p1',part:'Part 1',name:'Moving Data'},
+  {id:'p2',part:'Part 2',name:'Memory Addressing'},
+  {id:'p3',part:'Part 3',name:'Control Flow'},
+  {id:'rev',part:'Review',name:'Mixed practice'}
+];
+var LAB_FLAG_EX=[
+  {op:'cmp',bits:8,v1:'0xaa',v2:'0x53',l:'0x53 vs 0xaa (Q1)'},
+  {op:'cmp',bits:8,v1:'-101',v2:'-46',l:'−46 vs −101 (Q1)'},
+  {op:'cmp',bits:32,v1:'10',v2:'5',l:'5 vs 10 (slide)'},
+  {op:'test',bits:32,v1:'5',v2:'10',l:'test 5 & 10 (slide)'},
+  {op:'add',bits:8,v1:'1',v2:'0x7f',l:'0x7f + 1'},
+  {op:'cmp',bits:8,v1:'0x80',v2:'0x7f',l:'0x7f vs 0x80'}
+];
+var LAB_EX=['movb %eax, (%esp)','movl (%eax),4(%esp)','movb %al,%sl','movl %eax,$0x123','movl %eax,%dx','movb %si, 8(%ebp)','movl $5, %eax','movl (%edx,%ecx,4), %eax','movl 0x80(,%edx,2), %eax'];
+var LAB_OPS={
+  practice:['$0x20C','0x20C','%rbx','(%rbx)','-4(%rbx)','12(%rax)','(%rax,%rsi)','(%rax,%rdx,4)','(,%rdi,4)','4(%rax,%rcx,8)'],
+  fig1:['0x08(%rax)','0x2F400448','(%rbx)','-6(%rbx)','26(%rax)','(%rax,%rdx,2)','(%rax,%rsi,4)','0x18(%rax)'],
+  q4:['8(%rax)','12(%rax)','$0x10C','0x10C','(%rax,%rcx,8)','256(%rcx,%rdx)','0x100(,%rcx,8)']
+};
+
+/* ---------- game state ---------- */
+var STORE='will-it-assemble:v1';
+var S={view:'home',sec:'p1',xp:0,streak:0,best:{},cur:null,lab:'movb %eax, (%esp)',labMode:'val',labM:'practice',labOp:'(%rax,%rdx,4)',labF:{op:'cmp',bits:8,v1:'0xaa',v2:'0x53'},confirmReset:false};
+function save(){try{localStorage.setItem(STORE,JSON.stringify({best:S.best,xp:S.xp}));}catch(e){}}
+function loadSaved(){try{var v=JSON.parse(localStorage.getItem(STORE)||'null');if(v&&typeof v==='object')return v;}catch(e){}return null;}
+function pipsFor(m){return m===0?4:m===1?3:m<=3?2:1;}
+function secLevels(id){var out=[];LEVELS.forEach(function(L,k){if(L.sec===id)out.push(k);});return out;}
+function secNext(id){var ls=secLevels(id);for(var k=0;k<ls.length;k++){if(!S.best[LEVELS[ls[k]].id])return ls[k];}return -1;}
+function secCleared(id){return secLevels(id).filter(function(k){return S.best[LEVELS[k].id];}).length;}
+function defaultSec(){for(var k=0;k<SECTIONS.length;k++){if(secNext(SECTIONS[k].id)!==-1)return SECTIONS[k].id;}return 'rev';}
+
+function buildSet(L){
+  var all=range(L.qs.length);
+  if(!L.pick) return all;
+  var out=[];
+  Object.keys(L.pick).forEach(function(g){var pool=shuffle(all.filter(function(k){return L.qs[k].grp===g;}));out=out.concat(pool.slice(0,L.pick[g]));});
+  return shuffle(out);
+}
+function startLevel(li){
+  var L=LEVELS[li]; S.sec=L.sec; S.view='level';
+  if(S.cur&&S.cur.li===li&&S.cur.phase!=='done')return;
+  var set=buildSet(L), perm={};
+  set.forEach(function(k){var q=L.qs[k];if(q.options){var p=range(q.options.length);if(L.shuffleOpts&&!q.keep)shuffle(p);perm[k]=p;}});
+  S.cur={li:li,phase:'lesson',set:set,queue:set.slice(),perm:perm,solved:[],missed:[],mistakes:0,answered:null};
+}
+function curQ(){var c=S.cur;if(!c||!c.queue.length)return null;return LEVELS[c.li].qs[c.queue[0]];}
+function permOf(c,qi,q){var p=c.perm&&c.perm[qi];if(p&&q.options&&p.length===q.options.length)return p;return q.options?range(q.options.length):[];}
+function solFor(q){var M=q.m?MACHINES[q.m]:null,op=q.solve||q.op;return (M&&op)?solveOperand(op,M):null;}
+function expectedFor(q,sol){if(q.expect)return q.expect;if(!sol||sol.error)return null;return q.ask==='address'?toHex(sol.addr):sol.vStr;}
+function trapFor(q,sol,val){
+  var n=normHex(val); if(n===null) return null;
+  var lists=[]; if(q.traps)lists.push(q.traps); if(sol&&!sol.error)lists.push(q.ask==='address'?sol.addrTraps:sol.valTraps);
+  for(var i=0;i<lists.length;i++){for(var j=0;j<lists[i].length;j++){if(normHex(lists[i][j].v)===n)return lists[i][j].msg;}}
+  if(sol&&!sol.error&&sol.kind==='mem'&&q.ask!=='address'&&q.m){
+    var M=MACHINES[q.m],hit=null;
+    M.mem.some(function(m){if(normHex(m[1])===n){hit=m[0];return true;}return false;});
+    if(hit) return 'That\'s the value at '+esc(hit)+', a different address. Recheck the address math.';
+  }
+  return null;
+}
+
+/* ---------- views ---------- */
+function sectionHTML(sec){
+  var ls=secLevels(sec), nx=secNext(sec), cleared=nx===-1;
+  var inprog=(S.cur&&LEVELS[S.cur.li].sec===sec&&S.cur.phase!=='done')?S.cur.li:-1;
+  var started=secCleared(sec)>0;
+  var mainBtn=inprog>=0?'<button class="btn" data-go="'+inprog+'">Resume Level '+(inprog+1)+'</button>':
+    (!cleared?'<button class="btn" data-go="'+nx+'">'+(started?'Continue with Level ':'Start Level ')+(nx+1)+'</button>':'');
+  if(sec==='p1'){
+    if(!mainBtn) mainBtn='<button class="btn" data-go="sec-p2">Go to Part 2</button>';
+    return '<div class="eyebrow">Part 1 · In-Class Practice 1</div><h2>Moving Data</h2>'+
+    (cleared?'<p><b>Part 1 is cleared.</b> Replay any level from the strip above, or move on to Part 2.</p>':'<p>Each level teaches one idea in a few sentences, then you practice it right away. If you miss a question, it comes back at the end of the level, so every mistake gets another try.</p>')+
+    '<ol class="path"><li><span class="pn">Levels 1–5</span><b>The pieces</b><span class="pd">Direction, operand kinds, suffix sizes, register sizes, real names.</span></li>'+
+    '<li><span class="pn">Levels 6–7</span><b>The rules</b><span class="pd">Combine the pieces into the checks the assembler runs.</span></li>'+
+    '<li><span class="pn">Level 8</span><b>Class questions</b><span class="pd">All six questions from In-Class Practice 1, plus a few more.</span></li></ol>'+
+    '<div class="actions">'+mainBtn+'<button class="btn ghost" data-go="lab-mov">Open the Lab</button></div>'+
+    '<p class="fine">On a keyboard, press the number keys to answer and Enter to continue. Each level fills up to 4 blocks. Finish with no mistakes to fill all 4.</p>';
+  }
+  if(sec==='p2'){
+    if(!mainBtn) mainBtn='<button class="btn" data-go="sec-p3">Go to Part 3</button>';
+    return '<div class="eyebrow">Part 2 · In-Class Practice 2</div><h2>Memory Addressing</h2>'+
+    (cleared?'<p><b>Part 2 is cleared.</b> Replay any level from the strip above, or move on to Part 3.</p>':'<p>Part 1 asked whether an instruction is legal. Part 2 asks what value an operand actually gives you. You read it off two tables, one for registers and one for memory, just like Figure 1 on the worksheet.</p>')+
+    '<ol class="path"><li><span class="pn">Levels 9–10</span><b>Reading operands</b><span class="pd">$ numbers, registers, plain addresses, and following a pointer.</span></li>'+
+    '<li><span class="pn">Levels 11–14</span><b>Building the address</b><span class="pd">Displacement, decimal vs hex, index, then scale, one at a time.</span></li>'+
+    '<li><span class="pn">Levels 15–16</span><b>Class questions</b><span class="pd">All four worksheet questions. You type the answers, like on the worksheet.</span></li></ol>'+
+    '<div class="actions">'+mainBtn+'<button class="btn ghost" data-go="lab-val">Open the Lab</button></div>'+
+    '<p class="fine">Typed answers are in hex. Capital letters and leading zeros don\'t matter, so 0x0b and 0xB both count.</p>';
+  }
+  if(sec==='p3'){
+    if(!mainBtn) mainBtn='<button class="btn" data-go="sec-rev">Go to the mixed practice</button>';
+    return '<div class="eyebrow">Part 3 · In-Class Practice 3</div><h2>Control Flow</h2>'+
+    (cleared?'<p><b>Part 3 is cleared.</b> Replay any level from the strip above, or try the Part 3 mix.</p>':'<p>Parts 1 and 2 were about moving data. Part 3 is about deciding what runs next. One compare sets four flags, and everything else, set, jumps, loops, reads those flags.</p>')+
+    '<ol class="path"><li><span class="pn">Levels 17–21</span><b>The flags</b><span class="pd">Which way cmp subtracts, then ZF, SF, CF and OF one at a time, then all four together.</span></li>'+
+    '<li><span class="pn">Levels 22–25</span><b>Using the flags</b><span class="pd">set, jumps, if/else, and loops.</span></li>'+
+    '<li><span class="pn">Level 26</span><b>Class questions</b><span class="pd">All three worksheet questions, in the worksheet\'s format.</span></li></ol>'+
+    '<div class="actions">'+mainBtn+'<button class="btn ghost" data-go="lab-flags">Open the Lab</button></div>'+
+    '<p class="fine">Flag questions use 0/1 toggles. Pick every flag, then press Check or Enter.</p>';
+  }
+  var items=ls.map(function(li){var L=LEVELS[li],done=!!S.best[L.id];var on=inprog===li;var lbl=on?'Resume':done?'Play a new mix':'Start';var d=L.id==='mix'?'Parts 1 and 2 together, 12 questions.':L.id==='mix3'?'Part 3 on its own, 10 questions.':'All three parts, 12 questions.';return '<li><span class="pn">Level '+(li+1)+'</span><b>'+L.short+'</b><span class="pd">'+d+'</span><div class="actions"><button class="btn'+(on?'':' ghost')+'" data-go="'+li+'">'+lbl+'</button></div></li>';}).join('');
+  var reset=S.confirmReset?'<span class="confirm">Really reset every level\'s blocks and XP? <button class="link" data-act="reset-yes">Yes, reset</button> <button class="link" data-act="reset-no">Keep them</button></span>':'<button class="link" data-act="reset-ask">Reset progress</button>';
+  return '<div class="eyebrow">Review · Mixed practice</div><h2>Mix it up before a quiz</h2>'+
+  '<p>A quiz won\'t tell you which part a question comes from. Each mix shuffles its parts together and picks new questions every time, so replay it as often as you like.</p>'+
+  '<ol class="path">'+items+'</ol>'+
+  '<p>The Lab lets you type any instruction, operand or pair of values and see every step worked out.</p>'+
+  '<div class="actions"><button class="btn ghost" data-go="lab-val">Open the Lab</button></div>'+
+  '<p class="fine">Progress is saved in this browser only. '+reset+'</p>';
+}
+function lessonHTML(){
+  var c=S.cur, L=LEVELS[c.li];
+  return '<div class="eyebrow">Level '+(c.li+1)+' · Lesson</div><h2>'+L.name+'</h2><div class="lesson">'+L.lesson+'</div>'+
+  '<div class="actions"><button class="btn" data-act="practice">Start practice ('+c.set.length+' questions) <span class="kbd">Enter</span></button></div>';
+}
+function optsHTML(q,a,perm){
+  var row=q.options.length<=5&&q.options.every(function(o){return o.length<=16;});
+  return '<div class="opts'+(row?' row':'')+'" role="group" aria-label="Answers">'+perm.map(function(oi,k){
+    var o=q.options[oi], cls='opt'+(q.code?' code':''), mark='';
+    if(a){if(oi===q.answer){cls+=' right';mark='✓';}else if(k===a.picked){cls+=' wrong';mark='✗';}else cls+=' dim';}
+    return '<button class="'+cls+'" data-ans="'+k+'"'+(a?' disabled':'')+'><span class="key">'+(k+1)+'</span><span class="lbl">'+(q.code?esc(o):fmtOpt(o))+'</span>'+(mark?'<span class="mark" aria-hidden="true">'+mark+'</span>':'')+'</button>';
+  }).join('')+'</div>';
+}
+function inputHTML(a){
+  if(a) return '<div class="ans-done '+(a.correct?'right':'wrong')+'"><span class="ans-l">Your answer</span><span class="ans-v">'+esc(a.typed)+'</span><span class="mark" aria-hidden="true">'+(a.correct?'✓':'✗')+'</span></div>';
+  return '<div class="ans"><label for="ans-in" class="sr">Your answer</label><input id="ans-in" class="labin" type="text" placeholder="0x…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-autofocus><button class="btn" data-act="check">Check <span class="kbd">Enter</span></button></div><p class="ans-msg" id="ans-msg" role="alert" hidden></p>';
+}
+function feedbackHTML(q,a,sol,exp,last){
+  var h='<div class="fb '+(a.correct?'ok':'no')+'" role="status"><div class="fb-h">'+(a.correct?'✓ Correct':'✗ Not quite')+(a.correct?'<span class="gain">+'+a.gain+' XP</span>':'')+'</div>';
+  if(!a.correct&&a.trap) h+='<p class="trap">'+a.trap+'</p>';
+  if(!a.correct&&q.input&&exp) h+='<p>The answer is <b class="mono">'+esc(exp)+'</b>.</p>';
+  if(q.explain) h+='<p>'+q.explain+'</p>';
+  if(q.bd&&q.instr) h+=breakdownHTML(analyze(q.instr),q.bd);
+  if(sol) h+=stepsHTML(sol);
+  if(q.fl) h+=flagsStepsHTML(solveFlags(q.fl),q.fl,{only:q.flags||q.only,set:q.set,jmp:q.jmp});
+  if(q.given&&q.cond) h+='<div class="bd"><div class="bd-h">How to read it</div>'+condStepHTML(q.cond,q.given)+'</div>';
+  if(!a.correct) h+='<p class="fb-note">This question comes back at the end of the level.</p>';
+  return h+'<div class="fb-act"><button class="btn" data-act="next">'+(last?'Finish level':'Next')+' <span class="kbd">Enter</span></button></div></div>';
+}
+function questionHTML(){
+  var c=S.cur, L=LEVELS[c.li], qi=c.queue[0], q=L.qs[qi], a=c.answered;
+  var M=q.m?MACHINES[q.m]:null, sol=solFor(q), exp=q.input?expectedFor(q,sol):null;
+  var last=a&&a.correct&&c.queue.length===1;
+  var prog=c.set.map(function(k){return '<i class="'+(c.solved.indexOf(k)>=0?'done':k===qi?'now':'')+'"></i>';}).join('');
+  var h='<div class="qhead"><span class="eyebrow">Level '+(c.li+1)+' · '+L.name+'</span><span class="count">'+c.solved.length+' of '+c.set.length+' solved</span></div>'+
+  '<div class="prog" aria-hidden="true">'+prog+'</div>';
+  if(q.tag) h+='<span class="tag">'+q.tag+'</span>';
+  if(c.missed.indexOf(qi)>=0&&!a) h+='<p class="again">Second try on this one.</p>';
+  h+='<h2>'+q.prompt+'</h2>';
+  if(q.pre) h+=codeBlock(q.pre);
+  if(q.instr) h+=instrHTML(q.instr,{labels:q.labels,plain:q.plain});
+  if(q.token) h+='<div class="token">'+esc(q.token)+'</div>';
+  if(q.op) h+='<div class="token op">'+esc(q.op)+'</div>';
+  if(q.fl) h+=flagsSetupHTML(q.fl);
+  if(q.given) h+=givenHTML(q.given);
+  if(M) h+=machineHTML(M,a&&sol&&!sol.error?sol.hl:null);
+  if(q.flags) h+=flagsWidgetHTML(q,a,c.picks||{});
+  else h+=q.input?inputHTML(a):optsHTML(q,a,permOf(c,qi,q));
+  if(a) h+=feedbackHTML(q,a,sol,exp,last);
+  else if(q.hint) h+='<div class="hintrow"><button class="link" data-act="hint" aria-controls="hint">Show a hint</button><p class="hint" id="hint" hidden>'+q.hint+'</p></div>';
+  h+='<details class="peek"><summary>Review the lesson</summary><div class="lesson">'+L.lesson+'</div></details>';
+  return h;
+}
+function doneHTML(){
+  var c=S.cur, L=LEVELS[c.li], pts=c.pts, n=c.missed.length, isLast=c.li===LEVELS.length-1;
+  var nextLi=c.li+1, secEnd=!isLast&&LEVELS[nextLi].sec!==L.sec;
+  var big='';for(var k=0;k<4;k++)big+='<i class="'+(k<pts?'f':'')+'"></i>';
+  var head=pts===4?'Perfect run. All 4 blocks.':pts===3?'Nearly perfect.':'Level cleared.';
+  var text=n===0?'You got every question right on the first try.':(n===1?'One question needed':n+' questions needed')+' a second try, and '+(n===1?'it\'s':'they\'re all')+' solved now.';
+  var extra='', acts;
+  if(isLast){
+    extra='<p>Each replay picks a different set, so run it a few times before a quiz.</p>';
+    acts='<button class="btn" data-act="nextlevel">Play a new mix <span class="kbd">Enter</span></button><button class="btn ghost" data-go="lab-val">Open the Lab</button>';
+  } else if(L.sec==='rev'){
+    acts='<button class="btn" data-act="replay">Play a new '+L.short+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="'+nextLi+'">Try the '+LEVELS[nextLi].short+'</button>';
+  } else if(secEnd){
+    var nxt=LEVELS[nextLi].sec;
+    extra=L.sec==='p1'?'<p>That\'s all of Part 1. Part 2 covers memory addressing, the second in-class practice.</p>':L.sec==='p2'?'<p>That\'s all of Part 2. Part 3 covers condition codes and jumps, the third in-class practice. The Quiz 1 mix in the Review tab shuffles Parts 1 and 2 together.</p>':'<p>That\'s all of Part 3. The Part 3 mix in the Review tab shuffles it the way a quiz would.</p>';
+    acts='<button class="btn" data-act="nextlevel">'+(nxt==='p2'?'Start Part 2: Level '+(nextLi+1):nxt==='p3'?'Start Part 3: Level '+(nextLi+1):'Go to the Part 3 mix')+' <span class="kbd">Enter</span></button><button class="btn ghost" data-act="replay">Replay this level</button>';
+  } else {
+    acts='<button class="btn" data-act="nextlevel">Next: Level '+(nextLi+1)+', '+LEVELS[nextLi].short+' <span class="kbd">Enter</span></button><button class="btn ghost" data-act="replay">Replay this level</button>';
+  }
+  return '<div class="eyebrow">Level '+(c.li+1)+' · '+L.name+' · Cleared</div>'+
+  '<div class="bigpips" role="img" aria-label="'+pts+' of 4 blocks earned">'+big+'</div>'+
+  '<h2>'+head+'</h2><p>'+text+'</p>'+extra+
+  '<div class="actions">'+acts+'</div>';
+}
+function labMovOut(t){
+  var r=analyze(t), top='';
+  if(t.trim()&&/^[A-Za-z]+(\s|$)/.test(t.trim())) top=instrHTML(t,{labels:true});
+  return top+breakdownHTML(r,'full');
+}
+function labValOut(){
+  var M=MACHINES[S.labM], sol=solveOperand(S.labOp,M), head='';
+  if(!sol.idle&&!sol.error) head=sol.miss?'<div class="verdict no">The address works out to <b class="mono">'+esc(toHex(sol.addr))+'</b>, which isn\'t in this memory table.</div>':'<div class="verdict ok">Value: <b class="mono">'+esc(sol.vStr)+'</b></div>';
+  return head+stepsHTML(sol)+machineHTML(M,(sol.error||sol.idle)?null:sol.hl);
+}
+function labFlagsSpec(){
+  var f=S.labF, name={cmp:'cmp',test:'test',add:'add',sub:'sub'}[f.op]||'cmp', sfx=f.bits===8?'b':'l';
+  return {op:f.op,bits:f.bits,text:name+sfx+' S1, S2',s1:{label:'S1',val:f.v1},s2:{label:'S2',val:f.v2}};
+}
+function labFlagsOut(){
+  var spec=labFlagsSpec(), r=solveFlags(spec);
+  if(r.error) return '<div class="bd"><div class="verdict no">'+r.error+'</div></div>';
+  var head='<div class="verdict ok">Flags: '+FLAGNAMES.map(function(k){return '<b class="mono">'+k+' = '+r.F[k]+'</b>';}).join(' · ')+'</div>';
+  return head+flagsStepsHTML(r,spec)+'<div class="bd"><div class="bd-h">What every set and jump would do with these flags</div>'+condTableHTML(r.F)+'</div>';
+}
+function labHTML(){
+  var mode=S.labMode==='mov'?'mov':S.labMode==='flags'?'flags':'val';
+  var seg=function(id,label){var on=mode===id;return '<button data-lab="'+id+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+label+'</button>';};
+  var h='<div class="eyebrow">Lab</div><h2>Try your own</h2>'+
+  '<div class="seg" role="group" aria-label="What to try">'+seg('val','Find an operand\'s value')+seg('mov','Check an instruction')+seg('flags','Work out the flags')+'</div>';
+  if(mode==='flags'){
+    var f=S.labF, opt=function(v,l,cur){return '<option value="'+v+'"'+(String(cur)===String(v)?' selected':'')+'>'+l+'</option>';};
+    h+='<p>Pick an instruction and a size, then type the two operand values in decimal or hex. The instruction computes S2 − S1 (or S2 &amp; S1 for test), the same order as <code>cmp S1, S2</code>.</p>'+
+    '<div class="labgrid">'+
+    '<label>Instruction<select id="labf-op">'+opt('cmp','cmp',f.op)+opt('test','test',f.op)+opt('sub','sub',f.op)+opt('add','add',f.op)+'</select></label>'+
+    '<label>Size<select id="labf-bits">'+opt(8,'byte (8 bits)',f.bits)+opt(16,'word (16 bits)',f.bits)+opt(32,'int (32 bits)',f.bits)+'</select></label>'+
+    '<label>S1 (first operand)<input id="labf-v1" type="text" value="'+esc(f.v1)+'" autocomplete="off" spellcheck="false"></label>'+
+    '<label>S2 (second operand)<input id="labf-v2" type="text" value="'+esc(f.v2)+'" autocomplete="off" spellcheck="false"></label>'+
+    '</div>'+
+    '<div class="chips"><span class="lab-l">Try</span>'+LAB_FLAG_EX.map(function(e,k){return '<button class="chip" data-fex="'+k+'">'+esc(e.l)+'</button>';}).join('')+'</div>'+
+    '<div class="labout" id="lab-out" aria-live="polite">'+labFlagsOut()+'</div>';
+    return h;
+  }
+  if(mode==='val'){
+    h+='<p>Type one operand and pick a table. Every step is worked out, and the rows it uses light up.</p>'+
+    '<div class="seg" role="group" aria-label="Table">'+['practice','fig1','q4'].map(function(k){var on=S.labM===k;return '<button data-labm="'+k+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+esc(MACHINES[k].label)+'</button>';}).join('')+'</div>'+
+    '<label for="lab-op" class="sr">Operand</label><input id="lab-op" class="labin" type="text" value="'+esc(S.labOp)+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">'+
+    '<div class="chips"><span class="lab-l">Try</span>'+LAB_OPS[S.labM].map(function(e){return '<button class="chip" data-op="'+esc(e)+'">'+esc(e)+'</button>';}).join('')+'</div>'+
+    '<div class="labout" id="lab-out" aria-live="polite">'+labValOut()+'</div>';
+  } else {
+    h+='<p>Type a mov instruction and the checks run as you type. Change one thing at a time and watch which check flips.</p>'+
+    '<label for="lab-in" class="sr">Instruction</label><input id="lab-in" class="labin" type="text" value="'+esc(S.lab)+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">'+
+    '<div class="chips"><span class="lab-l">Try</span>'+LAB_EX.map(function(e){return '<button class="chip" data-ex="'+esc(e)+'">'+esc(e)+'</button>';}).join('')+'</div>'+
+    '<div class="labout" id="lab-out" aria-live="polite">'+labMovOut(S.lab)+'</div>'+
+    '<p class="fine">Follows the rules from your class (32-bit IA32, plus the 64-bit register names). A real assembler checks a few more things.</p>';
+  }
+  return h;
+}
+
+/* ---------- render ---------- */
+function renderMap(){
+  var tabs=SECTIONS.map(function(sc){
+    var on=S.sec===sc.id, n=secLevels(sc.id).length;
+    var prog=sc.id==='rev'?secCleared(sc.id)+' of '+n+' mixes + Lab':secCleared(sc.id)+' of '+n+' cleared';
+    return '<button class="sec-tab'+(on?' on':'')+'" data-sec="'+sc.id+'" aria-pressed="'+on+'"><span class="sec-part">'+sc.part+'</span><span class="sec-name">'+sc.name+'</span><span class="sec-prog">'+prog+'</span></button>';
+  }).join('');
+  var nx=secNext(S.sec);
+  var strip=secLevels(S.sec).map(function(k){
+    var L=LEVELS[k], on=S.view==='level'&&S.cur&&S.cur.li===k;
+    return '<button class="lv'+(on?' on':'')+'" data-go="'+k+'"'+(on?' aria-current="step"':'')+'><span class="lv-top"><span class="lv-n">L'+(k+1)+'</span>'+(k===nx&&!on?'<span class="lv-next">Next</span>':'')+'</span><span class="lv-name">'+L.short+'</span>'+pips(S.best[L.id]||0)+'</button>';
+  }).join('');
+  if(S.sec==='rev') strip+='<button class="lv'+(S.view==='lab'?' on':'')+'" data-go="lab"'+(S.view==='lab'?' aria-current="page"':'')+'><span class="lv-top"><span class="lv-n">Lab</span></span><span class="lv-name">Try your own</span><span class="lv-sub">Instructions, operands, flags</span></button>';
+  $('#map').innerHTML='<div class="secs">'+tabs+'</div><div class="strip">'+strip+'</div>';
+}
+function renderStage(){
+  var html;
+  if(S.view==='lab') html=labHTML();
+  else if(S.view==='level'&&S.cur) html=S.cur.phase==='lesson'?lessonHTML():S.cur.phase==='q'?questionHTML():doneHTML();
+  else html=sectionHTML(S.sec);
+  $('#stage').innerHTML='<section class="card" id="card" tabindex="-1">'+html+'</section>';
+  var li=$('#lab-in'); if(li) li.addEventListener('input',function(){S.lab=li.value;$('#lab-out').innerHTML=labMovOut(S.lab);});
+  var lo=$('#lab-op'); if(lo) lo.addEventListener('input',function(){S.labOp=lo.value;$('#lab-out').innerHTML=labValOut();});
+  var f1=$('#labf-v1'),f2=$('#labf-v2'),fo=$('#labf-op'),fb=$('#labf-bits');
+  if(f1){var upd=function(){S.labF.v1=f1.value;S.labF.v2=f2.value;S.labF.op=fo.value;S.labF.bits=+fb.value;$('#lab-out').innerHTML=labFlagsOut();};f1.addEventListener('input',upd);f2.addEventListener('input',upd);fo.addEventListener('change',upd);fb.addEventListener('change',upd);}
+}
+function render(){
+  $('#stats').innerHTML='<span class="stat">XP <b>'+S.xp+'</b></span><span class="stat">Streak <b>'+S.streak+'</b></span>';
+  renderMap();renderStage();
+}
+function focusCard(scroll){
+  var card=$('#card'); if(!card)return;
+  var af=card.querySelector('[data-autofocus]'), tgt=(af&&fineHover())?af:card;
+  try{tgt.focus({preventScroll:true});}catch(e){}
+  if(scroll){var top=card.getBoundingClientRect().top;if(top<0)card.scrollIntoView({block:'start',behavior:smooth()});}
+}
+
+/* ---------- actions ---------- */
+function record(correct,info){
+  var c=S.cur, qi=c.queue[0], gain=0;
+  if(correct){gain=c.missed.indexOf(qi)>=0?5:10;S.xp+=gain;S.streak++;c.solved.push(qi);}
+  else{S.streak=0;c.mistakes++;if(c.missed.indexOf(qi)<0)c.missed.push(qi);}
+  info.correct=correct;info.gain=gain;c.answered=info;
+  save();render();focusCard(false);
+  var fb=document.querySelector('.fb'); if(fb){var b=fb.getBoundingClientRect();if(b.bottom>window.innerHeight)fb.scrollIntoView({block:'nearest',behavior:smooth()});}
+}
+function answer(k){
+  var c=S.cur; if(!c||c.phase!=='q'||c.answered)return;
+  var q=curQ(); if(!q||q.input||!q.options)return;
+  var perm=permOf(c,c.queue[0],q); if(k<0||k>=perm.length)return;
+  var oi=perm[k], correct=oi===q.answer, info={picked:k};
+  if(!correct) info.trap=trapFor(q,solFor(q),q.options[oi]);
+  record(correct,info);
+}
+function submitTyped(){
+  var c=S.cur; if(!c||c.phase!=='q'||c.answered)return;
+  var q=curQ(); if(!q||!q.input)return;
+  var inp=$('#ans-in'), msg=$('#ans-msg'); if(!inp)return;
+  var raw=inp.value.trim(), n=normHex(raw);
+  if(!raw){msg.textContent='Type a hex value first, like 0x2D.';msg.hidden=false;inp.focus();return;}
+  if(n===null){msg.textContent='Use hex digits 0–9 and A–F, like 0x2D.';msg.hidden=false;inp.focus();return;}
+  var sol=solFor(q), exp=expectedFor(q,sol), correct=n===normHex(exp), info={typed:raw};
+  if(!correct) info.trap=trapFor(q,sol,raw);
+  record(correct,info);
+}
+function submitFlags(){
+  var c=S.cur; if(!c||c.phase!=='q'||c.answered)return;
+  var q=curQ(); if(!q||!q.flags)return;
+  var keys=q.flags.slice(); if(q.set)keys.push('al');
+  var picks=c.picks||{}, missing=keys.filter(function(k){return picks[k]!==0&&picks[k]!==1;});
+  var msg=$('#ans-msg');
+  if(missing.length){if(msg){msg.textContent='Pick 0 or 1 for '+missing.map(function(k){return k==='al'?'%al':k;}).join(', ')+' first.';msg.hidden=false;}return;}
+  var r=solveFlags(q.fl); if(r.error)return;
+  var res={}, correct=true;
+  keys.forEach(function(k){var actual=k==='al'?condEval(q.set,r.F).val:r.F[k];var ok=picks[k]===actual;if(!ok)correct=false;res[k]={picked:picks[k],actual:actual,ok:ok};});
+  record(correct,{res:res});
+}
+function resetProgress(){S.best={};S.xp=0;S.streak=0;S.cur=null;S.confirmReset=false;save();S.view='home';render();focusCard(true);}
+function next(){
+  var c=S.cur; if(!c||!c.answered)return;
+  var qi=c.queue.shift(); if(!c.answered.correct)c.queue.push(qi);
+  c.answered=null; c.picks={};
+  if(!c.queue.length){c.phase='done';c.pts=pipsFor(c.mistakes);var id=LEVELS[c.li].id;S.best[id]=Math.max(S.best[id]||0,c.pts);save();}
+  render();focusCard(true);
+}
+function goNextLevel(){
+  var c=S.cur; if(!c)return;
+  if(c.li<LEVELS.length-1)startLevel(c.li+1); else {var li=c.li;S.cur=null;startLevel(li);}
+  render();focusCard(true);
+}
+
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-sec]');
+  if(t){S.sec=t.dataset.sec;S.view='home';render();focusCard(true);return;}
+  var g=e.target.closest('[data-go]');
+  if(g){var v=g.dataset.go;
+    if(v==='home')S.view='home';
+    else if(v==='lab'){S.view='lab';S.sec='rev';}
+    else if(v==='lab-mov'||v==='lab-val'||v==='lab-flags'){S.view='lab';S.sec='rev';S.labMode=v.slice(4);}
+    else if(v.indexOf('sec-')===0){S.sec=v.slice(4);S.view='home';}
+    else startLevel(+v);
+    render();focusCard(true);return;}
+  var an=e.target.closest('[data-ans]'); if(an){answer(+an.dataset.ans);return;}
+  var fl=e.target.closest('[data-fl]');
+  if(fl){var c0=S.cur;if(c0&&c0.phase==='q'&&!c0.answered){c0.picks=c0.picks||{};c0.picks[fl.dataset.fl]=+fl.dataset.v;var grp=fl.parentNode;Array.prototype.forEach.call(grp.querySelectorAll('button'),function(b){var on=b===fl;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});var m0=$('#ans-msg');if(m0)m0.hidden=true;}return;}
+  var lm=e.target.closest('[data-lab]'); if(lm){S.labMode=lm.dataset.lab;render();return;}
+  var mm=e.target.closest('[data-labm]'); if(mm){S.labM=mm.dataset.labm;render();return;}
+  var fx=e.target.closest('[data-fex]'); if(fx){var ex0=LAB_FLAG_EX[+fx.dataset.fex];S.labF={op:ex0.op,bits:ex0.bits,v1:ex0.v1,v2:ex0.v2};render();return;}
+  var ac=e.target.closest('[data-act]');
+  if(ac){var a=ac.dataset.act;
+    if(a==='practice'){S.cur.phase='q';S.cur.picks={};render();focusCard(true);}
+    else if(a==='check')submitTyped();
+    else if(a==='checkflags')submitFlags();
+    else if(a==='reset-ask'){S.confirmReset=true;render();}
+    else if(a==='reset-no'){S.confirmReset=false;render();}
+    else if(a==='reset-yes')resetProgress();
+    else if(a==='next')next();
+    else if(a==='hint'){var hh=$('#hint');if(hh){hh.hidden=!hh.hidden;ac.textContent=hh.hidden?'Show a hint':'Hide the hint';}}
+    else if(a==='replay'){var li=S.cur.li;S.cur=null;startLevel(li);render();focusCard(true);}
+    else if(a==='nextlevel')goNextLevel();
+    return;}
+  var ex=e.target.closest('[data-ex]');
+  if(ex){S.lab=ex.dataset.ex;var inp=$('#lab-in');if(inp){inp.value=S.lab;$('#lab-out').innerHTML=labMovOut(S.lab);inp.focus();}return;}
+  var op=e.target.closest('[data-op]');
+  if(op){S.labOp=op.dataset.op;var inp2=$('#lab-op');if(inp2){inp2.value=S.labOp;$('#lab-out').innerHTML=labValOut();inp2.focus();}}
+});
+document.addEventListener('keydown',function(e){
+  if(e.altKey||e.ctrlKey||e.metaKey)return;
+  var tg=e.target;
+  if(tg&&tg.id==='ans-in'){if(e.key==='Enter'){e.preventDefault();submitTyped();}return;}
+  if(tg&&tg.closest&&tg.closest('input,textarea,select'))return;
+  if(S.view!=='level'||!S.cur)return;
+  var c=S.cur, q=c.phase==='q'?curQ():null;
+  if(/^[1-9]$/.test(e.key)&&q&&!q.input&&!q.flags&&!c.answered){answer(+e.key-1);e.preventDefault();return;}
+  if(e.key==='Enter'){
+    if(tg&&tg.closest&&tg.closest('button,a,summary')&&!(c.phase==='q'&&q&&q.flags&&!c.answered&&tg.closest('.seg2')))return;
+    if(c.phase==='lesson'){c.phase='q';c.picks={};render();focusCard(true);}
+    else if(c.phase==='q'&&c.answered)next();
+    else if(c.phase==='q'&&q&&q.flags)submitFlags();
+    else if(c.phase==='q'&&q&&q.input){var inp=$('#ans-in');if(inp)inp.focus();}
+    else if(c.phase==='done')goNextLevel();
+    else return;
+    e.preventDefault();
+  }
+});
+
+/* ---------- boot ---------- */
+function start(data){
+  var base={view:'home',sec:null,xp:0,streak:0,best:{},cur:null,lab:'movb %eax, (%esp)',labMode:'val',labM:'practice',labOp:'(%rax,%rdx,4)',labF:{op:'cmp',bits:8,v1:'0xaa',v2:'0x53'},confirmReset:false};
+  if(data&&data.S&&typeof data.S==='object'&&data.S.best){for(var k in data.S)base[k]=data.S[k];S=base;}
+  else{S=base;var sv=loadSaved();if(sv){S.best=sv.best||{};S.xp=sv.xp||0;}}
+  if(!MACHINES[S.labM])S.labM='practice';
+  if(!S.labF||typeof S.labF!=='object')S.labF={op:'cmp',bits:8,v1:'0xaa',v2:'0x53'};
+  S.confirmReset=false;
+  if(S.cur){
+    var L=LEVELS[S.cur.li];
+    if(!L||!S.cur.queue){S.cur=null;}
+    else{
+      if(!S.cur.set)S.cur.set=range(L.qs.length);
+      var ok=S.cur.queue.concat(S.cur.set).every(function(k){return k>=0&&k<L.qs.length;});
+      if(!ok)S.cur=null;
+    }
+  }
+  if(S.view==='level'&&!S.cur)S.view='home';
+  if(!S.sec||!SECTIONS.some(function(x){return x.id===S.sec;}))S.sec=(S.view==='level'&&S.cur)?LEVELS[S.cur.li].sec:defaultSec();
+  render();
+}
+if(window.claude&&window.claude.hot&&typeof window.claude.hot.snapshot==='function'){window.claude.hot.snapshot(function(){return {S:S};});}
+if(window.claude&&window.claude.hot&&window.claude.hot.ready){window.claude.hot.ready(start);}
+else{start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});}
+</script>
+</body>
+</html>
