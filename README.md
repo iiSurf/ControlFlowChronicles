@@ -13,17 +13,8 @@ The whole game is a single file, `index.html`, with no build step and no depende
 
 Open `index.html` in a browser. That's it.
 
-## Publish on GitHub Pages
-
-1. Create a new repository on GitHub (for example `will-it-assemble`).
-2. Upload everything in this folder: `index.html`, `README.md` and `.nojekyll`.
-3. In the repository, go to **Settings → Pages**.
-4. Under **Build and deployment**, set **Source** to *Deploy from a branch*, pick your main branch and the `/ (root)` folder, then save.
-5. After a minute or two the page is live at `https://<your-username>.github.io/<repository-name>/`.
-
 Progress (XP and level blocks) is saved in each visitor's own browser with `localStorage`, so nothing is stored on the server and every classmate gets their own progress.
 
 ## Editing questions
 
 Questions live in the `LEVELS` array inside `index.html`, one object per level. Each level has a `lesson` (HTML) and a list of `qs`. The answer checkers (`analyze` for mov instructions, `solveOperand` for addressing, `solveFlags` for condition codes) generate the worked explanations automatically.
-# ControlFlowChronicles
