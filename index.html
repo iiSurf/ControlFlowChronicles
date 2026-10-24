@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Will It Assemble? A learning game for x86 assembly: mov rules, memory addressing, and control flow.">
+<meta name="description" content="Will It Assemble? A learning game for x86 assembly: mov rules, memory addressing, control flow, procedures and arrays.">
 <meta name="color-scheme" content="light dark">
 <style>
   :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -77,7 +77,7 @@ code{font-family:var(--font-code);font-size:.9em;background:var(--sunk);border:1
 
 /* sections + level strip */
 .map{display:grid;gap:10px}
-.secs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.secs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .sec-tab{display:grid;gap:1px;align-content:start;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;min-width:0;transition:border-color .15s,background .15s}
 .sec-tab:hover{border-color:var(--accent)}
 .sec-tab.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -278,9 +278,9 @@ table.grid7 td.n{color:var(--bad);background:var(--bad-soft);font-weight:700}
 .cbox{display:grid;gap:10px;align-content:start;border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
 .worked{display:grid;gap:10px;min-width:0}
 .steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:8px}
-.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.steps li::before{content:counter(s);font-family:var(--font-pixel);font-size:12px;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
-.steps li span{font-size:12px;color:var(--muted);white-space:nowrap}
+.steps li{counter-increment:s;display:block;position:relative;border:1px solid var(--line);border-radius:10px;padding:10px 12px 10px 52px;min-height:28px}
+.steps li::before{content:counter(s);position:absolute;left:12px;top:10px;font-family:var(--font-pixel);font-size:12px;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.steps li > span:last-child:not(:first-child){display:inline-block;margin-left:8px;font-size:12px;color:var(--muted);white-space:nowrap}
 .path{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .path li{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px;align-content:start}
 .path .pn{font-family:var(--font-pixel);font-size:10px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
@@ -379,6 +379,31 @@ table.condtbl td.c{white-space:normal}
 .bits span.top{border-color:var(--byte);background:var(--byte-soft);color:var(--byte-ink)}
 .bits-cap{font-size:12px;color:var(--muted)}
 .confirm{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+/* Parts 4-5: stack and array pictures */
+.stk{display:grid;gap:4px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--panel);min-width:0;align-content:start}
+.stk-t{font-family:var(--font-pixel);font-size:10px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+.stk-regs{display:flex;flex-wrap:wrap;gap:4px 12px;font-family:var(--font-code);font-size:14px;margin-bottom:2px}
+.stk-regs b{font-weight:600}
+.stk-cap{font-size:12px;color:var(--muted)}
+.stk-row{display:grid;grid-template-columns:5.6em minmax(0,1fr) 4.6em;gap:8px;align-items:center;font-family:var(--font-code);font-size:14px}
+.stk-a{color:var(--muted);font-size:13px;text-align:right}
+.stk-v{border:1.5px solid var(--line);border-radius:6px;background:var(--sunk);padding:6px 8px;text-align:center;min-height:1.5em;overflow-wrap:anywhere}
+.stk-row.new .stk-v{border-color:var(--byte);background:var(--byte-soft);color:var(--byte-ink);font-weight:600}
+.stk-row.room .stk-v{border-style:dashed;padding-block:16px}
+.stk-p{color:var(--accent);font-weight:600;font-size:13px}
+.arv{display:grid;gap:6px;min-width:0}
+.arv-d{font-size:14px}
+.arv-row{display:grid;gap:3px}
+.arv-c{display:grid;gap:2px;border:1.5px solid var(--line);border-radius:6px;background:var(--sunk);padding:6px 2px;text-align:center;font-family:var(--font-code);min-width:0;font-size:14px}
+.arv-c.hl{border-color:var(--byte);background:var(--byte-soft);color:var(--byte-ink)}
+.arv-i{font-size:11px;color:var(--muted)}
+.arv-o{font-size:11px;color:var(--accent);overflow-wrap:anywhere}
+.argtbl{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:6px;max-width:620px}
+.argc{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;gap:2px;text-align:center;background:var(--panel)}
+.argc span{font-size:12px;color:var(--muted)}
+.argc b{font-family:var(--font-code);font-size:16px;font-weight:600;color:var(--src)}
+.argc.ret b{color:var(--byte-ink)}
+.rule-box{font-family:var(--font-code);font-size:clamp(1.05rem,.95rem + .8vw,1.3rem);background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:12px 16px;justify-self:start;max-width:100%;overflow-x:auto}
 @media (max-width:540px){.secs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -388,7 +413,7 @@ table.condtbl td.c{white-space:normal}
   <header class="top">
     <div>
       <h1><button class="brand" data-go="home">Will It Assemble<span class="qm">?</span></button></h1>
-      <div class="tagline">x86 mov · addressing · control flow</div>
+      <div class="tagline">x86 assembly · parts 1–5</div>
     </div>
     <div class="stats" id="stats"></div>
   </header>
@@ -898,6 +923,29 @@ function condTableHTML(F){
 function calcBox(op,rows){return '<div class="cbox"><div class="token op sm">'+esc(op)+'</div>'+calcHTML(rows.map(function(r){return {l:r[0],s:r[1],v:r[2],tot:!!r[3]};}))+'</div>';}
 function hexStrip(){var s='';for(var k=0;k<16;k++){s+='<span'+(k>9?' class="hi"':'')+'><b>'+k.toString(16).toUpperCase()+'</b><i>'+k+'</i></span>';}return '<div class="hexstrip" aria-hidden="true">'+s+'</div>';}
 
+/* ---------- Parts 4-5: pictures ---------- */
+function stackViz(o){
+  var regs=o.regs?'<div class="stk-regs">'+o.regs.map(function(p){return '<span>'+esc(p[0])+' = <b>'+esc(p[1])+'</b></span>';}).join('')+'</div>':'';
+  var rows=o.rows.map(function(r,k){return '<div class="stk-row'+(r.cls?' '+r.cls:'')+'"><span class="stk-a">'+esc(r.a||'')+'</span><span class="stk-v">'+r.v+'</span><span class="stk-p">'+(k===o.rsp?'← %rsp':'')+'</span></div>';}).join('');
+  return '<div class="stk">'+(o.title?'<div class="stk-t">'+o.title+'</div>':'')+regs+'<div class="stk-cap">↑ higher addresses</div>'+rows+'<div class="stk-cap">↓ lower addresses (pushes go this way)</div></div>';
+}
+function stackPair(a,b){return '<div class="pair2">'+stackViz(a)+stackViz(b)+'</div>';}
+function regsViz(list){return '<div class="vals">'+list.map(function(p){return '<div class="val"><span class="val-k">'+esc(p[0])+' =</span><span class="val-v">'+esc(p[1])+'</span></div>';}).join('')+'</div>';}
+function arrViz(o){
+  var cells='';
+  for(var i=0;i<o.n;i++){
+    var off=typeof o.base==='number'?String(o.base+i*o.size):o.base+(i?'+'+(i*o.size):'');
+    cells+='<div class="arv-c'+(i===o.hl?' hl':'')+'"><span class="arv-i">['+i+']</span>'+(o.vals?'<b>'+esc(String(o.vals[i]))+'</b>':'')+'<span class="arv-o">'+esc(off)+'</span></div>';
+  }
+  return '<div class="arv"><div class="arv-d"><code>'+esc(o.decl)+'</code> <span class="fine">'+o.n+' elements × '+o.size+' bytes = '+(o.n*o.size)+' bytes</span></div><div class="arv-row" style="grid-template-columns:repeat('+o.n+',minmax(0,1fr))">'+cells+'</div></div>';
+}
+function argsViz(){
+  var a=[['1st','%rdi'],['2nd','%rsi'],['3rd','%rdx'],['4th','%rcx'],['5th','%r8'],['6th','%r9']];
+  return '<div class="argtbl">'+a.map(function(p){return '<div class="argc"><span>'+p[0]+' arg</span><b>'+p[1]+'</b></div>';}).join('')+'<div class="argc ret"><span>return value</span><b>%rax</b></div></div>';
+}
+function cmpBox(text,pairs,calc){return codeBlock(text.replace(/\s+then\s+/,'\n'))+regsViz(pairs)+(calc?'<div class="rule-box">'+esc(calc)+'</div>':'');}
+function lvOf(id){for(var k=0;k<LEVELS.length;k++){if(LEVELS[k].id===id)return k+1;}return 0;}
+
 /* ---------- levels ---------- */
 var KIND=['Immediate','Register','Memory'];
 var BYTES4=['1 byte','2 bytes','4 bytes','8 bytes'];
@@ -1256,238 +1304,473 @@ qs:[
 ]},
 
 /* ===== Part 3 · Control Flow ===== */
-{id:'cmpdir',sec:'p3',name:'Which way does cmp subtract?',short:'cmp order',shuffleOpts:true,
+{id:'c1',sec:'p3',name:'cmp subtracts backwards',short:'cmp order',shuffleOpts:true,
 defaults:{m:null,code:true},
-lesson:`<p>Part 3 is about changing what runs next. It starts with one instruction that does a subtraction and then throws the answer away.</p>
-<p><code>cmp S1, S2</code> computes <b>S2 − S1</b>, second minus first. It doesn't store the result anywhere. It only records four facts about the result, called the <b>condition codes</b> or flags. The next levels cover them one at a time.</p>
-<div class="tbl-wrap"><table class="t"><thead><tr><th>Instruction</th><th>Computes</th><th>Stores the result?</th></tr></thead><tbody>
-<tr><td class="c">cmpl %esi, %edi</td><td class="c">%edi − %esi</td><td>No, only the flags</td></tr>
-<tr><td class="c">subl %esi, %edi</td><td class="c">%edi − %esi</td><td>Yes, into %edi</td></tr>
-<tr><td class="c">testl %esi, %edi</td><td class="c">%edi &amp; %esi <span class="none">(bitwise AND)</span></td><td>No, only the flags</td></tr>
+lesson:`<p>Part 3 is about making decisions, like an <code>if</code>. It starts with <code>cmp</code>, which compares two values by subtracting them.</p>
+<div class="rule-box">cmp S1, S2 computes S2 − S1</div>
+<p>Second minus first, the same direction as <code>sub</code>. But cmp throws the answer away. It only keeps a few yes/no facts about the answer, called <b>flags</b>, for the next instruction to check.</p>`+
+cmpBox('cmpq %rax, %rbx',[['%rax','5'],['%rbx','10']],'computes %rbx − %rax = 10 − 5 = 5')+
+`<div class="tip"><span class="tl">Watch the order</span>Your worksheet uses both orders. With a in %rdi and b in %rsi, <code>cmpb %rdi, %rsi</code> computes <b>b − a</b>, but <code>cmpl %esi, %edi</code> computes <b>a − b</b>.</div>`,
+qs:[
+{instr:'cmpl %esi, %edi',plain:true,prompt:'What does this compute?',options:['%edi − %esi','%esi − %edi','%edi + %esi'],answer:0,hint:'Second minus first.',explain:'Second minus first: %edi − %esi.'},
+{vis:cmpBox('cmpq %rax, %rbx',[['%rax','5'],['%rbx','10']]),prompt:'What number does it compute?',options:['5','−5','15'],answer:0,explain:'%rbx − %rax = 10 − 5 = 5.'},
+{vis:cmpBox('cmpq %rbx, %rax',[['%rax','5'],['%rbx','10']]),prompt:'Operands swapped. What number does it compute now?',options:['−5','5','15'],answer:0,explain:'%rax − %rbx = 5 − 10 = −5.'},
+{instr:'cmpb %rdi, %rsi',plain:true,prompt:'a is in %rdi and b is in %rsi. What does this compute?',options:['b − a','a − b','a + b'],answer:0,explain:'Second minus first: %rsi − %rdi, which is b − a. Worksheet Q1 is written this way.'},
+{instr:'cmpl %esi, %edi',plain:true,prompt:'a is in %edi and b is in %esi. What does this compute?',options:['a − b','b − a'],answer:0,keep:true,explain:'%edi − %esi, which is a − b. Worksheet Q2 is written this way.'},
+{instr:'cmpl %esi, %edi',plain:true,prompt:'After this runs, what\'s in %edi?',code:false,options:['The same value as before','a − b','0'],answer:0,explain:'cmp only sets the flags. Neither value changes.'},
+{prompt:'Which instruction changes %edi?',options:['subl %esi, %edi','cmpl %esi, %edi'],answer:0,keep:true,explain:'sub stores its answer. cmp doesn\'t.'},
+{prompt:'<code>test S1, S2</code> is cmp\'s cousin. What does it compute?',code:false,options:['S2 AND S1, bit by bit','S2 − S1','S2 + S1'],answer:0,explain:'test ANDs the two values and keeps only the flags. <code>test %eax, %eax</code> is just a quick check of %eax itself: is it zero, is it negative?'}
+]},
+
+{id:'c2',sec:'p3',name:'ZF: was the answer zero?',short:'ZF',shuffleOpts:false,
+defaults:{m:null,code:true,options:['ZF = 1','ZF = 0']},
+lesson:`<p>The easiest flag first. <b>ZF</b>, the zero flag, is <b>1 when the answer was exactly zero</b>, and 0 otherwise.</p>
+<p>After a cmp, the answer is zero exactly when the two values are <b>equal</b>. So ZF = 1 means "they were equal".</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Compare</th><th>Answer</th><th>ZF</th></tr></thead><tbody>
+<tr><td>7 with 7</td><td>7 − 7 = 0</td><td><b>1</b></td></tr>
+<tr><td>5 with 10</td><td>10 − 5 = 5</td><td><b>0</b></td></tr>
 </tbody></table></div>
-<p>Your slide says it in capitals: NOTE REVERSED ORDERING. <code>cmpl %eax, %ecx</code> means "compare %ecx with %eax", so it computes %ecx − %eax. Same direction as <code>sub</code>, where the destination is the one that gets subtracted from.</p>
-<div class="tip"><span class="tl">From your slide</span>With %rax = 5 and %rbx = 10: <code>cmpq %rax, %rbx</code> computes 10 − 5, and <code>cmpq %rbx, %rax</code> computes 5 − 10.</div>
-<p class="fine">Two new byte names show up in Part 3. In 64-bit code, the low byte of %rdi is <code>%dil</code> and the low byte of %rsi is <code>%sil</code>. Function arguments arrive as a in %rdi and b in %rsi, which the worksheet uses.</p>`,
+<div class="tip"><span class="tl">test</span><code>test %eax, %eax</code> sets ZF = 1 exactly when %eax is 0. Loops use this to check a counter.</div>`,
 qs:[
-{instr:'cmpl %esi, %edi',plain:true,prompt:'What does this compute?',options:['%edi − %esi','%esi − %edi','%edi + %esi'],answer:0,hint:'Second minus first.',explain:'cmp computes second minus first: <code>%edi − %esi</code>.'},
-{instr:'cmpl %esi, %edi',plain:true,prompt:'With a in <code>%edi</code> and b in <code>%esi</code>, what does this compute?',options:['a − b','b − a','a &amp; b'],answer:0,explain:'<code>%edi − %esi</code>, and %edi holds a, so it\'s a − b. This is the setup in worksheet Q2.'},
-{instr:'cmpb %rdi, %rsi',plain:true,prompt:'With a in <code>%rdi</code> and b in <code>%rsi</code>, what does this compute?',options:['b − a','a − b','a + b'],answer:0,hint:'Second minus first. Which argument is second here?',explain:'Second minus first is <code>%rsi − %rdi</code>, which is b − a. Worksheet Q1 is written this way, so the subtraction goes the other direction from Q2.'},
-{instr:'cmpl %esi, %edi',plain:true,prompt:'After this runs, what\'s in <code>%edi</code>?',code:false,options:['The same value as before','a − b','0'],answer:0,hint:'cmp throws the result away.',explain:'cmp only sets the flags. Neither operand changes.'},
-{prompt:'Which instruction changes <code>%edi</code>?',options:['subl %esi, %edi','cmpl %esi, %edi','testl %esi, %edi'],answer:0,explain:'<code>sub</code> stores the difference in its destination. <code>cmp</code> and <code>test</code> only set the flags.'},
-{instr:'testl %eax, %eax',plain:true,prompt:'What does this compute?',code:false,options:['%eax &amp; %eax, which is just %eax','%eax − %eax, which is 0','%eax + %eax'],answer:0,hint:'test uses AND, not subtraction.',explain:'<code>test</code> ANDs the two operands. A value ANDed with itself is itself, so this just checks whether <code>%eax</code> is zero or negative.'},
-{instr:'cmpq %rbx, %rax',plain:true,prompt:'With %rax = 5 and %rbx = 10, what does this compute?',options:['5 − 10','10 − 5','5 + 10'],answer:0,explain:'Second minus first: <code>%rax − %rbx</code> = 5 − 10. This is the second question on your slide.'},
-{prompt:'Which instructions set the flags without storing a result?',code:false,options:['cmp and test','sub and add','mov and lea'],answer:0,explain:'<code>cmp</code> and <code>test</code> exist only to set flags. <code>sub</code> and <code>add</code> set flags too, but they also store their result. <code>mov</code> and <code>lea</code> don\'t touch the flags at all.'}
+{vis:cmpBox('cmpl %esi, %edi',[['a (%edi)','7'],['b (%esi)','7']]),prompt:'What is ZF?',answer:0,explain:'7 − 7 = 0, so ZF = 1.'},
+{vis:cmpBox('cmpl %esi, %edi',[['a (%edi)','3'],['b (%esi)','8']]),prompt:'What is ZF?',answer:1,explain:'3 − 8 = −5, not zero, so ZF = 0.'},
+{vis:cmpBox('testl %eax, %eax',[['%eax','0']]),prompt:'What is ZF?',answer:0,explain:'%eax is 0, so ZF = 1.'},
+{vis:cmpBox('testl %eax, %eax',[['%eax','5']]),prompt:'What is ZF?',answer:1,explain:'%eax isn\'t 0, so ZF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','49'],['b','49']]),prompt:'What is ZF?',answer:0,explain:'Equal values, so the answer is 0 and ZF = 1. (This is the setge case on your worksheet.)'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','14'],['b','37']]),prompt:'What is ZF?',answer:1,explain:'14 and 37 are different, so ZF = 0. (The setne case on your worksheet.)'},
+{prompt:'After a cmp, ZF = 1 means the two values were',code:false,options:['equal','different','negative'],answer:0,explain:'Their difference was zero.'}
 ]},
 
-{id:'zfsf',sec:'p3',name:'ZF and SF',short:'ZF and SF',shuffleOpts:true,
-defaults:{m:null,only:['ZF','SF']},
-lesson:`<p>After cmp, sub, add or test, the CPU records four one-bit flags. Start with the two that only look at the result itself.</p>
-<div class="tbl-wrap"><table class="t"><thead><tr><th>Flag</th><th>Name</th><th>Set to 1 when</th></tr></thead><tbody>
-<tr><td class="c">ZF</td><td>zero flag</td><td>the result is exactly zero</td></tr>
-<tr><td class="c">SF</td><td>sign flag</td><td>the result is negative as a signed number. SF is a copy of the result's top bit.</td></tr>
-</tbody></table></div>`+
-flagsWorked({op:'cmp',bits:32,text:'cmpl %eax, %ebx',s1:{reg:'%eax',val:'5'},s2:{reg:'%ebx',val:'10'}},{only:['ZF','SF']})+
-flagsWorked({op:'cmp',bits:32,text:'cmpl %ebx, %eax',s1:{reg:'%ebx',val:'10'},s2:{reg:'%eax',val:'5'}},{only:['ZF','SF']})+
-`<div class="tip"><span class="tl">test with itself</span><code>testl %edi, %edi</code> ANDs a register with itself, which gives the register back unchanged. So ZF = 1 exactly when the register is zero, and SF = 1 exactly when it's negative. Loops use this constantly.</div>`,
+{id:'c3',sec:'p3',name:'SF: was the answer negative?',short:'SF',
+defaults:{m:null,code:true,options:['SF = 1','SF = 0']},
+lesson:`<p><b>SF</b>, the sign flag, is <b>1 when the answer is negative</b>, and 0 when it's zero or positive.</p>
+<p>So: work out second minus first, then look at the sign.</p>`+
+cmpBox('cmpq %rbx, %rax',[['%rax','5'],['%rbx','10']],'5 − 10 = −5, negative, so SF = 1')+
+`<p class="fine">That's the second question on your slide. Its answer was "CF and SF". CF comes two levels from now.</p>`,
 qs:[
-{fl:{op:'cmp',bits:32,text:'cmpl %eax, %ebx',s1:{reg:'%eax',val:'5'},s2:{reg:'%ebx',val:'10'}},prompt:'After this, what is ZF?',options:['ZF = 0','ZF = 1'],answer:0,hint:'Second minus first. Is the result zero?',explain:'10 − 5 = 5, which isn\'t zero.'},
-{fl:{op:'cmp',bits:32,text:'cmpl %ebx, %eax',s1:{reg:'%ebx',val:'10'},s2:{reg:'%eax',val:'5'}},prompt:'After this, what is SF?',options:['SF = 1','SF = 0'],answer:0,hint:'5 − 10 is negative.',explain:'5 − 10 = −5, a negative result, so SF = 1.'},
-{fl:{op:'cmp',bits:32,text:'cmpl %esi, %edi',s1:{label:'b',reg:'%esi',val:'49'},s2:{label:'a',reg:'%edi',val:'49'}},prompt:'After this, what is ZF?',options:['ZF = 1','ZF = 0'],answer:0,explain:'49 − 49 = 0, so ZF = 1. Equal operands always set ZF.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'14'},s2:{label:'b',reg:'%sil',val:'37'}},prompt:'After this, what is SF?',options:['SF = 0','SF = 1'],answer:0,hint:'This computes b − a.',explain:'b − a = 37 − 14 = 23, positive, so SF = 0.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %sil, %dil',s1:{label:'b',reg:'%sil',val:'37'},s2:{label:'a',reg:'%dil',val:'14'}},prompt:'Same values, operands swapped. What is SF now?',options:['SF = 1','SF = 0'],answer:0,hint:'Now it computes a − b.',explain:'a − b = 14 − 37 = −23, negative, so SF = 1. Swapping the operands flips the sign.'},
-{fl:{op:'cmp',bits:32,text:'cmpl %esi, %edi',s1:{label:'b',reg:'%esi',val:'7'},s2:{label:'a',reg:'%edi',val:'7'}},flags:['ZF','SF'],prompt:'Set ZF and SF.',hint:'a − b = 0.'},
-{fl:{op:'cmp',bits:32,text:'cmpl %esi, %edi',s1:{label:'b',reg:'%esi',val:'8'},s2:{label:'a',reg:'%edi',val:'3'}},flags:['ZF','SF'],prompt:'Set ZF and SF.',hint:'a − b = 3 − 8.'},
-{fl:{op:'test',bits:32,text:'testl %edi, %edi',s1:{reg:'%edi',val:'0'},s2:{reg:'%edi',val:'0'}},prompt:'%edi holds 0. After this, what is ZF?',options:['ZF = 1','ZF = 0'],answer:0,hint:'0 & 0 = 0.',explain:'test ANDs %edi with itself: 0 & 0 = 0, so ZF = 1. This is how a loop checks whether a counter has hit zero.'},
-{fl:{op:'test',bits:32,text:'testl %edi, %edi',s1:{reg:'%edi',val:'-3'},s2:{reg:'%edi',val:'-3'}},prompt:'%edi holds −3. After this, what are ZF and SF?',code:false,options:['ZF = 0, SF = 1','ZF = 1, SF = 0','ZF = 0, SF = 0'],answer:0,hint:'A value ANDed with itself is itself.',explain:'−3 & −3 = −3. Not zero, so ZF = 0, and negative, so SF = 1.'}
+{vis:cmpBox('cmpq %rax, %rbx',[['%rax','5'],['%rbx','10']]),prompt:'What is SF?',answer:1,explain:'10 − 5 = 5, positive, so SF = 0.'},
+{vis:cmpBox('cmpq %rbx, %rax',[['%rax','5'],['%rbx','10']]),prompt:'What is SF?',answer:0,explain:'5 − 10 = −5, negative, so SF = 1.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','14'],['b','37']]),prompt:'This computes b − a. What is SF?',answer:1,explain:'37 − 14 = 23, positive, so SF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','37'],['b','14']]),prompt:'This computes b − a. What is SF?',answer:0,explain:'14 − 37 = −23, negative, so SF = 1.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','49'],['b','49']]),prompt:'What is SF?',answer:1,explain:'49 − 49 = 0, and zero isn\'t negative, so SF = 0.'},
+{vis:cmpBox('testl %eax, %eax',[['%eax','−3']]),prompt:'What is SF?',answer:0,explain:'test with itself just checks %eax, and −3 is negative, so SF = 1.'},
+{prompt:'If ZF = 1, what is SF?',options:['SF = 0','SF = 1'],answer:0,keep:true,explain:'ZF = 1 means the answer was 0, and 0 isn\'t negative.'}
 ]},
 
-{id:'cf',sec:'p3',name:'CF: the unsigned borrow',short:'Carry flag',shuffleOpts:true,
-defaults:{m:null,only:['CF']},
-lesson:`<p>CF is about <b>unsigned</b> math. Every byte has two readings: unsigned (0 to 255) and signed (−128 to 127). The top bit decides. If a byte is 0x80 or more, its signed reading is negative, and equals the unsigned reading minus 256.</p>
+{id:'c4',sec:'p3',name:'One byte, two readings',short:'Signed bytes',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>Your worksheet compares <b>bytes</b>, and some values are hex or negative. One byte holds 0 to 255. The same byte can also be read as <b>signed</b>, from −128 to 127.</p>
+<div class="rule-box">0x00 to 0x7F: both readings are the same<br>0x80 to 0xFF: signed = unsigned − 256</div>
 <div class="tbl-wrap"><table class="t"><thead><tr><th>Byte</th><th>Unsigned</th><th>Signed</th></tr></thead><tbody>
-<tr><td class="c">0x53</td><td>83</td><td>+83</td></tr>
-<tr><td class="c">0x7F</td><td>127</td><td>+127</td></tr>
+<tr><td class="c">0x53</td><td>83</td><td>83</td></tr>
 <tr><td class="c">0x80</td><td>128</td><td>−128</td></tr>
 <tr><td class="c">0xAA</td><td>170</td><td>−86</td></tr>
-<tr><td class="c">0xD2</td><td>210</td><td>−46</td></tr>
 <tr><td class="c">0xFF</td><td>255</td><td>−1</td></tr>
 </tbody></table></div>
-<p><b>CF for subtraction:</b> 1 when the unsigned math goes below zero, which happens when the second value is below the first. Your slide puts it as "if the subtrahend is greater than the minuend, CF = 1". <b>CF for addition:</b> 1 when the unsigned sum is bigger than 255, so a 1 carries out the top and is lost.</p>`+
-flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},{only:['CF']})+
-`<div class="tip"><span class="tl">Negative numbers in the question</span>A value like −46 is stored as the byte 0xD2, which is 210 unsigned. Convert first, then compare as unsigned.</div>`,
+<p>Going the other way, a negative like −46 is stored as 256 − 46 = 210 (0xD2).</p>
+<div class="tip"><span class="tl">Hex to decimal</span>First digit × 16, plus the second digit. 0xAA = 10 × 16 + 10 = 170. 0x53 = 5 × 16 + 3 = 83.</div>`,
 qs:[
-{token:'0xAA',prompt:'As an unsigned byte, what is this?',options:['170','−86','10'],answer:0,hint:'A is 10, so 0xAA = 10 × 16 + 10.',explain:'0xAA = 10 × 16 + 10 = 170.'},
-{token:'0xAA',prompt:'As a signed byte, what is this?',options:['−86','170','−10'],answer:0,hint:'It\'s 0x80 or more, so subtract 256.',explain:'0xAA is 0x80 or more, so its signed reading is 170 − 256 = −86.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},prompt:'After this, what is CF?',options:['CF = 1','CF = 0'],answer:0,hint:'b − a as unsigned: 83 − 170.',explain:'Unsigned, 83 − 170 goes below zero, so there\'s a borrow and CF = 1.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %sil, %dil',s1:{label:'b',reg:'%sil',val:'0x53'},s2:{label:'a',reg:'%dil',val:'0xaa'}},prompt:'Same values, operands swapped. What is CF now?',options:['CF = 0','CF = 1'],answer:0,hint:'Now it\'s a − b: 170 − 83.',explain:'Unsigned, 170 − 83 = 87 stays above zero, so CF = 0.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x10'},s2:{label:'b',reg:'%sil',val:'0x10'}},prompt:'After this, what is CF?',options:['CF = 0','CF = 1'],answer:0,explain:'16 − 16 = 0. Nothing went below zero, so no borrow. Equal values never set CF.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},prompt:'After this, what is CF?',options:['CF = 0','CF = 1'],answer:0,hint:'Convert first: −46 is the byte 0xD2 = 210, and −101 is 0x9B = 155.',explain:'As unsigned bytes, b = 210 and a = 155. 210 − 155 = 55 stays above zero, so CF = 0. This is the last case in worksheet Q1.'},
-{fl:{op:'add',bits:8,text:'addb $1, %al',s1:{label:'$1',val:'1'},s2:{reg:'%al',val:'0xff'}},prompt:'%al holds 0xFF. After this, what is CF?',options:['CF = 1','CF = 0'],answer:0,hint:'255 + 1 doesn\'t fit in a byte.',explain:'255 + 1 = 256, which needs a ninth bit. That bit carries out and is lost, so CF = 1 and %al becomes 0x00. Your slide shows the same thing with 1111 + 0001.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x80'},s2:{label:'b',reg:'%sil',val:'0x7f'}},flags:['CF','ZF','SF'],prompt:'Set CF, ZF and SF.',hint:'b − a: unsigned 127 − 128.'}
+{token:'0x53',prompt:'As an unsigned number, what is this byte?',options:['83','53','−83'],answer:0,explain:'5 × 16 + 3 = 83.'},
+{token:'0xAA',prompt:'As an unsigned number, what is this byte?',options:['170','−86','110'],answer:0,hint:'A is 10.',explain:'10 × 16 + 10 = 170.'},
+{token:'0xAA',prompt:'As a signed number, what is this byte?',options:['−86','170','86'],answer:0,hint:'It\'s 0x80 or more, so subtract 256.',explain:'170 − 256 = −86.'},
+{token:'0x7F',prompt:'As a signed number, what is this byte?',options:['127','−1','−127'],answer:0,explain:'0x7F is below 0x80, so both readings are 7 × 16 + 15 = 127.'},
+{token:'0xFF',prompt:'As a signed number, what is this byte?',options:['−1','255','−255'],answer:0,explain:'255 − 256 = −1.'},
+{token:'−46',prompt:'This byte is stored as which unsigned number?',options:['210','46','−210'],answer:0,hint:'256 − 46.',explain:'256 − 46 = 210 (0xD2).'},
+{token:'−101',prompt:'This byte is stored as which unsigned number?',options:['155','101','27'],answer:0,hint:'256 − 101.',explain:'256 − 101 = 155 (0x9B).'},
+{token:'0x90',prompt:'Is this byte negative when read as signed?',code:false,options:['Yes, it\'s 0x80 or more','No'],answer:0,keep:true,explain:'Anything from 0x80 to 0xFF is negative when read as signed.'},
+{token:'0x80',prompt:'Type this byte\'s signed value.',input:true,dec:true,expect:'-128',explain:'128 − 256 = −128, the smallest signed byte.'}
 ]},
 
-{id:'of',sec:'p3',name:'OF: the signed overflow',short:'Overflow flag',shuffleOpts:true,
-defaults:{m:null,only:['OF']},
-lesson:`<p>OF is about <b>signed</b> math. It's 1 when the true signed answer doesn't fit in the signed range: −128 to 127 for a byte, about ±2.1 billion for a 4-byte int.</p>
-<ol class="steps"><li><b>Read both values as signed.</b> 0xAA is −86, not 170.</li><li><b>Do the real math</b>, like on paper.</li><li><b>Check the range.</b> Outside it means OF = 1.</li></ol>`+
-flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},{only:['OF']})+
-flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},{only:['OF']})+
-`<div class="tip"><span class="tl">Two shortcuts</span>Subtracting two numbers with the <b>same</b> sign can never overflow. Adding two numbers with <b>different</b> signs can never overflow. Overflow needs the real answer to be pushed past the edge, and those combinations pull it toward the middle.</div>
-<p class="fine">Your slide's formula for t = b − a: OF = (a&lt;0 &amp;&amp; b&gt;0 &amp;&amp; t&lt;0) || (a&gt;0 &amp;&amp; b&lt;0 &amp;&amp; t&gt;0). That's the same test written as sign checks. The "does it fit?" method gives the same answer and is easier to do by hand.</p>`,
+{id:'c5',sec:'p3',name:'CF: unsigned below',short:'CF',
+defaults:{m:null,code:true,options:['CF = 1','CF = 0']},
+lesson:`<p><b>CF</b>, the carry flag, is about <b>unsigned</b> numbers.</p>
+<div class="rule-box">After cmp S1, S2: CF = 1 when S2 is below S1 (unsigned)</div>
+<p>In words: S2 − S1 would go below zero, so the subtraction had to borrow. If the values are hex or negative, convert them to unsigned first, as in the last level.</p>`+
+cmpBox('cmpb %rdi, %rsi',[['a','0xaa = 170'],['b','0x53 = 83']],'is b below a?  83 below 170?  yes, so CF = 1')+
+cmpBox('cmpb %rdi, %rsi',[['a','−101 = 155'],['b','−46 = 210']],'is b below a?  210 below 155?  no, so CF = 0')+
+`<p class="fine">For addition, CF = 1 when the unsigned sum is too big for the byte, so a 1 carries out of the top. Your slide shows 1111 + 0001.</p>`,
 qs:[
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},prompt:'After this, what is OF?',options:['OF = 1','OF = 0'],answer:0,hint:'Signed: +83 − (−86).',explain:'Signed, +83 − (−86) = +169, which is bigger than 127, so OF = 1.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x53'},s2:{label:'b',reg:'%sil',val:'0xaa'}},prompt:'Values swapped. What is OF now?',options:['OF = 1','OF = 0'],answer:0,hint:'Signed: −86 − (+83).',explain:'Signed, −86 − 83 = −169, which is below −128, so OF = 1 again. Different signs, big gap, overflow in either direction.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},prompt:'After this, what is OF?',options:['OF = 0','OF = 1'],answer:0,hint:'Both negative. Can same-sign subtraction overflow?',explain:'−46 − (−101) = +55, which fits. Same-sign subtraction never overflows.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'49'},s2:{label:'b',reg:'%sil',val:'49'}},prompt:'After this, what is OF?',options:['OF = 0','OF = 1'],answer:0,explain:'49 − 49 = 0 fits comfortably, so OF = 0.'},
-{fl:{op:'add',bits:8,text:'addb $1, %al',s1:{label:'$1',val:'1'},s2:{reg:'%al',val:'0x7f'}},prompt:'%al holds 0x7F. After this, what is OF?',options:['OF = 1','OF = 0'],answer:0,hint:'127 + 1 as a signed byte.',explain:'+127 + 1 = +128, which doesn\'t fit in −128 to 127, so OF = 1. The stored byte 0x80 reads as −128. Notice CF = 0 here: unsigned, 127 + 1 = 128 is fine.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x7f'},s2:{label:'b',reg:'%sil',val:'0xff'}},prompt:'After this, what is OF?',options:['OF = 0','OF = 1'],answer:0,hint:'Signed: −1 − 127. Does −128 fit?',explain:'−1 − 127 = −128, which is the smallest byte value, so it still fits. OF = 0.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x01'},s2:{label:'b',reg:'%sil',val:'0x80'}},flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.',hint:'Unsigned: 128 − 1. Signed: −128 − 1.'},
-{prompt:'Can <code>b − a</code> overflow when a and b are both negative?',code:false,options:['No. Same-sign subtraction never overflows.','Yes, whenever the result is positive.','Yes, whenever CF is also set.'],answer:0,explain:'Two negatives are at most 127 apart, so their difference always fits.'}
+{vis:cmpBox('cmpq %rax, %rbx',[['%rax','5'],['%rbx','10']]),prompt:'What is CF?',answer:1,hint:'Is %rbx below %rax?',explain:'Is 10 below 5? No, so CF = 0.'},
+{vis:cmpBox('cmpq %rbx, %rax',[['%rax','5'],['%rbx','10']]),prompt:'What is CF?',answer:0,hint:'Is %rax below %rbx?',explain:'Is 5 below 10? Yes, so CF = 1. With SF = 1 from before, that\'s your slide\'s "CF and SF".'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','14'],['b','37']]),prompt:'This computes b − a. What is CF?',answer:1,explain:'Is 37 below 14? No, so CF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','0xaa'],['b','0x53']]),prompt:'This computes b − a. What is CF?',answer:0,hint:'Convert: 0xaa = 170, 0x53 = 83.',explain:'Is 83 below 170? Yes, so CF = 1.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','49'],['b','49']]),prompt:'What is CF?',answer:1,explain:'Equal isn\'t below, so CF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','−101'],['b','−46']]),prompt:'This computes b − a. What is CF?',answer:1,hint:'Convert to unsigned first: 256 − 101 and 256 − 46.',explain:'As unsigned bytes, a = 155 and b = 210. Is 210 below 155? No, so CF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','0x20'],['b','0x10']]),prompt:'This computes b − a. What is CF?',answer:0,explain:'Is 16 below 32? Yes, so CF = 1.'},
+{prompt:'After <code>test</code>, what is CF always?',options:['CF = 0','CF = 1'],answer:0,keep:true,explain:'test always clears CF (and OF).'}
 ]},
 
-{id:'allflags',sec:'p3',name:'All four flags',short:'All four flags',
-defaults:{m:null,flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.'},
-lesson:`<p>Now run the whole checklist on one instruction.</p>
-<ol class="steps"><li><b>What gets computed?</b> cmp: second minus first.</li><li><b>Convert both values</b> to hex, unsigned and signed.</li><li><b>Work out the result</b> as a byte.</li><li><b>ZF and SF</b> come from the result. <b>CF</b> comes from the unsigned math. <b>OF</b> comes from the signed math.</li></ol>`+
-flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}})+
-`<div class="tip"><span class="tl">test is simpler</span>After <code>test</code>, CF and OF are always 0. Only ZF and SF can be 1, based on the AND result.</div>`,
+{id:'c6',sec:'p3',name:'OF: signed overflow',short:'OF',
+defaults:{m:null,code:true,options:['OF = 1','OF = 0']},
+lesson:`<p><b>OF</b>, the overflow flag, is about <b>signed</b> numbers. A signed byte only holds −128 to 127. OF = 1 when the real answer doesn't fit.</p>
+<ol class="steps"><li>Read both values as <b>signed</b>.</li><li>Do the subtraction like normal math.</li><li>Outside −128 to 127? Then OF = 1.</li></ol>`+
+cmpBox('cmpb %rdi, %rsi',[['a','0xaa = −86'],['b','0x53 = 83']],'b − a = 83 − (−86) = 169, too big, so OF = 1')+
+`<div class="tip"><span class="tl">Shortcut</span>If both values have the same sign, both positive or both negative, a subtraction can never overflow. OF can only be 1 when one is negative and the other isn't.</div>`,
 qs:[
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'14'},s2:{label:'b',reg:'%sil',val:'37'}},hint:'b − a = 23. Nothing unusual happens.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},hint:'This is the worked example from the lesson.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'49'},s2:{label:'b',reg:'%sil',val:'49'}},hint:'Equal values.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'-101'},s2:{label:'b',reg:'%sil',val:'-46'}},hint:'Convert both negatives to bytes first.'},
-{fl:{op:'cmp',bits:32,text:'cmpl %ebx, %eax',s1:{reg:'%ebx',val:'10'},s2:{reg:'%eax',val:'5'}},hint:'5 − 10. Your slide\'s answer was CF and SF.'},
-{fl:{op:'test',bits:32,text:'testl %eax, %ebx',s1:{reg:'%eax',val:'5'},s2:{reg:'%ebx',val:'10'}},hint:'5 is 0101 and 10 is 1010 in binary.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x90'},s2:{label:'b',reg:'%sil',val:'0x90'}},hint:'Equal, and both negative as signed.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x01'},s2:{label:'b',reg:'%sil',val:'0x00'}},hint:'0 − 1 wraps around.'}
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','14'],['b','37']]),prompt:'This computes b − a. What is OF?',answer:1,explain:'37 − 14 = 23, which fits, so OF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','0xaa'],['b','0x53']]),prompt:'This computes b − a. What is OF?',answer:0,hint:'Signed: a = −86, b = 83.',explain:'83 − (−86) = 169. That\'s bigger than 127, so OF = 1.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','49'],['b','49']]),prompt:'What is OF?',answer:1,explain:'49 − 49 = 0 fits, so OF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','−101'],['b','−46']]),prompt:'This computes b − a. What is OF?',answer:1,hint:'Both negative. Check the shortcut.',explain:'Both are negative, so it can\'t overflow: −46 − (−101) = 55, which fits. OF = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi',[['a','0x01'],['b','0x80']]),prompt:'This computes b − a. What is OF?',answer:0,hint:'Signed: b = −128.',explain:'−128 − 1 = −129. That\'s below −128, so OF = 1.'},
+{prompt:'What is 83 − (−86)?',options:['169','−3','3'],answer:0,keep:true,explain:'Subtracting a negative adds: 83 + 86 = 169.'},
+{prompt:'Can subtracting two negative numbers overflow?',code:false,options:['No','Yes'],answer:0,keep:true,explain:'Same signs can never overflow in a subtraction.'}
 ]},
 
-{id:'setx',sec:'p3',name:'SET: flags into a byte',short:'SET',shuffleOpts:true,
-defaults:{m:null},
-lesson:`<p>A <code>setX</code> instruction turns the flags into a 0 or 1 in a byte register, usually <code>%al</code>. The letters after <code>set</code> say which condition to check.</p>
-<div class="tbl-wrap"><table class="t"><thead><tr><th>setX</th><th>Condition</th><th>Meaning</th></tr></thead><tbody>
-<tr><td class="c">sete</td><td class="c">ZF</td><td>Equal / zero</td></tr>
-<tr><td class="c">setne</td><td class="c">~ZF</td><td>Not equal / not zero</td></tr>
-<tr><td class="c">sets</td><td class="c">SF</td><td>Negative</td></tr>
-<tr><td class="c">setns</td><td class="c">~SF</td><td>Nonnegative</td></tr>
-<tr><td class="c">setg</td><td class="c">~(SF^OF) &amp; ~ZF</td><td>Greater (signed)</td></tr>
-<tr><td class="c">setge</td><td class="c">~(SF^OF)</td><td>Greater or equal (signed)</td></tr>
-<tr><td class="c">setl</td><td class="c">SF^OF</td><td>Less (signed)</td></tr>
-<tr><td class="c">setle</td><td class="c">(SF^OF) | ZF</td><td>Less or equal (signed)</td></tr>
-<tr><td class="c">seta</td><td class="c">~CF &amp; ~ZF</td><td>Above (unsigned)</td></tr>
-<tr><td class="c">setae</td><td class="c">~CF</td><td>Above or equal (unsigned)</td></tr>
-<tr><td class="c">setb</td><td class="c">CF</td><td>Below (unsigned)</td></tr>
-<tr><td class="c">setbe</td><td class="c">CF | ZF</td><td>Below or equal (unsigned)</td></tr>
+{id:'c7',sec:'p3',name:'set: answer a yes/no question',short:'set',
+defaults:{m:null,code:true,options:['1','0']},
+lesson:`<p>A <code>set</code> instruction asks a yes/no question about the last cmp. It puts the answer in a byte like <code>%al</code>: <b>1 for yes, 0 for no</b>.</p>
+<p>The letters after <code>set</code> pick the question. After <code>cmp S1, S2</code>, read it as <b>"is S2 ___ S1?"</b></p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Instruction</th><th>Is S2 ___ S1?</th><th>Numbers</th></tr></thead><tbody>
+<tr><td class="c">sete / setne</td><td>equal / not equal</td><td>either</td></tr>
+<tr><td class="c">setg / setge</td><td>greater / greater or equal</td><td>signed</td></tr>
+<tr><td class="c">setl / setle</td><td>less / less or equal</td><td>signed</td></tr>
+<tr><td class="c">seta / setae</td><td>above / above or equal</td><td>unsigned</td></tr>
+<tr><td class="c">setb / setbe</td><td>below / below or equal</td><td>unsigned</td></tr>
 </tbody></table></div>
-<div class="tip"><span class="tl">The naming pattern</span><b>e</b> equal, <b>ne</b> not equal, <b>s</b> sign. <b>g</b>reater and <b>l</b>ess are the <b>signed</b> compares, using SF and OF. <b>a</b>bove and <b>b</b>elow are the <b>unsigned</b> compares, using CF. Adding <b>e</b> means "or equal", which brings ZF in.</div>
-<p>Why SF^OF means "less"? If there was no overflow, a negative result means less. If there was an overflow, the sign bit is backwards, so flip it. XOR with OF does exactly that.</p>`+
-flagsWorked({op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},{set:'setb',only:['CF','ZF']})+
-`<p class="fine">set only writes one byte and leaves the other bytes of the register alone, so compilers usually follow it with <code>movzbl %al, %eax</code> to zero the rest. ~ means NOT, ^ means XOR, &amp; means AND and | means OR.</p>`,
+<div class="tip"><span class="tl">The letter code</span><b>g</b>reater and <b>l</b>ess are <b>signed</b>. <b>a</b>bove and <b>b</b>elow are <b>unsigned</b>. An extra <b>e</b> means "or equal", and <b>n</b> means "not".</div>`+
+cmpBox('cmpb %rdi, %rsi   then   setb %al',[['a','0xaa = 170'],['b','0x53 = 83']],'is b below a, unsigned?  83 below 170?  yes, so %al = 1')+
+`<p class="fine">This gives the same answer as the flag formulas on your worksheet. setb copies CF, sete copies ZF, and seta is ~CF &amp; ~ZF ("not below and not equal").</p>`,
 qs:[
-{given:{CF:0,ZF:1,SF:0,OF:0},cond:'sete',instr:'sete %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 1','%al = 0'],answer:0,hint:'sete uses ZF.',explain:'sete copies ZF, and ZF is 1.'},
-{given:{CF:1,ZF:0,SF:1,OF:1},cond:'setb',instr:'setb %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 1','%al = 0'],answer:0,hint:'setb uses CF.',explain:'setb copies CF, and CF is 1.'},
-{given:{CF:1,ZF:0,SF:1,OF:1},cond:'setl',instr:'setl %al',plain:true,prompt:'Same flags. What does <code>setl</code> put in <code>%al</code>?',options:['%al = 0','%al = 1'],answer:0,hint:'setl uses SF^OF. 1^1 is 0.',explain:'setl is SF^OF = 1^1 = 0. The same flags gave setb a 1, so these values are below as unsigned but not less as signed. That\'s 0x53 vs 0xAA again.'},
-{given:{CF:0,ZF:0,SF:1,OF:0},cond:'setg',instr:'setg %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 0','%al = 1'],answer:0,hint:'SF is 1 with no overflow, so the result was really negative.',explain:'setg is ~(SF^OF) &amp; ~ZF = ~(1^0) &amp; ~0 = 0 &amp; 1 = 0. A negative result without overflow means less, not greater.'},
-{prompt:'Which instruction means "greater than, unsigned"?',code:true,options:['seta','setg','setge','setb'],answer:0,hint:'above and below are the unsigned words.',explain:'<b>a</b>bove is the unsigned greater-than. <code>setg</code> is the signed one.'},
-{prompt:'Which instruction means "less than or equal, signed"?',code:true,options:['setle','setbe','setl','setb'],answer:0,hint:'less is signed, and e adds "or equal".',explain:'<b>l</b>ess is signed, and the <b>e</b> adds "or equal". <code>setbe</code> is the unsigned version.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'14'},s2:{label:'b',reg:'%sil',val:'37'}},flags:['CF','ZF','SF','OF'],set:'setne',prompt:'Set the flags, then what <code>setne %al</code> gives.',hint:'b − a = 23. Not equal.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0xaa'},s2:{label:'b',reg:'%sil',val:'0x53'}},flags:['CF','ZF','SF','OF'],set:'setb',prompt:'Set the flags, then what <code>setb %al</code> gives.',hint:'setb copies CF.'},
-{fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'49'},s2:{label:'b',reg:'%sil',val:'49'}},flags:['CF','ZF','SF','OF'],set:'setge',prompt:'Set the flags, then what <code>setge %al</code> gives.',hint:'setge is ~(SF^OF). Equal counts as "or equal".'},
-{prompt:'After <code>setl %al</code>, what does <code>movzbl %al, %eax</code> do?',code:false,options:['Zeroes the upper 3 bytes of %eax, so the whole register is 0 or 1','Moves %eax into %al','Sets %eax to −1'],answer:0,explain:'set writes only one byte. movzbl copies that byte into the full register and fills the rest with zeros, so the function can return a clean 0 or 1.'}
+{vis:cmpBox('cmpl %esi, %edi   then   sete %al',[['a (%edi)','7'],['b (%esi)','7']]),prompt:'What does sete put in %al?',answer:0,explain:'Is a equal to b? Yes, so %al = 1.'},
+{vis:cmpBox('cmpb %rdi, %rsi   then   setne %al',[['a','14'],['b','37']]),prompt:'What does setne put in %al?',answer:0,explain:'Is b not equal to a? 37 isn\'t 14, so yes: %al = 1. (Worksheet Q1.)'},
+{vis:cmpBox('cmpb %rdi, %rsi   then   setg %al',[['a','5'],['b','3']]),prompt:'What does setg put in %al?',answer:1,hint:'Is b greater than a?',explain:'Is 3 greater than 5? No, so %al = 0.'},
+{vis:cmpBox('cmpb %rdi, %rsi   then   setge %al',[['a','49'],['b','49']]),prompt:'What does setge put in %al?',answer:0,explain:'Is 49 greater than or equal to 49? Yes, it\'s equal, so %al = 1. (Worksheet Q1.)'},
+{vis:cmpBox('cmpb %rdi, %rsi   then   setb %al',[['a','0xaa'],['b','0x53']]),prompt:'What does setb put in %al?',answer:0,hint:'b is unsigned. Convert both.',explain:'Is 83 below 170, unsigned? Yes, so %al = 1. (Worksheet Q1.)'},
+{vis:cmpBox('cmpb %rdi, %rsi   then   setl %al',[['a','0xaa'],['b','0x53']]),prompt:'Same values. What does setl put in %al?',answer:1,hint:'l is signed: a = −86, b = 83.',explain:'Is 83 less than −86, signed? No, so %al = 0. Same bytes as setb, opposite answer, because signed and unsigned read them differently.'},
+{vis:cmpBox('cmpb %rdi, %rsi   then   seta %al',[['a','−101'],['b','−46']]),prompt:'What does seta put in %al?',answer:0,hint:'a is unsigned: a = 155, b = 210.',explain:'Is 210 above 155, unsigned? Yes, so %al = 1. (Worksheet Q1.)'},
+{prompt:'Which one means "greater, unsigned"?',options:['seta','setg','setgt','setb'],answer:0,explain:'Unsigned uses above and below. setgt isn\'t a real instruction.'},
+{prompt:'Which one means "less or equal, signed"?',options:['setle','setbe','setl','setlte'],answer:0,explain:'l for less (signed), plus e for "or equal".'},
+{prompt:'<code>setb</code> copies which flag?',options:['CF','ZF','SF','OF'],answer:0,explain:'Below (unsigned) is exactly CF, the borrow flag.'}
 ]},
 
-{id:'jumps',sec:'p3',name:'Jumps: same letters',short:'Jumps',shuffleOpts:true,
+{id:'c8',sec:'p3',name:'Jumps use the same letters',short:'Jumps',shuffleOpts:true,
 defaults:{m:null,code:true},
-lesson:`<p>A <code>jX label</code> instruction jumps to the label when its condition is true. Otherwise execution falls through to the next instruction. The conditions are the same ones setX uses, with the same letters.</p>
-<div class="tbl-wrap"><table class="t"><thead><tr><th>jX</th><th>Synonym</th><th>Condition</th><th>Meaning</th></tr></thead><tbody>
-<tr><td class="c">jmp</td><td></td><td class="c">1</td><td>Always</td></tr>
-<tr><td class="c">je</td><td class="c">jz</td><td class="c">ZF</td><td>Equal / zero</td></tr>
-<tr><td class="c">jne</td><td class="c">jnz</td><td class="c">~ZF</td><td>Not equal / not zero</td></tr>
-<tr><td class="c">js</td><td></td><td class="c">SF</td><td>Negative</td></tr>
-<tr><td class="c">jns</td><td></td><td class="c">~SF</td><td>Nonnegative</td></tr>
-<tr><td class="c">jg</td><td class="c">jnle</td><td class="c">~(SF^OF) &amp; ~ZF</td><td>Greater (signed)</td></tr>
-<tr><td class="c">jge</td><td class="c">jnl</td><td class="c">~(SF^OF)</td><td>Greater or equal (signed)</td></tr>
-<tr><td class="c">jl</td><td class="c">jnge</td><td class="c">SF^OF</td><td>Less (signed)</td></tr>
-<tr><td class="c">jle</td><td class="c">jng</td><td class="c">(SF^OF) | ZF</td><td>Less or equal (signed)</td></tr>
-<tr><td class="c">ja</td><td class="c">jnbe</td><td class="c">~CF &amp; ~ZF</td><td>Above (unsigned)</td></tr>
-<tr><td class="c">jae</td><td class="c">jnb, jnc</td><td class="c">~CF</td><td>Above or equal (unsigned)</td></tr>
-<tr><td class="c">jb</td><td class="c">jnae, jc</td><td class="c">CF</td><td>Below (unsigned)</td></tr>
-<tr><td class="c">jbe</td><td class="c">jna</td><td class="c">CF | ZF</td><td>Below or equal (unsigned)</td></tr>
+lesson:`<p>A jump <code>jX label</code> asks the same yes/no question as <code>setX</code>. If the answer is <b>yes</b>, it jumps to the label. If <b>no</b>, it just continues with the next line.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Jump</th><th>Jumps when S2 is ___ S1</th></tr></thead><tbody>
+<tr><td class="c">je / jne</td><td>equal / not equal</td></tr>
+<tr><td class="c">jg / jge / jl / jle</td><td>greater, greater-or-equal, less, less-or-equal (signed)</td></tr>
+<tr><td class="c">ja / jae / jb / jbe</td><td>above, above-or-equal, below, below-or-equal (unsigned)</td></tr>
+<tr><td class="c">jmp</td><td>always</td></tr>
 </tbody></table></div>
-<div class="tip"><span class="tl">Fake names</span>There is no <code>jlt</code>, <code>jgt</code>, <code>jeq</code>, <code>jet</code> or <code>jlte</code>. The real letters are <b>e, ne, s, ns, g, ge, l, le, a, ae, b, be</b>. Your worksheet lists fake names as answer choices, so this is the same "real or fake" game as Part 1's registers.</div>`,
+<div class="tip"><span class="tl">Real or fake?</span>Like Part 1's register names, some jump names on your worksheet are fake. There's no <code>jlt</code>, <code>jgt</code>, <code>jeq</code> or <code>jet</code>. Two extra real names: <code>jz</code> is the same as <code>je</code>, and <code>jnz</code> is the same as <code>jne</code>.</div>`,
 qs:[
-{prompt:'Which jump means "greater than, unsigned"?',options:['ja','jg','jgt','jae'],answer:0,hint:'above is unsigned.',explain:'<b>a</b>bove is the unsigned greater-than. <code>jg</code> is signed, and <code>jgt</code> doesn\'t exist.'},
-{prompt:'Which jump means "less than or equal, signed"?',options:['jle','jbe','jl','jlte'],answer:0,hint:'less is signed, e adds or-equal.',explain:'<b>l</b>ess is signed and <b>e</b> adds "or equal". <code>jbe</code> is the unsigned one. <code>jlte</code> doesn\'t exist.'},
-{prompt:'Which jump means "less than, unsigned"?',options:['jb','jl','jlt','jbe'],answer:0,hint:'below is unsigned.',explain:'<b>b</b>elow is the unsigned less-than. <code>jl</code> is signed, and <code>jlt</code> doesn\'t exist.'},
-{token:'jlt',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,hint:'Check the letters: is "lt" on the list?',explain:'Fake. Less-than is spelled <code>jl</code>. There is no "lt".'},
-{token:'jge',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:0,keep:true,explain:'Real. Greater or equal, signed.'},
-{token:'jeq',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. Equal is spelled <code>je</code> (or <code>jz</code>).'},
-{token:'jet',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. It\'s on your worksheet as a distractor.'},
-{prompt:'Which jump is the same as <code>jz</code>?',options:['je','jne','js','jmp'],answer:0,explain:'Zero and equal are the same test, ZF, so <code>jz</code> and <code>je</code> are two names for one instruction.'},
-{prompt:'Which jump always jumps, no matter the flags?',options:['jmp','je','ja','jns'],answer:0,explain:'<code>jmp</code> is unconditional. Loops use it to go back to the top.'},
-{prompt:'<code>jnb</code> is another name for which jump?',options:['jae','jb','jbe','jg'],answer:0,hint:'Not below means…',explain:'Not below is the same as above or equal, so <code>jnb</code> = <code>jae</code>.'},
-{given:{CF:0,ZF:0,SF:0,OF:0},cond:'jg',instr:'jg .L2',plain:true,prompt:'After <code>cmpl %esi, %edi</code> set these flags, does this jump?',code:false,options:['Jumps to .L2','Falls through to the next instruction'],answer:0,hint:'jg is ~(SF^OF) & ~ZF.',explain:'~(0^0) &amp; ~0 = 1, so it jumps. The compare found a greater than b.'},
-{given:{CF:1,ZF:0,SF:1,OF:0},cond:'jae',instr:'jae .L5',plain:true,prompt:'With these flags, does this jump?',code:false,options:['Falls through to the next instruction','Jumps to .L5'],answer:0,hint:'jae is ~CF.',explain:'~CF = ~1 = 0, so it falls through. CF = 1 means the unsigned compare found "below".'}
+{prompt:'Which jump means "greater than, unsigned"?',options:['ja','jg','jgt','jae'],answer:0,explain:'Unsigned uses above. jgt isn\'t real.'},
+{prompt:'Which jump means "less than or equal, signed"?',options:['jle','jbe','jl','jlte'],answer:0,explain:'l for signed less, e for "or equal".'},
+{prompt:'Which jump means "less than, unsigned"?',options:['jb','jl','jlt','jbe'],answer:0,explain:'Unsigned uses below. jlt isn\'t real.'},
+{token:'jlt',prompt:'Is this a real jump?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. Less-than is jl.'},
+{token:'jeq',prompt:'Is this a real jump?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. Equal is je (or jz).'},
+{token:'jge',prompt:'Is this a real jump?',options:['Real','Fake'],answer:0,keep:true,explain:'Real: greater or equal, signed.'},
+{token:'jet',prompt:'Is this a real jump?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. It\'s a distractor on your worksheet.'},
+{prompt:'Which jump is the same as <code>jz</code>?',options:['je','jne','jmp'],answer:0,explain:'"Zero" and "equal" are the same test after a cmp.'},
+{prompt:'Which jump always jumps?',options:['jmp','je','ja'],answer:0,explain:'jmp has no condition.'},
+{vis:cmpBox('cmpl %esi, %edi   then   jg .L2',[['a (%edi)','8'],['b (%esi)','3']]),prompt:'Does it jump to .L2?',code:false,options:['Yes, it jumps','No, it goes to the next line'],answer:0,keep:true,explain:'Is a (8) greater than b (3)? Yes, so it jumps.'},
+{vis:cmpBox('cmpl %esi, %edi   then   jb .L5',[['a (%edi)','9'],['b (%esi)','4']]),prompt:'Does it jump to .L5?',code:false,options:['Yes, it jumps','No, it goes to the next line'],answer:1,keep:true,explain:'Is a (9) below b (4)? No, so it continues with the next line.'}
 ]},
 
-{id:'ifelse',sec:'p3',name:'if/else: jump over the body',short:'if / else',shuffleOpts:true,
+{id:'c9',sec:'p3',name:'if and loops',short:'if and loops',shuffleOpts:true,
 defaults:{m:null,code:true},
-lesson:`<p>C runs the body of an <code>if</code> when the test is true. Assembly usually does the opposite: it <b>jumps past the body when the test is false</b>. So the jump often uses the opposite condition from the C code. Always check where the label leads.</p>
-<p>Your slide's <code>absdiff</code>, with x in %edx and y in %eax:</p>`+
-codeBlock('int absdiff(int x, int y) {\n    if (x > y)  result = x - y;\n    else        result = y - x;\n}\n\n    cmpl  %eax, %edx     # x - y\n    jle   .L6            # if (x <= y) go to the else part\n    subl  %eax, %edx     # result = x - y\n    movl  %edx, %eax\n    jmp   .L7            # skip the else part\n.L6:\n    subl  %edx, %eax     # result = y - x\n.L7:')+
-`<p>The C says <code>x &gt; y</code>, but the jump is <code>jle</code>, because it goes to the <b>else</b> part. The worksheet\'s function has the same shape, twice:</p>`+
-codeBlock('int function(int a, int b) {      // a in %edi, b in %esi\n    if (a == b) return 0;\n    if (a condition b) return a;\n    else return b;\n}\n\nfunction:\n      cmpl      %esi, %edi    # a - b\n      [[jne]]       .L1           # not equal? skip the return 0\n      xor       %eax, %eax    # return 0\n      ret\n.L1:  [[cond_jmp]]  .L2           # a condition b? go return a\n      movl      %esi, %eax    # return b\n      ret\n.L2:  movl      %edi, %eax    # return a\n      ret')+
-`<p>The first blank jumps <b>over</b> the <code>return 0</code>, so it fires when a and b are <i>not</i> equal: <code>jne</code>. The second blank jumps <b>to</b> the <code>return a</code>, so it uses the condition itself, with no flip. Since the compare computed a − b, "a &gt; b unsigned" is simply <code>ja</code>.</p>
-<div class="tip"><span class="tl">Two idioms</span><code>xor %eax, %eax</code> sets %eax to 0 (anything XOR itself is 0). And <code>cmovg %edx, %eax</code> copies %edx into %eax only if the last compare said greater, which avoids a jump entirely. Your slide uses it for absdiff.</div>`,
+lesson:`<p>Compiled code often uses a jump to <b>skip</b> over something. Your worksheet uses two patterns.</p>
+<p><b>1. Skip an if.</b> <code>if (a == b) return 0;</code> becomes "if they are <b>not</b> equal, jump past the return 0":</p>`+
+codeBlock('cmpl  %esi, %edi        # a - b\n[[jne]]   .L1             # not equal? skip the next two lines\nxor   %eax, %eax        # return 0  (anything XOR itself is 0)\nret\n.L1: ...')+
+`<p><b>2. Leave a loop.</b> <code>while (size)</code> keeps going while size isn't 0. So at the top: "if size <b>is</b> 0, jump out":</p>`+
+codeBlock('.L1:  [[test  %edi, %edi]]     # size is in %edi\n      [[jz]]    .L2            # size is 0? leave the loop\n      ...                     # loop body\n      jmp   .L1             # back to the top\n.L2:  ret')+
+`<div class="tip"><span class="tl">Flip or not?</span>If the jump <b>skips</b> code, it uses the opposite of the C condition: <code>==</code> becomes <code>jne</code>. If the jump goes <b>to</b> the code that should run, it uses the condition as written: "a &gt; b unsigned" goes to <code>ja</code>.</div>`,
 qs:[
-{prompt:'In absdiff, after <code>cmpl %eax, %edx</code> (x − y), which jump goes to the <b>else</b> part of <code>if (x &gt; y)</code>?',options:['jle','jg','jl','jge'],answer:0,hint:'The jump fires when the test is false.',explain:'The else part runs when x &gt; y is false, which is x ≤ y, so <code>jle</code>.'},
-{prompt:'<code>if (a == b) return 0;</code> compiles to a compare, then a jump that <b>skips</b> the <code>return 0</code>. Which jump?',options:['jne','je','jz','jeq'],answer:0,hint:'Skip the return when they are not equal.',explain:'The jump skips the return when the test is false, so it fires when a ≠ b: <code>jne</code>. <code>jeq</code> doesn\'t exist.'},
-{instr:'xor %eax, %eax',plain:true,prompt:'What does this do?',code:false,options:['Sets %eax to 0','Flips every bit of %eax','Compares %eax with itself'],answer:0,explain:'Anything XOR itself is 0, so this is a short way to write <code>movl $0, %eax</code>. The worksheet uses it for <code>return 0</code>.'},
-{prompt:'At .L1, <code>cond_jmp .L2</code> jumps to <code>return a</code> when <code>a condition b</code> is true, after <code>cmpl %esi, %edi</code> computed a − b. If the condition is <code>a &gt; b</code> (unsigned), cond_jmp is',options:['ja','jg','jbe','jle'],answer:0,hint:'This jump goes to the then-part, so no flip. Unsigned greater is…',explain:'The jump goes to the then-part, so it uses the condition as written. Unsigned greater-than is <code>ja</code>.'},
-{prompt:'Same setup. If the condition is <code>a &lt;= b</code> (signed), cond_jmp is',options:['jle','jbe','jg','jl'],answer:0,explain:'Signed less-or-equal is <code>jle</code>.'},
-{prompt:'Same setup. If the condition is <code>a &lt; b</code> (unsigned), cond_jmp is',options:['jb','jl','jbe','jae'],answer:0,explain:'Unsigned less-than is <code>jb</code>.'},
-{prompt:'For <code>if (x &lt; y) { A } else { B }</code>, after <code>cmpl %eax, %edx</code> (x − y), which jump goes to the else part?',options:['jge','jl','jle','jg'],answer:0,hint:'Opposite of less-than.',explain:'The else part runs when x &lt; y is false, which is x ≥ y: <code>jge</code>.'},
-{instr:'cmovg %edx, %eax',plain:true,prompt:'What does this do?',code:false,options:['Copies %edx into %eax only if the last compare was greater (signed)','Always copies %edx into %eax','Jumps to the address in %edx'],answer:0,explain:'A conditional move. The copy happens only when the condition holds. Otherwise %eax keeps its value, and no jump is needed.'},
-{prompt:'Why does the compiler sometimes use <code>cmov</code> instead of a jump?',code:false,options:['Jumps disrupt the instruction pipeline. cmov doesn\'t transfer control.','cmov is faster because it skips the compare.','Jumps can\'t be used inside functions.'],answer:0,explain:'From your slide: branches are disruptive to the pipeline, and a conditional move doesn\'t need a control transfer. It only makes sense when both sides are cheap and safe to compute.'}
+{prompt:'<code>if (a == b) return 0;</code> The jump skips the return 0. Which jump?',options:['jne','je','jeq','jmp'],answer:0,explain:'Skip it when they are not equal: jne.'},
+{instr:'xor %eax, %eax',plain:true,prompt:'What does this do?',code:false,options:['Sets %eax to 0','Flips every bit of %eax','Compares %eax with itself'],answer:0,explain:'Anything XOR itself is 0. It\'s how the worksheet writes return 0.'},
+{prompt:'After <code>cmpl %esi, %edi</code> (a − b), a jump goes <b>to</b> "return a" when a &gt; b, unsigned. Which jump?',options:['ja','jg','jbe','jgt'],answer:0,explain:'It goes to the code that should run, so no flip. Greater, unsigned, is ja.'},
+{prompt:'Same setup, but for a &lt;= b, signed.',options:['jle','jbe','jg','jlte'],answer:0,explain:'Less or equal, signed: jle.'},
+{prompt:'Same setup, but for a &lt; b, unsigned.',options:['jb','jl','jlt','jae'],answer:0,explain:'Less, unsigned: jb.'},
+{instr:'test %edi, %edi',plain:true,prompt:'When does this set ZF = 1?',code:false,options:['When %edi is 0','When %edi is negative','Always'],answer:0,explain:'test with itself checks the register, and ZF = 1 means it was zero.'},
+{prompt:'<code>while (size)</code> with size in %edi. After <code>test %edi, %edi</code>, which jump leaves the loop?',options:['jz','jnz','jmp','jg'],answer:0,explain:'Leave when size is 0: jz (same as je).'},
+{prompt:'Why test %edi and not %esi?',code:false,options:['size is in %edi. %esi holds the array pointer.','%esi can\'t be tested.','Either works.'],answer:0,explain:'while (size) checks size, and size is in %edi. %esi holds the array\'s address.'},
+{instr:'jmp .L1',plain:true,prompt:'At the bottom of the loop, what does this do?',code:false,options:['Goes back to the test at the top','Leaves the loop','Jumps only if size is 0'],answer:0,explain:'jmp always jumps. The test at the top decides when to stop.'}
 ]},
 
-{id:'loops',sec:'p3',name:'Loops: test, then jump out',short:'Loops',shuffleOpts:true,
+{id:'c10',sec:'p3',name:'Class Practice 3',short:'Class P3',
+defaults:{m:null,code:true,keep:true},
+lesson:`<p>The blanks from In-Class Practice 3, in the worksheet's order. For Q1, <code>cmpb %rdi, %rsi</code> computes <b>b − a</b>. Answer each blank with the level that taught it:</p>
+<ol class="steps"><li><b>ZF</b>: equal?</li><li><b>SF</b>: is b − a negative? (use signed values)</li><li><b>CF</b>: is b below a? (use unsigned values)</li><li><b>OF</b>: does b − a fit in −128 to 127? (signed)</li><li><b>%al</b>: ask the set instruction's question.</li></ol>`,
+qs:[
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setne %al',[['a','14'],['b','37']]),prompt:'setne · CF:',options:['1','0'],answer:1,explain:'Is 37 below 14, unsigned? No, so CF = 0.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setne %al',[['a','14'],['b','37']]),prompt:'setne · al:',options:['1','0'],answer:0,explain:'Is b not equal to a? Yes, so %al = 1.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setb %al',[['a','0xaa'],['b','0x53']]),prompt:'setb · CF:',options:['1','0'],answer:0,hint:'Unsigned: 83 and 170.',explain:'Is 83 below 170, unsigned? Yes, so CF = 1.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setb %al',[['a','0xaa'],['b','0x53']]),prompt:'setb · ZF:',options:['1','0'],answer:1,explain:'The values are different, so ZF = 0.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setb %al',[['a','0xaa'],['b','0x53']]),prompt:'setb · SF:',options:['1','0'],answer:0,hint:'b − a as bytes: 83 − 170 wraps around.',explain:'83 − 170 = −87, which is negative, so SF = 1. (The stored byte is 0xA9, whose top bit is 1.)'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setb %al',[['a','0xaa'],['b','0x53']]),prompt:'setb · al:',options:['1','0'],answer:0,explain:'setb copies CF, which is 1. In words: 83 is below 170.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setge %al',[['a','49'],['b','49']]),prompt:'setge · ZF:',options:['1','0'],answer:0,explain:'Equal, so ZF = 1.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setge %al',[['a','49'],['b','49']]),prompt:'setge · SF:',options:['1','0'],answer:1,explain:'49 − 49 = 0 isn\'t negative, so SF = 0.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setge %al',[['a','49'],['b','49']]),prompt:'setge · OF:',options:['1','0'],answer:1,explain:'0 fits easily, so OF = 0.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   setge %al',[['a','49'],['b','49']]),prompt:'setge · al:',options:['1','0'],answer:0,explain:'Is 49 greater than or equal to 49? Yes, so %al = 1.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   seta %al',[['a','−101'],['b','−46']]),prompt:'seta · OF:',options:['1','0'],answer:1,explain:'Both are negative, so the subtraction can\'t overflow: OF = 0.'},
+{tag:'From class · Q1',vis:cmpBox('cmpb %rdi, %rsi   then   seta %al',[['a','−101'],['b','−46']]),prompt:'seta · al:',options:['1','0'],answer:0,hint:'Unsigned: a = 155, b = 210.',explain:'Is 210 above 155, unsigned? Yes, so %al = 1.'},
+{tag:'From class · Q2',pre:'function:\n      cmpl        %esi, %edi    # a - b\n      [[____]]        .L1\n      xor         %eax, %eax    # return 0\n      ret\n.L1:  cond_jmp    .L2\n      movl        %esi, %eax    # return b\n      ret\n.L2:  movl        %edi, %eax    # return a\n      ret',prompt:'1. The conditional jump to .L1 should be',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:7,hint:'It skips the return 0.',explain:'Skip return 0 when a and b are not equal: jne. jet, jlt, jgt and jeq are fake.'},
+{tag:'From class · Q2',prompt:'2. The greater than (unsigned) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:0,explain:'Unsigned greater: ja.'},
+{tag:'From class · Q2',prompt:'3. The less than or equal to (signed) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:3,explain:'Signed less or equal: jle.'},
+{tag:'From class · Q2',prompt:'4. The less than (unsigned) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:2,explain:'Unsigned less: jb.'},
+{tag:'From class · Q3',pre:'array_sum:\n        xor   %eax, %eax\n.L1:    [[[A]]]                   # test instruction\n        [[[B]]]    .L2            # conditional jump\n        dec   %edi\n        add   (%esi, %edi, 4), %eax\n        jmp   .L1\n.L2:    ret',prompt:'[A] The test instruction is',options:['jz | je','jae | jnc','jb | jnae','cmp %esi, %edi','test %esi, %esi','test %edi, %edi'],answer:5,hint:'size is in %edi.',explain:'while (size) checks size, which is in %edi: test %edi, %edi.'},
+{tag:'From class · Q3',prompt:'[B] The conditional jump instruction is',options:['jz | je','jae | jnc','jb | jnae','cmp %esi, %edi','test %esi, %esi','test %edi, %edi'],answer:0,hint:'Leave when size is 0.',explain:'Jump out when the test found zero: jz (same as je).'}
+]},
+
+/* ===== Part 4 · Procedures ===== */
+{id:'stk',sec:'p4',name:'The stack grows down',short:'The stack',shuffleOpts:true,
 defaults:{m:null,code:true},
-lesson:`<p>A <code>while</code> loop in assembly checks the condition at the top and <b>jumps out</b> when it fails. At the bottom, an unconditional <code>jmp</code> goes back to the top.</p>`+
-codeBlock('while (Test)          Loop:  if (!Test) goto Done\n    Body                      Body\n                              goto Loop\n                       Done:')+
-`<p>The worksheet\'s <code>array_sum</code>, with size in %edi and the array pointer in %esi:</p>`+
-codeBlock('int array_sum(int size, int *array) {\n    int sum = 0;\n    while (size)\n        sum += array[--size];\n    return sum;\n}\n\narray_sum:\n        xor   %eax, %eax          # sum = 0\n.L1:    [[test  %edi, %edi]]        # is size zero?\n        [[jz]]    .L2                 # yes: leave the loop\n        dec   %edi                # --size\n        add   (%esi, %edi, 4), %eax   # sum += array[size]\n        jmp   .L1                 # back to the test\n.L2:    ret')+
-`<p><code>test %edi, %edi</code> sets ZF = 1 exactly when size is 0, and <code>jz</code> (same as <code>je</code>) leaves the loop then. The <code>add</code> line is Part 2 again: base %esi, index %edi, scale 4, because ints are 4 bytes. That\'s <code>array[size]</code>.</p>
-<div class="tip"><span class="tl">do-while is the other way around</span>A do-while runs the body first, then jumps <b>back</b> while the test is still true. Your slide\'s pcount ends with <code>shrl %edx</code> then <code>jne .L2</code>: shift sets the flags, and jne loops again while x isn\'t zero.</div>`,
+lesson:`<p>The stack is a part of memory that works like a pile of plates: the last thing put on is the first thing taken off. <code>%rsp</code>, the stack pointer, holds the address of the top item.</p>
+<p>One twist: the pile grows <b>toward lower addresses</b>. Putting something on makes %rsp smaller.</p>`+
+stackPair({title:'Before',regs:[['%rsp','0x108'],['%rbx','0x55']],rows:[{a:'0x110',v:'…'},{a:'0x108',v:'123'},{a:'0x100',v:''}],rsp:1},
+          {title:'After pushq %rbx',regs:[['%rsp','0x100']],rows:[{a:'0x110',v:'…'},{a:'0x108',v:'123'},{a:'0x100',v:'0x55',cls:'new'}],rsp:2})+
+`<div class="tip"><span class="tl">The two rules</span><b>pushq X</b>: %rsp goes down by 8, then X is written at the new %rsp.<br><b>popq X</b>: the value at %rsp is copied into X, then %rsp goes up by 8.</div>
+<div class="tip"><span class="tl">Subtracting 8 in hex</span>If the last digit is 8 or more, just take 8 off it: 0x10C − 8 = 0x104. If it's smaller than 8, borrow like in decimal: add 16 to it, take 8 off, and take 1 from the digit before. 0x110 − 8 = 0x108, and 0x778ff0 − 8 = 0x778fe8.</div>
+<p class="fine">Your slides show IA32, where <code>pushl</code> moves %esp by 4. The worksheet is x86-64, where <code>pushq</code> moves %rsp by 8, because registers and addresses are 8 bytes.</p>`,
 qs:[
-{instr:'test %edi, %edi',plain:true,prompt:'When does this set ZF = 1?',code:false,options:['When %edi is 0','When %edi is negative','Always'],answer:0,explain:'%edi &amp; %edi is %edi, so the result is zero exactly when %edi is zero.'},
-{prompt:'In array_sum, the loop must stop when size is 0. Which jump leaves the loop after the test?',options:['jz','jnz','jmp','jg'],answer:0,hint:'Jump out when the result was zero.',explain:'<code>jz</code> jumps when ZF = 1, which test set because size was zero. <code>je</code> is the same instruction.'},
-{prompt:'Why is the test <code>test %edi, %edi</code> and not <code>test %esi, %esi</code>?',code:false,options:['size is in %edi. %esi is the array pointer, which isn\'t what the loop counts.','%esi can\'t be used with test.','Either one works the same.'],answer:0,explain:'The C says <code>while (size)</code>, and size lives in %edi. Testing the pointer would check whether the array address is zero, which is a different question.'},
-{instr:'add (%esi, %edi, 4), %eax',plain:true,prompt:'After <code>dec %edi</code>, which element does this add to the sum?',code:false,options:['array[size], at address %esi + 4 × %edi','array[0]','The address itself, not the element'],answer:0,hint:'Part 2: base + index × scale.',explain:'Base %esi, index %edi, scale 4. That\'s the address of <code>array[size]</code> with the new, decremented size, and the parentheses fetch the value stored there.'},
-{instr:'jmp .L1',plain:true,prompt:'At the bottom of the loop, what does this do?',code:false,options:['Goes back to the test at the top','Leaves the loop','Jumps only if the sum is zero'],answer:0,explain:'<code>jmp</code> is unconditional. The test at .L1 decides whether the loop continues.'},
-{prompt:'In your slide\'s do-while, <code>shrl %edx</code> is followed by <code>jne .L2</code>. When does it jump back?',code:false,options:['When x is not zero after the shift','When x is zero','Always'],answer:0,explain:'The shift sets ZF based on its result. <code>jne</code> jumps back while the result isn\'t zero, so the loop runs until every 1 bit has been shifted out.'},
-{prompt:'If size starts at 3, how many times does the <code>add</code> instruction run?',code:false,options:['3','2','4'],answer:0,hint:'Each pass decrements size before the add, and the loop stops when size hits 0.',explain:'Pass 1: size 3 → 2, add array[2]. Pass 2: 2 → 1, add array[1]. Pass 3: 1 → 0, add array[0]. Then the test sees 0 and jz leaves.'},
-{instr:'cmpl $10, %ecx',plain:true,prompt:'This is followed by <code>jl .L1</code>. When does it jump?',code:false,options:['When %ecx &lt; 10 (signed)','When %ecx &gt; 10','When 10 &lt; %ecx'],answer:0,hint:'Second minus first: %ecx − 10.',explain:'cmp computes %ecx − 10. jl means "less", so it jumps when %ecx &lt; 10 as a signed number.'},
-{prompt:'Which loop shape checks the condition <b>before</b> running the body the first time?',code:false,options:['while','do-while','Both check only at the end'],answer:0,explain:'while tests first and may run the body zero times. do-while runs the body once, then tests. Your slide turns a while into a do-while by adding an initial "if (!Test) goto done".'}
+{vis:regsViz([['%rsp','0x108']]),prompt:'After <code>pushq %rax</code>, what is %rsp?',options:['0x100','0x110','0x104'],answer:0,hint:'push makes %rsp smaller by 8.',explain:'push moves %rsp down by 8: 0x108 − 8 = 0x100.'},
+{vis:regsViz([['%rsp','0x100']]),prompt:'After <code>popq %rax</code>, what is %rsp?',options:['0x108','0xF8','0x100'],answer:0,hint:'pop is the opposite of push.',explain:'pop moves %rsp up by 8: 0x100 + 8 = 0x108.'},
+{prompt:'When you push, which way does the stack grow?',code:false,options:['Toward lower addresses','Toward higher addresses'],answer:0,explain:'Each push makes %rsp smaller.'},
+{vis:regsViz([['%rsp','0x108'],['%rbx','0x55']]),prompt:'After <code>pushq %rbx</code>, where is 0x55 written?',code:false,options:['At the new %rsp, 0x100','At the old %rsp, 0x108','Into %rax'],answer:0,hint:'push moves %rsp first, then writes.',explain:'push moves %rsp down first, then writes at the new %rsp.',after:stackViz({title:'After pushq %rbx',rows:[{a:'0x108',v:'123'},{a:'0x100',v:'0x55',cls:'new'}],rsp:1})},
+{prompt:'What is 0x778ff0 − 8?',options:['0x778fe8','0x778fe2','0x778ff8'],answer:0,hint:'The last digit is 0, so borrow 16 from the F.',explain:'Borrow from the F: 0 + 16 − 8 = 8, and the F becomes E. So 0x778fe8. This exact subtraction is on your worksheet.'},
+{vis:regsViz([['%rsp','0x7ffe20']]),prompt:'Type %rsp after <code>pushq %rbp</code>.',input:true,expect:'0x7ffe18',hint:'0x20 − 8: borrow from the 2.',traps:[{v:'0x7ffe28',msg:'That went up. push moves %rsp down.'},{v:'0x7ffe12',msg:'That treated 0x20 like decimal 20. In hex, 0x20 − 8 = 0x18.'}],explain:'0x20 − 8: borrow from the 2, so 0 + 16 − 8 = 8 and the 2 becomes 1. %rsp = 0x7ffe18.'},
+{prompt:'In your IA32 slides, how much does <code>pushl</code> change %esp by?',options:['4','8','1'],answer:0,keep:true,explain:'IA32 registers are 4 bytes, so pushl moves %esp by 4. In x86-64, pushq moves %rsp by 8.'},
+{pre:'# %rsp = 0x200\npushq  %rax\npushq  %rbx\npopq   %rcx',prompt:'Type %rsp after all three lines.',input:true,expect:'0x1F8',hint:'Down 8, down 8, up 8.',explain:'0x200 → 0x1F8 → 0x1F0 after the two pushes, then the pop goes back up to 0x1F8.'},
+{pre:'# %rax = 7, %rbx = 9\npushq  %rax\npushq  %rbx\npopq   %rcx',prompt:'What does <code>popq %rcx</code> put in %rcx?',options:['9','7'],answer:0,keep:true,hint:'Last in, first out.',explain:'%rbx was pushed last, so its 9 is on top. pop takes the top item.'}
 ]},
 
-{id:'cls3',sec:'p3',name:'Class Q1–Q3',short:'Class Q1–Q3',
-defaults:{m:null,flags:['CF','ZF','SF','OF']},
-lesson:`<p>These are the questions from In-Class Practice 3, in the worksheet\'s format. Q1 asks for all four flags and the byte that the set instruction produces.</p>`+
-codeBlock('byte comp(byte a, byte b);   // a in %rdi, b in %rsi\n\n    cmpb      %rdi, %rsi      # computes b - a\n    set_inst  %al\n    ret')+
-`<div class="tip"><span class="tl">A Part 1 callback</span>The worksheet writes <code>cmpb</code> with 64-bit registers. A real assembler would reject that size mismatch and want <code>cmpb %dil, %sil</code>. The math is the same either way: b − a, as bytes.</div>
-<p>Q2 and Q3 are fill-in-the-blank with the worksheet\'s answer choices, including the fake jump names.</p>`,
+{id:'callret',sec:'p4',name:'call and ret',short:'call / ret',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p><code>%rip</code> holds the address of the <b>next instruction to run</b>. (Your IA32 slides call it %eip.)</p>
+<p><code>call f</code> does two things:</p>
+<ol class="steps"><li><b>Push the return address</b>, the address of the line right after the call.</li><li><b>Jump to f</b> by putting f's address in %rip.</li></ol>
+<p><code>ret</code> undoes it. It pops the return address into %rip, so the caller picks up right after its call.</p>`+
+codeBlock('400540   call  add3\n400545   movq  %rax, %rbx   # next line\n...\nadd3:\n400600   leaq  3(%rdi), %rax\n400604   ret')+
+stackPair({title:'Before the call',regs:[['%rip','400540'],['%rsp','7ff100']],rows:[{a:'7ff100',v:'…'},{a:'7ff0f8',v:''}],rsp:0},
+          {title:'After the call',regs:[['%rip','400600'],['%rsp','7ff0f8']],rows:[{a:'7ff100',v:'…'},{a:'7ff0f8',v:'400545',cls:'new'}],rsp:1})+
+`<div class="tip"><span class="tl">The trap</span>The return address is <b>not</b> the call's own address. It's the next line, 400545. Just read it off the line below the call.</div>`,
 qs:[
-{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'14'},s2:{label:'b',reg:'%rsi',val:'37'}},set:'setne',prompt:'Set the flags, then what <code>setne %al</code> gives.',hint:'b − a = 37 − 14.'},
-{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'0xaa'},s2:{label:'b',reg:'%rsi',val:'0x53'}},set:'setb',prompt:'Set the flags, then what <code>setb %al</code> gives.',hint:'Unsigned: 83 − 170. Signed: +83 − (−86).'},
-{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'49'},s2:{label:'b',reg:'%rsi',val:'49'}},set:'setge',prompt:'Set the flags, then what <code>setge %al</code> gives.',hint:'Equal values. setge is ~(SF^OF).'},
-{tag:'From class · Q1',fl:{op:'cmp',bits:8,text:'cmpb %rdi, %rsi',s1:{label:'a',reg:'%rdi',val:'-101'},s2:{label:'b',reg:'%rsi',val:'-46'}},set:'seta',prompt:'Set the flags, then what <code>seta %al</code> gives.',hint:'As bytes: −46 is 0xD2 (210), −101 is 0x9B (155). seta is ~CF &amp; ~ZF.'},
-{tag:'From class · Q2',flags:null,code:true,keep:true,pre:'function:\n      cmpl        %esi, %edi    # a - b\n      [[____]]        .L1\n      xor         %eax, %eax\n      ret\n.L1:  cond_jmp    .L2\n      movl        %esi, %eax    # return b\n      ret\n.L2:  movl        %edi, %eax    # return a\n      ret',prompt:'1. The conditional jump to .L1 should be',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:7,hint:'It skips the return 0 when a and b are not equal. Four of these names are fake.',explain:'The jump skips <code>return 0</code>, so it fires when a ≠ b: <code>jne</code>. jet, jlt, jgt and jeq don\'t exist.'},
-{tag:'From class · Q2',flags:null,code:true,keep:true,prompt:'2. The greater than (unsigned) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:0,hint:'above is the unsigned word.',explain:'Unsigned greater-than is <code>ja</code>. <code>jgt</code> is a fake name.'},
-{tag:'From class · Q2',flags:null,code:true,keep:true,prompt:'3. The less than or equal to (signed) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:3,explain:'Signed less-or-equal is <code>jle</code>.'},
-{tag:'From class · Q2',flags:null,code:true,keep:true,prompt:'4. The less than (unsigned) conditional jump is',options:['ja','jet','jb','jle','jlt','jgt','jeq','jne'],answer:2,explain:'Unsigned less-than is <code>jb</code>. <code>jlt</code> is a fake name.'},
-{tag:'From class · Q3',flags:null,code:true,keep:true,pre:'array_sum:\n        xor   %eax, %eax\n.L1:    [[[A]]]                   # test instruction\n        [[[B]]]    .L2            # conditional jump instruction\n        dec   %edi\n        add   (%esi, %edi, 4), %eax\n        jmp   .L1\n.L2:    ret',prompt:'[A] The test instruction is',options:['jz | je','jae | jnc','jb | jnae','cmp %esi, %edi','test %esi, %esi','test %edi, %edi'],answer:5,hint:'size is in %edi, and while (size) asks whether it is zero.',explain:'<code>test %edi, %edi</code> checks whether size is zero. %esi is the array pointer, so testing it would ask the wrong question.'},
-{tag:'From class · Q3',flags:null,code:true,keep:true,prompt:'[B] The conditional jump instruction is',options:['jz | je','jae | jnc','jb | jnae','cmp %esi, %edi','test %esi, %esi','test %edi, %edi'],answer:0,hint:'Leave the loop when the test found zero.',explain:'<code>jz</code> (same as <code>je</code>) jumps to .L2 when ZF = 1, which is when size hit zero.'}
+{pre:'400540   call  add3\n400545   movq  %rax, %rbx',prompt:'What return address does this call push?',options:['400545','400540','400600'],answer:0,explain:'It is the address of the line after the call.'},
+{pre:'400540   call  add3\n400545   movq  %rax, %rbx\n...\nadd3:\n400600   leaq  3(%rdi), %rax',prompt:'Right after the call, what is %rip?',options:['400600','400545','400540'],answer:0,hint:'call jumps to add3.',explain:'call jumps to add3, so %rip holds add3\'s first address, 400600.'},
+{vis:regsViz([['%rsp','7ff100']]),pre:'400540   call  add3',prompt:'Right after the call, what is %rsp?',options:['7ff0f8','7ff108','7ff100'],answer:0,hint:'call pushes, and a push moves %rsp down by 8.',explain:'7ff100 − 8: the last two digits are 00, so borrow: 0x100 − 8 = 0xF8. %rsp = 7ff0f8.'},
+{pre:'400540   call  add3\n400545   movq  %rax, %rbx',prompt:'Right after the call, what value is at the address in %rsp?',options:['400545','400600','7ff100'],answer:0,explain:'The return address that call just pushed.',after:stackViz({title:'After the call',rows:[{a:'7ff100',v:'…'},{a:'7ff0f8',v:'400545',cls:'new'}],rsp:1})},
+{pre:'add3:\n400600   leaq  3(%rdi), %rax\n400604   ret',prompt:'add3 runs <code>ret</code>. What is %rip after that?',options:['400545','400540','400604'],answer:0,hint:'ret pops the return address.',explain:'ret pops the return address into %rip, so the caller continues at 400545.'},
+{vis:regsViz([['%rsp before ret','7ff0f8']]),prompt:'And what is %rsp after the ret?',options:['7ff100','7ff0f8','7ff0f0'],answer:0,hint:'ret pops, and a pop moves %rsp up by 8.',explain:'ret pops, which moves %rsp back up by 8, to where it was before the call.'},
+{prompt:'Why does call push the address of the <b>next</b> line?',code:false,options:['So the caller continues after the call instead of calling again','Because the call line gets erased','So %rsp points at the function'],answer:0,explain:'When the function returns, the caller should carry on with the next line. Returning to the call itself would call the function again.'},
+{pre:'# %rsp = 0x7ff010\n4005a0   call  f\n4005a5   addq  $1, %rax',prompt:'Type %rsp right after the call.',input:true,expect:'0x7ff008',hint:'0x10 − 8.',explain:'0x10 − 8 = 0x08, so %rsp = 0x7ff008.'},
+{pre:'4005a0   call  f\n4005a5   addq  $1, %rax',prompt:'Type the return address this call pushes.',input:true,expect:'0x4005a5',traps:[{v:'4005a0',msg:'That\'s the call itself. The return address is the next line.'}],explain:'The line after the call: 4005a5.'}
+]},
+
+{id:'args',sec:'p4',name:'Arguments go in registers',short:'Arg registers',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>A function's first six arguments go into six registers, always in this order. The answer comes back in <code>%rax</code>.</p>`+argsViz()+
+`<div class="tip"><span class="tl">Memory trick</span><b>D</b>iane's <b>S</b>ilk <b>D</b>ress <b>C</b>osts <b>$89</b>: <b>di</b>, <b>si</b>, <b>dx</b>, <b>cx</b>, <b>8</b>, <b>9</b>.</div>`+
+codeBlock('long f(long a, long b, long c);\n\nf(10, 20, 30);    # 10 -> %rdi,  20 -> %rsi,  30 -> %rdx\n                  # f\'s answer comes back in %rax')+
+`<p>Two more facts. A 7th argument and beyond go on the stack. And an <code>int</code> argument is only 4 bytes, so the code uses the 4-byte name of the same register: <code>%edi</code>, <code>%esi</code>, <code>%edx</code> (Part 1's register sizes again).</p>`,
+qs:[
+{prompt:'The 1st argument goes in',options:['%rdi','%rax','%rsi','%rdx'],answer:0,explain:'di is first: Diane.'},
+{prompt:'The 3rd argument goes in',options:['%rdx','%rcx','%rsi','%rdi'],answer:0,explain:'di, si, <b>dx</b>: Diane\'s Silk <b>Dress</b>.'},
+{prompt:'The return value comes back in',options:['%rax','%rdi','%rsp','%rbx'],answer:0,explain:'Every function leaves its answer in %rax.'},
+{pre:'f(5, 9);',prompt:'When f starts, which register holds 9?',options:['%rsi','%rdi','%rdx'],answer:0,explain:'9 is the 2nd argument, so %rsi.'},
+{prompt:'The 5th argument goes in',options:['%r8','%r9','%rcx','%r5'],answer:0,hint:'Costs $89.',explain:'di, si, dx, cx, then <b>8</b> and 9. There is no %r5.'},
+{prompt:'Where does a 7th argument go?',code:false,options:['On the stack','In %r10','In %rax'],answer:0,explain:'Only six fit in registers. The rest are pushed on the stack.'},
+{pre:'long g(long a, long b, long c, long d);\n\ng(1, 2, 3, 4);',prompt:'When g starts, which register holds 4?',options:['%rcx','%rdx','%r8','%rsi'],answer:0,explain:'4 is the 4th argument: Diane\'s Silk Dress <b>Costs</b>, %rcx.'},
+{pre:'int f(int a, int b);',prompt:'b is an int. Which register name does the code use for it?',options:['%esi','%rsi','%si','%edi'],answer:0,hint:'2nd argument, and an int is 4 bytes.',explain:'b is the 2nd argument, so it lives in %rsi. It\'s a 4-byte int, so the code uses the 4-byte name, %esi.'},
+{pre:'long add(long a, long b) {\n    return a + b;\n}\n\nadd(30, 12);',prompt:'When add returns, what number is in %rax?',input:true,dec:true,expect:'42',explain:'30 arrives in %rdi and 12 in %rsi. add leaves 30 + 12 = 42 in %rax.'}
+]},
+
+{id:'frame',sec:'p4',name:'Making room on the stack',short:'Stack frames',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>Some functions need memory for local variables, like an array. They get it from the stack by moving %rsp down, and give it back before they return.</p>`+
+codeBlock('caller:\n    subq  $48, %rsp       # make 48 bytes of room\n    ...                   # the room starts at %rsp\n    addq  $48, %rsp       # give the room back\n    ret                   # now %rsp points at the return address again')+
+stackViz({title:'After subq $48, %rsp',rows:[{a:'',v:'return address'},{a:'',v:'48 bytes of room<br>for local variables',cls:'room'}],rsp:1})+
+`<p>Because %rsp now points at the start of that room, <code>movq %rsp, %rdi</code> means "pass the address of my local array as argument 1".</p>
+<div class="tip"><span class="tl">Figure 3.25 in your text</span>From top to bottom, a function's frame holds: the return address (pushed by call), saved registers, local variables, and then the argument build area at the bottom, where %rsp points.</div>`,
+qs:[
+{instr:'subq $32, %rsp',plain:true,prompt:'What does this do?',code:false,options:['Makes 32 bytes of room on the stack','Gives 32 bytes back','Puts 32 into %rsp'],answer:0,explain:'Moving %rsp down makes room, the same direction a push goes.'},
+{prompt:'Which instruction gives those 32 bytes back before ret?',options:['addq $32, %rsp','subq $32, %rsp','popq %rsp'],answer:0,explain:'Adding moves %rsp back up to where it was.'},
+{prompt:'After <code>subq $48, %rsp</code>, %rsp is',code:false,options:['48 lower than before','48 higher than before','unchanged'],answer:0,keep:true,explain:'sub makes it smaller by 48.'},
+{prompt:'A local array starts at %rsp. Which instruction passes its address as argument 1?',options:['movq %rsp, %rdi','movq %rdi, %rsp','movq %rsp, %rsi'],answer:0,hint:'Source first, then destination. Argument 1 is %rdi.',explain:'Copy %rsp (the array\'s address) into %rdi (argument 1).'},
+{prompt:'Which instruction passes the int 10 as argument 2?',options:['movl $10, %esi','movl $10, %edi','movl $10, %eax','movl $10, %rsp'],answer:0,hint:'Argument 2, and an int is 4 bytes.',explain:'Argument 2 is %rsi, and a 4-byte int uses %esi with movl.'},
+{prompt:'Why must <code>addq $48, %rsp</code> come before ret?',code:false,options:['So %rsp points at the return address when ret pops it','So the array gets erased','So %rax holds the answer'],answer:0,explain:'ret pops whatever %rsp points at. If the room were still there, it would pop junk instead of the return address.'},
+{prompt:'In Figure 3.25, what does <code>call</code> leave right above the new function\'s frame?',code:false,options:['The return address','Local variables','Saved registers'],answer:0,explain:'call pushes the return address, then the new function builds its frame below it.'},
+{prompt:'How many bytes does <code>int array[10]</code> need?',input:true,dec:true,expect:'40',explain:'An int is 4 bytes, and 10 × 4 = 40. Part 5 is all about this.'},
+{prompt:'After <code>call array_sum</code> returns, where is its answer?',options:['%rax','%rdi','%rsp','%esi'],answer:0,explain:'Every function returns its answer in %rax.'}
+]},
+
+{id:'cls4',sec:'p4',name:'Class Practice 4',short:'Class P4',
+defaults:{m:null,code:true,keep:true},
+lesson:`<p>These are the three questions from In-Class Practice 4, with the worksheet's own answer choices.</p>`+
+codeBlock('410b78   call  function1        # before: %rip = 410b78, %rsp = 778ff0\n410b7d   mov   8(%rsp), %rdx\n....\nfunction1:\n410d04   push  %rbx\n410d05   mov   %rdx, %rbx'),
+qs:[
+{tag:'From class · Q1',pre:'410b78   call  function1        # before: %rip = 410b78, %rsp = 778ff0\n410b7d   mov   8(%rsp), %rdx\n....\nfunction1:\n410d04   push  %rbx\n410d05   mov   %rdx, %rbx',prompt:'[A] After the call, %rip =',options:['778fe8','410b7d','410d05','410d04','410b78'],answer:3,hint:'call jumps to function1. What is function1\'s first address?',explain:'call puts function1\'s first address in %rip: 410d04. (410d05 is its second line.)'},
+{tag:'From class · Q1',pre:'410b78   call  function1        # before: %rip = 410b78, %rsp = 778ff0\n410b7d   mov   8(%rsp), %rdx',prompt:'[B] After the call, %rsp =',options:['778fe8','410b7d','410d05','410d04','410b78'],answer:0,hint:'call pushes 8 bytes.',explain:'778ff0 − 8 = 778fe8.'},
+{tag:'From class · Q1',pre:'410b78   call  function1\n410b7d   mov   8(%rsp), %rdx',prompt:'[C] %rsp points at the value',options:['778fe8','410b7d','410d05','410d04','410b78'],answer:1,hint:'What did call just push?',explain:'call pushed the return address, the line after the call: 410b7d.',after:stackViz({title:'After the call',regs:[['%rip','410d04'],['%rsp','778fe8']],rows:[{a:'778ff0',v:'…'},{a:'778fe8',v:'410b7d',cls:'new'}],rsp:1})},
+{tag:'From class · Q2',pre:'long sum3(long a, long b, long c) {\n    return a + b + c;\n}\n\ns = sum3(14, 87, 122);',prompt:'The value 14 will be in register',options:['%rdi','%rsi','%rdx','%rcx','%rax'],answer:0,explain:'14 is the 1st argument: %rdi.'},
+{tag:'From class · Q2',pre:'s = sum3(14, 87, 122);',prompt:'The value 87 will be in register',options:['%rdi','%rsi','%rdx','%rcx','%rax'],answer:1,explain:'87 is the 2nd argument: %rsi.'},
+{tag:'From class · Q2',pre:'s = sum3(14, 87, 122);',prompt:'The value 122 will be in register',options:['%rdi','%rsi','%rdx','%rcx','%rax'],answer:2,explain:'122 is the 3rd argument: %rdx.'},
+{tag:'From class · Q2',pre:'s = sum3(14, 87, 122);',prompt:'When the function returns, the value in %rax will be',options:['223','14','122','209'],answer:0,explain:'sum3 returns a + b + c = 14 + 87 + 122 = 223, and the return value goes in %rax.'},
+{tag:'From class · Q3',pre:'caller:\n        subq  $48, %rsp\n        movl  $10, [[[A]]]\n        movq  %rsp, [B]\n        call  array_sum\n        addq  $48, [C]\n        ret\n\n# long array_sum(int *p_array, int array_size)',prompt:'[A] <code>movl $10, ___</code>',options:['%rdi','%eax','%esi','%rsi','%rsp'],answer:2,hint:'a_size is argument 2, and it\'s an int.',explain:'a_size = 10 is the 2nd argument, so it goes in %rsi. It\'s a 4-byte int (movl), so the 4-byte name: %esi.'},
+{tag:'From class · Q3',pre:'caller:\n        subq  $48, %rsp\n        movl  $10, %esi\n        movq  %rsp, [[[B]]]\n        call  array_sum\n        addq  $48, [C]\n        ret',prompt:'[B] <code>movq %rsp, ___</code>',options:['%rdi','%eax','%esi','%rsi','%rsp'],answer:0,hint:'The array is argument 1, and it starts at %rsp.',explain:'The array is the 1st argument and starts at %rsp, so its address goes into %rdi.'},
+{tag:'From class · Q3',pre:'caller:\n        subq  $48, %rsp\n        movl  $10, %esi\n        movq  %rsp, %rdi\n        call  array_sum\n        addq  $48, [[[C]]]\n        ret',prompt:'[C] <code>addq $48, ___</code>',options:['%rdi','%eax','%esi','%rsi','%rsp'],answer:4,hint:'Give the room back.',explain:'Add 48 back to %rsp, so ret finds the return address on top.'}
+]},
+
+/* ===== Part 5 · Arrays ===== */
+{id:'tsize',sec:'p5',name:'How big is each type?',short:'Type sizes',
+defaults:{m:null,code:true,keep:true,prompt:'How many bytes is this type on x86-64?',options:['1','2','4','8']},
+lesson:`<p>Every C type has a size in bytes. On x86-64:</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Type</th><th>Size</th><th>Part 1 suffix</th></tr></thead><tbody>
+<tr><td class="c">char</td><td>`+blocks(1)+` 1 byte</td><td class="c">b</td></tr>
+<tr><td class="c">short</td><td>`+blocks(2)+` 2 bytes</td><td class="c">w</td></tr>
+<tr><td class="c">int</td><td>`+blocks(4)+` 4 bytes</td><td class="c">l</td></tr>
+<tr><td class="c">long, double</td><td>`+blocks(8)+` 8 bytes</td><td class="c">q</td></tr>
+<tr><td class="c">any pointer: char *, short **, …</td><td>`+blocks(8)+` 8 bytes</td><td class="c">q</td></tr>
+</tbody></table></div>
+<div class="tip"><span class="tl">The star rule</span>If the type has a <code>*</code>, it's a pointer, and every pointer is 8 bytes on x86-64. It doesn't matter what it points to: <code>short *</code> is 8, not 2.</div>
+<p class="fine">Your slides also show IA32, where pointers are only 4 bytes.</p>`,
+qs:[
+{token:'short',answer:1,explain:'A short is 2 bytes (a word, suffix w).'},
+{token:'int',answer:2,explain:'An int is 4 bytes (suffix l).'},
+{token:'char',answer:0,explain:'A char is 1 byte (suffix b).'},
+{token:'long',answer:3,explain:'A long is 8 bytes on x86-64 (suffix q).'},
+{token:'double',answer:3,explain:'A double is 8 bytes.'},
+{token:'short *',answer:3,hint:'Is there a star?',explain:'The star makes it a pointer, and pointers are 8 bytes. It doesn\'t matter that it points to shorts.'},
+{token:'char *',answer:3,hint:'Is there a star?',explain:'A pointer: 8 bytes.'},
+{token:'double *',answer:3,explain:'A pointer: 8 bytes.'},
+{token:'short **',answer:3,hint:'Two stars is still a pointer.',explain:'A pointer to a pointer is still a pointer: 8 bytes.'},
+{prompt:'In IA32 (32-bit, your slides), how big is a pointer?',answer:2,explain:'IA32 addresses are 4 bytes, so pointers are 4. On x86-64 they\'re 8.'}
+]},
+
+{id:'decl',sec:'p5',name:'Read the declaration',short:'Declarations',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>A declaration <code>T A[N];</code> makes an array of <b>N</b> elements, and every element has type <b>T</b>.</p>
+<p>To find T, cover up the name and the brackets. Whatever is left is the element type.</p>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Declaration</th><th>Cover A[N], left with</th><th>Element size</th><th>Total</th></tr></thead><tbody>
+<tr><td class="c">int A[5];</td><td class="c">int</td><td>4</td><td>5 × 4 = 20</td></tr>
+<tr><td class="c">char *P[3];</td><td class="c">char *</td><td>8</td><td>3 × 8 = 24</td></tr>
+<tr><td class="c">double D[4];</td><td class="c">double</td><td>8</td><td>4 × 8 = 32</td></tr>
+</tbody></table></div>`+
+arrViz({decl:'int A[5];',n:5,size:4,base:'x'})+
+`<div class="tip"><span class="tl">Total size</span>Total = N × element size. The elements sit right next to each other, with no gaps.</div>`,
+qs:[
+{token:'long C[4];',prompt:'What is the element type?',options:['long','long *','C'],answer:0,explain:'Cover <code>C[4]</code>. What\'s left is <code>long</code>.'},
+{token:'long C[4];',prompt:'How big is each element?',options:['8','4','32'],answer:0,explain:'Each element is a long: 8 bytes.'},
+{token:'long C[4];',prompt:'What is the total size?',options:['32','12','8'],answer:0,explain:'4 elements × 8 bytes = 32.'},
+{token:'char *P[5];',prompt:'What is the element type?',options:['char *','char','char **'],answer:0,explain:'Cover <code>P[5]</code>. What\'s left is <code>char *</code>, a pointer.'},
+{token:'char *P[5];',prompt:'How big is each element?',options:['8','1','5'],answer:0,hint:'Is there a star?',explain:'Each element is a pointer: 8 bytes.'},
+{token:'char *P[5];',prompt:'Type the total size in bytes.',input:true,dec:true,expect:'40',traps:[{v:'5',msg:'That treats each element as a 1-byte char. The star makes each element an 8-byte pointer.'}],explain:'5 pointers × 8 bytes = 40.'},
+{token:'char B[12];',prompt:'What is the total size?',options:['12','96','48'],answer:0,explain:'12 chars × 1 byte = 12.'},
+{token:'int **Q[2];',prompt:'How big is each element?',options:['8','4','16'],answer:0,explain:'Two stars is still a pointer: 8 bytes.'},
+{token:'int A[5];',prompt:'Type the total size in bytes.',input:true,dec:true,expect:'20',explain:'5 ints × 4 bytes = 20.'}
+]},
+
+{id:'eaddr',sec:'p5',name:'Where does element i start?',short:'Element i',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>Elements sit right next to each other. If the array starts at address <i>x</i> and each element is <i>L</i> bytes, then:</p>
+<div class="rule-box">element i starts at x + L·i</div>`+
+arrViz({decl:'int val[5];',n:5,size:4,base:'x',vals:[1,5,2,1,3],hl:2})+
+`<p>For <code>int val[5]</code>, L = 4, so val[2] starts at x + 8 and val[i] starts at x + 4i.</p>
+<p>This is Part 2's scaled index. If the start is in %rdx and i is in %rcx, element i of an int array is at <code>(%rdx,%rcx,4)</code>. The scale is the element size.</p>
+<p class="fine">Your worksheet writes the start address with X, so element i of the int array V is at X_V+4i.</p>`,
+qs:[
+{prompt:'<code>int A[5]</code> starts at x_A. Where does A[1] start?',options:['x_A+4','x_A+1','x_A+8'],answer:0,explain:'One int past the start: 4 bytes.'},
+{prompt:'<code>int A[5]</code>: where does A[i] start?',options:['x_A+4i','x_A+i','x_A+8i'],answer:0,explain:'i ints past the start, 4 bytes each.'},
+{prompt:'<code>char B[12]</code>: where does B[i] start?',options:['x_B+i','x_B+2i','x_B+4i'],answer:0,explain:'chars are 1 byte, so it\'s just x_B + i.'},
+{prompt:'<code>long C[4]</code>: where does C[i] start?',options:['x_C+8i','x_C+4i','x_C+i'],answer:0,explain:'longs are 8 bytes.'},
+{prompt:'<code>char *P[5]</code>: where does P[i] start?',options:['x_P+8i','x_P+i','x_P+5i'],answer:0,hint:'Each element is a pointer.',explain:'The elements are pointers, 8 bytes each, even though they point to chars.'},
+{prompt:'<code>short E[6]</code>: where does E[3] start?',options:['x_E+6','x_E+3','x_E+12'],answer:0,explain:'3 shorts × 2 bytes = 6.'},
+{vis:arrViz({decl:'int uwt[5];',n:5,size:4,base:16,vals:[9,8,4,0,2]}),prompt:'Your slide\'s <code>uwt</code> starts at address 16. Type where uwt[3] starts.',input:true,dec:true,expect:'28',explain:'16 + 4 × 3 = 28.'},
+{prompt:'For a <code>short</code> array, which scale goes in <code>(%rdx,%rcx,S)</code>?',options:['2','1','4','8'],answer:0,keep:true,explain:'The scale is the element size. A short is 2 bytes.'},
+{prompt:'For an array of pointers, which scale?',options:['8','4','1'],answer:0,keep:true,explain:'Pointers are 8 bytes.'}
+]},
+
+{id:'parith',sec:'p5',name:'Pointer math',short:'Pointer math',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>An array's name on its own is a pointer to element 0. For <code>int val[5]</code>, <code>val</code> has type <code>int *</code> and its value is x.</p>
+<p>Adding to a pointer counts <b>elements</b>, not bytes. <code>val+1</code> is one int later: x + 4.</p>`+
+arrViz({decl:'int val[5];',n:5,size:4,base:'x',vals:[1,5,2,1,3],hl:1})+
+`<div class="tbl-wrap"><table class="t"><thead><tr><th>Expression</th><th>Type</th><th>Value</th></tr></thead><tbody>
+<tr><td class="c">val</td><td class="c">int *</td><td>x</td></tr>
+<tr><td class="c">val+1</td><td class="c">int *</td><td>x + 4</td></tr>
+<tr><td class="c">&amp;val[2]</td><td class="c">int *</td><td>x + 8</td></tr>
+<tr><td class="c">val+i</td><td class="c">int *</td><td>x + 4i</td></tr>
+<tr><td class="c">val[4]</td><td class="c">int</td><td>3, the number stored there</td></tr>
+</tbody></table></div>
+<div class="tip"><span class="tl">Two quick rules</span><b>Brackets alone</b>, like <code>val[4]</code>, give you the element itself. Its type is the element type, <code>int</code>.<br><b>A plain name, + or &amp;</b> gives you an address. Its type gets a star, <code>int *</code>. And <code>&amp;val[i]</code> is the same as <code>val+i</code>.</div>`,
+qs:[
+{prompt:'<code>int val[5]</code>: what type is <code>val+1</code>?',options:['int *','int','long'],answer:0,explain:'No brackets, so it\'s an address: int *.'},
+{prompt:'<code>int val[5]</code>: what is <code>val+1</code>?',options:['x+4','x+1','x+8'],answer:0,hint:'+1 means one element, not one byte.',explain:'One int later: x + 4.'},
+{prompt:'<code>int val[5]</code>: what type is <code>val[4]</code>?',options:['int','int *'],answer:0,keep:true,explain:'Brackets give the element itself: an int.'},
+{prompt:'<code>int val[5]</code>: what is <code>&amp;val[2]</code>?',options:['x+8','x+2','M[x+8]'],answer:0,explain:'& gives the address of val[2], which is 2 ints past x: x + 8. M[x+8] would be the value stored there.'},
+{prompt:'<code>long L[4]</code> starts at x_L. What is <code>L+1</code>?',options:['x_L+8','x_L+1','x_L+4'],answer:0,explain:'One long later: 8 bytes.'},
+{prompt:'<code>long L[4]</code>: what is <code>L+i-2</code>?',options:['x_L+8i-16','x_L+i-2','x_L+8i-2'],answer:0,hint:'Both the i and the 2 count elements. Multiply each by 8.',explain:'(i − 2) longs past x_L: x_L + 8i − 16.'},
+{prompt:'<code>long L[4]</code>: what type is <code>L+i-2</code>?',options:['long *','long','int'],answer:0,explain:'No brackets, so it\'s an address: long *.'},
+{prompt:'Which two mean the same thing?',code:false,options:['&A[i] and A+i','A[i] and A+i','&A[i] and A[i]'],answer:0,explain:'Both are the address of element i.'}
+]},
+
+{id:'leamov',sec:'p5',name:'Address or value: lea vs mov',short:'lea vs mov',shuffleOpts:true,
+defaults:{m:null,code:true},
+lesson:`<p>Now turn array expressions into assembly. Say the start address x_A of <code>int A[]</code> is in <code>%rdx</code> and i is in <code>%rcx</code>.</p>
+<ol class="steps"><li><b>An address</b> (pointer type): compute it with <code>leaq</code> into %rax. lea does Part 2's address math but <b>never reads memory</b>.</li><li><b>An element value</b>: read memory with <code>mov</code>. The suffix matches the element size: movl and %eax for an int, movw and %ax for a short.</li></ol>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Expression</th><th>Type</th><th>Value</th><th>Assembly</th></tr></thead><tbody>
+<tr><td class="c">A+1</td><td class="c">int *</td><td class="c">x_A+4</td><td class="c">leaq 4(%rdx), %rax</td></tr>
+<tr><td class="c">&amp;A[i]</td><td class="c">int *</td><td class="c">x_A+4i</td><td class="c">leaq (%rdx,%rcx,4), %rax</td></tr>
+<tr><td class="c">A[2]</td><td class="c">int</td><td class="c">M[x_A+8]</td><td class="c">movl 8(%rdx), %eax</td></tr>
+<tr><td class="c">A[i]</td><td class="c">int</td><td class="c">M[x_A+4i]</td><td class="c">movl (%rdx,%rcx,4), %eax</td></tr>
+</tbody></table></div>
+<div class="tip"><span class="tl">M[…]</span>Your worksheet writes <code>M[x_A+8]</code> for "the value stored in memory at x_A + 8". Values get M[…]. Addresses don't.</div>
+<div class="tip"><span class="tl">Turning an index into D(Rb,Ri,S)</span>Multiply the whole index by the element size, then split it into an i part and a number part. A[2i+1] is at x_A + 4(2i+1) = x_A + 8i + 4, so it's <code>4(%rdx,%rcx,8)</code>.</div>`,
+qs:[
+{prompt:'What is the value of <code>A[i]</code>?',options:['M[x_A+4i]','x_A+4i','M[x_A+i]'],answer:0,explain:'A[i] is the int stored at x_A + 4i, so M[x_A+4i].'},
+{prompt:'What is the value of <code>&amp;A[i]</code>?',options:['x_A+4i','M[x_A+4i]','x_A+i'],answer:0,explain:'& gives the address itself, with no M[…].'},
+{prompt:'Which instruction puts <code>&amp;A[i]</code> in %rax?',options:['leaq (%rdx,%rcx,4), %rax','movl (%rdx,%rcx,4), %eax','leaq (%rcx,4), %rax'],answer:0,hint:'An address means lea.',explain:'lea computes x_A + 4i without reading memory.'},
+{prompt:'Which instruction puts <code>A[i]</code> in %eax?',options:['movl (%rdx,%rcx,4), %eax','leaq (%rdx,%rcx,4), %rax','movl (%rdx,%rcx), %eax'],answer:0,hint:'A value means mov.',explain:'mov reads the int stored at x_A + 4i. The scale must be 4.'},
+{prompt:'Which instruction puts <code>A[2]</code> in %eax?',options:['movl 8(%rdx), %eax','movl 2(%rdx), %eax','leaq 8(%rdx), %rax'],answer:0,explain:'A[2] is 2 ints = 8 bytes in, and it\'s a value, so movl.'},
+{prompt:'Which instruction puts <code>A+1</code> in %rax?',options:['leaq 4(%rdx), %rax','movl 4(%rdx), %eax','leaq 1(%rdx), %rax'],answer:0,explain:'A+1 is an address 4 bytes in, so leaq 4(%rdx).'},
+{prompt:'A short is 2 bytes. Which instruction loads a short into %ax?',options:['movw 6(%rdx), %ax','movl 6(%rdx), %ax','movw 6(%rdx), %rax'],answer:0,hint:'Part 1: the suffix must match the register size.',explain:'w = 2 bytes and %ax = 2 bytes. The other two are Part 1 size mismatches.'},
+{prompt:'Where is <code>A[2*i+1]</code>?',options:['M[x_A+8i+4]','M[x_A+2i+1]','M[x_A+8i+1]'],answer:0,hint:'Multiply the whole index by 4.',explain:'4 × (2i + 1) = 8i + 4.'},
+{prompt:'Which instruction loads <code>A[2*i+1]</code> into %eax?',options:['movl 4(%rdx,%rcx,8), %eax','movl 1(%rdx,%rcx,2), %eax','leaq 4(%rdx,%rcx,8), %rax'],answer:0,explain:'x_A + 8i + 4: base %rdx, index %rcx, scale 8, displacement 4. It\'s a value, so movl.'},
+{prompt:'Which instruction puts <code>A+i-3</code> in %rax?',options:['leaq -12(%rdx,%rcx,4), %rax','leaq -3(%rdx,%rcx,4), %rax','movl -12(%rdx,%rcx,4), %eax'],answer:0,hint:'The 3 counts ints too.',explain:'A + i − 3 is x_A + 4i − 12. It\'s an address, so leaq.'}
+]},
+
+{id:'cls5a',sec:'p5',name:'Class Practice 5, Q1',short:'Class P5 Q1',
+defaults:{m:null,code:true,keep:true,tag:'From class · Q1',options:['24','32','X_W+8i','X_V+4i','X_U+8i','X_T+8i','14','2','X_s+2i','48','4','8']},
+lesson:`<p>Question 1 of In-Class Practice 5, one blank at a time, with the worksheet's answer choices.</p>`+codeBlock('short   S[7];\nshort  *T[3];\nshort **U[6];\nint     V[8];\ndouble *W[4];'),
+qs:[
+{token:'short S[7];',prompt:'[A] Element size',answer:7,explain:'A short is 2 bytes.'},
+{token:'short S[7];',prompt:'[B] Total size',answer:6,explain:'7 × 2 = 14.'},
+{token:'short S[7];',prompt:'[C] Element i',answer:8,explain:'x_S + 2i.'},
+{token:'short *T[3];',prompt:'[D] Element size',answer:11,hint:'Is there a star?',explain:'The elements are pointers: 8 bytes.'},
+{token:'short *T[3];',prompt:'[E] Total size',answer:0,explain:'3 × 8 = 24.'},
+{token:'short *T[3];',prompt:'[F] Element i',answer:5,explain:'x_T + 8i.'},
+{token:'short **U[6];',prompt:'[G] Element size',answer:11,explain:'Still pointers: 8 bytes.'},
+{token:'short **U[6];',prompt:'[H] Total size',answer:9,explain:'6 × 8 = 48.'},
+{token:'short **U[6];',prompt:'[I] Element i',answer:4,explain:'x_U + 8i.'},
+{token:'int V[8];',prompt:'[J] Element size',answer:10,explain:'An int is 4 bytes.'},
+{token:'int V[8];',prompt:'[K] Total size',answer:1,explain:'8 × 4 = 32.'},
+{token:'int V[8];',prompt:'[L] Element i',answer:3,explain:'x_V + 4i.'},
+{token:'double *W[4];',prompt:'[M] Element size',answer:11,hint:'Is there a star?',explain:'Pointers to doubles are still pointers: 8 bytes.'},
+{token:'double *W[4];',prompt:'[N] Total size',answer:1,explain:'4 × 8 = 32.'},
+{token:'double *W[4];',prompt:'[O] Element i',answer:2,explain:'x_W + 8i.'}
+]},
+
+{id:'cls5b',sec:'p5',name:'Class Practice 5, Q2',short:'Class P5 Q2',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'From class · Q2'},
+lesson:`<p>Question 2 of In-Class Practice 5. The start address x_s of <code>short S[]</code> is in <code>%rdx</code> and the long index i is in <code>%rcx</code>. Put pointers in %rax and short values in %ax.</p>
+<p>For each expression, ask the same three things as in the <b>lea vs mov</b> level:</p>
+<ol class="steps"><li><b>Brackets alone?</b> Then it's a <code>short</code> value: M[…], movw into %ax. Otherwise it's a <code>short *</code> address: no M, leaq into %rax.</li><li><b>Multiply the index by 2</b>, because a short is 2 bytes.</li><li><b>Split</b> the result into D(Rb,Ri,S).</li></ol>
+<p class="fine">Each question shows a few of the worksheet's 37 choices, including its typos. The worksheet's correct choice for S[4*i+1] is missing a comma before %ax, and it's still the right one.</p>`,
+qs:[
+{token:'S+1',prompt:'[A] Type',options:['short *','short','long *','byte *'],answer:0,explain:'No brackets, so an address: short *.'},
+{token:'S+1',prompt:'[B] Value',options:['x_s+2','x_s+1','x_s','M[x_s+4]'],answer:0,hint:'+1 means one short.',explain:'One short later: x_s + 2.'},
+{token:'S+1',prompt:'[C] Assembly',options:['leaq 2(%rdx), %rax','movw 2(%rdx), %rax','leaq (%rdx), %rax','leaq 6(%rdx), %rax'],answer:0,explain:'An address 2 bytes in: leaq 2(%rdx), %rax.'},
+{token:'S[3]',prompt:'[D] Type',options:['short','short *','int','long'],answer:0,explain:'Brackets alone: the element itself, a short.'},
+{token:'S[3]',prompt:'[E] Value',options:['M[x_s+6]','M[x_s+4]','M[x_s-2]','M[x_s+2i]'],answer:0,explain:'3 shorts × 2 = 6 bytes in, and it\'s a value: M[x_s+6].'},
+{token:'S[3]',prompt:'[F] Assembly',options:['movw 6(%rdx), %ax','leaq 6(%rdx), %rax','movw 2(%rdx), %rax','movb %rdx, %rax'],answer:0,explain:'Read 2 bytes at x_s + 6 into the 2-byte %ax.'},
+{token:'&S[i]',prompt:'[G] Type',options:['short *','short','int *','long *'],answer:0,explain:'& gives an address: short *.'},
+{token:'&S[i]',prompt:'[H] Value',options:['x_s+2i','x_s+i','M[x_s+2i]','x_s'],answer:0,explain:'i shorts in: x_s + 2i, with no M because it\'s an address.'},
+{token:'&S[i]',prompt:'[I] Assembly',options:['leaq (%rdx, %rcx, 2), %rax','leaq (%rcx,2) %rax','movw 2(%rdx, %rcx) %ax','leaq (%rdx), %rax'],answer:0,explain:'Base %rdx, index %rcx, scale 2, and lea because it\'s an address.'},
+{token:'S[4*i+1]',prompt:'[J] Type',options:['short','short *','int','long'],answer:0,explain:'Brackets alone: a short.'},
+{token:'S[4*i+1]',prompt:'[K] Value',options:['M[x_s+8i+2]','M[x_s+2i]','M[x_s+4]','x_s+2i'],answer:0,hint:'Multiply the whole index by 2.',explain:'2 × (4i + 1) = 8i + 2, and it\'s a value: M[x_s+8i+2].'},
+{token:'S[4*i+1]',prompt:'[L] Assembly',options:['movw 2(%rdx, %rcx, 8) %ax','leaq 2(%rdx, %rcx, 8) %ax','movw 2(%rdx, %rcx) %ax','movw -5(%rdx, %rcx,2),%rax'],answer:0,explain:'x_s + 8i + 2: displacement 2, scale 8, and movw into %ax because it\'s a short value. (The worksheet left out the comma before %ax.)'},
+{token:'S+i-5',prompt:'[M] Type',options:['short *','short','int *','byte *'],answer:0,explain:'No brackets: an address, short *.'},
+{token:'S+i-5',prompt:'[N] Value',options:['x_s+2i-10','x_s+2i-5','x_s+2i-15','M[x_s-2]'],answer:0,hint:'The 5 counts shorts too.',explain:'(i − 5) shorts in: x_s + 2i − 10.'},
+{token:'S+i-5',prompt:'[O] Assembly',options:['leaq -10(%rdx, %rcx,2),%rax','leaq -5(%rdx, %rcx,2),%rax','movw -5(%rdx, %rcx,2),%rax','leaq 2(%rdx, %rcx, 8) %ax'],answer:0,explain:'x_s + 2i − 10: displacement −10, scale 2, and leaq because it\'s an address.'}
 ]},
 
 /* ===== Review ===== */
@@ -1522,40 +1805,33 @@ qs:[
 {grp:'both',labels:true,instr:'movq 4(%rax,%rcx,8), %rdx',solve:'4(%rax,%rcx,8)',prompt:'After this runs, what\'s in <code>%rdx</code>?',options:['0x8E','0xC3','0x17'],answer:0,explain:'The source address is 0x200 + 0x1 × 8 + 0x4 = 0x20C, which holds 0x8E.'},
 {grp:'both',labels:true,instr:'movq 0x210, %rax',solve:'0x210',prompt:'After this runs, what\'s in <code>%rax</code>?',options:['0x2D','0x210','0x200'],answer:0,explain:'No <code>$</code>, so 0x210 is an address. Memory there holds 0x2D.'}
 ]},
-
-{id:'mix3',sec:'rev',name:'Part 3 mix',short:'Part 3 mix',shuffleOpts:true,pick:{p3:10},
-defaults:{m:null,code:true},
-lesson:`<p>Ten questions from across Part 3, in a random order, with a new pick every time you play. Flags, set, jumps and loops all show up.</p>`,
-qs:[
-{grp:'p3',instr:'cmpl %edi, %esi',plain:true,prompt:'What does this compute?',options:['%esi − %edi','%edi − %esi','%esi + %edi'],answer:0,explain:'Second minus first: <code>%esi − %edi</code>.'},
-{grp:'p3',fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x20'},s2:{label:'b',reg:'%sil',val:'0x10'}},only:['CF'],prompt:'After this, what is CF?',options:['CF = 1','CF = 0'],answer:0,hint:'b − a as unsigned: 16 − 32.',explain:'Unsigned, 16 − 32 goes below zero, so CF = 1.'},
-{grp:'p3',fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0x7f'},s2:{label:'b',reg:'%sil',val:'0x80'}},flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.',hint:'Unsigned: 128 − 127. Signed: −128 − 127.'},
-{grp:'p3',fl:{op:'cmp',bits:8,text:'cmpb %dil, %sil',s1:{label:'a',reg:'%dil',val:'0'},s2:{label:'b',reg:'%sil',val:'0'}},flags:['CF','ZF','SF','OF'],prompt:'Set all four flags.',hint:'0 − 0.'},
-{grp:'p3',given:{CF:1,ZF:0,SF:0,OF:0},cond:'setae',instr:'setae %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 0','%al = 1'],answer:0,hint:'setae is ~CF.',explain:'~CF = ~1 = 0. CF = 1 means below, so "above or equal" is false.'},
-{grp:'p3',given:{CF:0,ZF:1,SF:0,OF:0},cond:'setle',instr:'setle %al',plain:true,prompt:'With these flags, what does this put in <code>%al</code>?',options:['%al = 1','%al = 0'],answer:0,hint:'setle is (SF^OF) | ZF.',explain:'(0^0) | 1 = 1. Equal counts as less-or-equal.'},
-{grp:'p3',prompt:'Which jump means "greater than or equal, signed"?',options:['jge','jae','jgte','jg'],answer:0,explain:'<b>g</b>reater is signed, <b>e</b> adds or-equal. <code>jae</code> is unsigned, and <code>jgte</code> doesn\'t exist.'},
-{grp:'p3',token:'jgt',prompt:'Is this a real jump instruction?',options:['Real','Fake'],answer:1,keep:true,explain:'Fake. Greater-than is spelled <code>jg</code>.'},
-{grp:'p3',prompt:'For <code>if (x != y) { A } else { B }</code>, after a compare, which jump goes to the else part?',options:['je','jne','jz | jnz','jmp'],answer:0,hint:'The else runs when the test is false.',explain:'The else part runs when x ≠ y is false, which is x == y: <code>je</code>.'},
-{grp:'p3',instr:'test %ecx, %ecx',plain:true,prompt:'This is followed by <code>jnz .L3</code>. When does it jump?',code:false,options:['When %ecx is not zero','When %ecx is zero','When %ecx is negative'],answer:0,explain:'test sets ZF when %ecx is zero. jnz jumps when ZF is 0, so when %ecx is not zero.'},
-{grp:'p3',instr:'cmovl %esi, %eax',plain:true,prompt:'What does this do?',code:false,options:['Copies %esi into %eax only if the last compare was less (signed)','Always copies %esi into %eax','Jumps to .L if less'],answer:0,explain:'A conditional move with the "less" condition. No jump involved.'},
-{grp:'p3',instr:'cmpq %rbx, %rax',plain:true,prompt:'With %rax = 5 and %rbx = 10, which flags are set?',code:false,options:['CF and SF','ZF only','None','OF only'],answer:0,hint:'5 − 10 is negative, and unsigned 5 is below 10.',explain:'5 − 10 = −5: SF = 1 because it\'s negative, and CF = 1 because the unsigned subtraction borrowed. This is the second question on your slide.'},
-{grp:'p3',prompt:'<code>while (n) { … }</code> with n in %eax starts with <code>test %eax, %eax</code>. Which jump leaves the loop?',options:['jz | je','jnz | jne','jmp','jg'],answer:0,explain:'Leave when n is zero, which is when test set ZF: <code>jz</code>.'},
-{grp:'p3',prompt:'Which set instruction means "below or equal, unsigned"?',options:['setbe','setle','setb','setae'],answer:0,explain:'<b>b</b>elow is unsigned, and <b>e</b> adds or-equal.'},
-{grp:'p3',fl:{op:'add',bits:8,text:'addb $1, %al',s1:{label:'$1',val:'1'},s2:{reg:'%al',val:'0xff'}},flags:['CF','ZF','SF','OF'],prompt:'%al holds 0xFF. Set all four flags.',hint:'255 + 1 as unsigned, −1 + 1 as signed.'}
-]}
 ];
 LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o={};for(var k in d)o[k]=d[k];for(var k2 in q)o[k2]=q[k2];return o;});});
 (function(){
-  var m12=null,m3=null;LEVELS.forEach(function(L){if(L.id==='mix')m12=L;if(L.id==='mix3')m3=L;});
-  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',shuffleOpts:true,pick:{p1:3,p2:3,both:1,p3:5},
-    lesson:'<p>Twelve questions drawn from all three parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Levels 9–14.</p>'+machineHTML(MACHINES.practice),
-    qs:m12.qs.concat(m3.qs)});
+  var m12=null,pool3=[],pool45=[],src3=['c1','c2','c3','c4','c5','c6','c7','c8','c9'],src45=['stk','callret','args','frame','tsize','decl','eaddr','parith','leamov'];
+  function copy(q,g){var o={};for(var k in q)o[k]=q[k];o.grp=g;return o;}
+  LEVELS.forEach(function(L){
+    if(L.id==='mix')m12=L;
+    if(src3.indexOf(L.id)>=0)L.qs.forEach(function(q){pool3.push(copy(q,'p3'));});
+    if(src45.indexOf(L.id)>=0)L.qs.forEach(function(q){pool45.push(copy(q,'p45'));});
+  });
+  LEVELS.push({id:'mix3b',sec:'rev',name:'Part 3 mix',short:'Part 3 mix',shuffleOpts:true,pick:{p3:10},
+    lesson:'<p>Ten questions from Part 3, flags, set, jumps and loops, in a random order with a new pick every time.</p>',
+    qs:pool3});
+  LEVELS.push({id:'mix45',sec:'rev',name:'Parts 4–5 mix',short:'Parts 4–5 mix',shuffleOpts:true,pick:{p45:12},
+    lesson:'<p>Twelve questions from Parts 4 and 5, procedures and arrays, in a random order with a new pick every time.</p>',
+    qs:pool45});
+  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',shuffleOpts:true,pick:{p1:2,p2:3,both:1,p3:3,p45:3},
+    lesson:'<p>Twelve questions drawn from all five parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Part 2.</p>'+machineHTML(MACHINES.practice),
+    qs:m12.qs.concat(pool3).concat(pool45)});
 })();
 
 var SECTIONS=[
   {id:'p1',part:'Part 1',name:'Moving Data'},
   {id:'p2',part:'Part 2',name:'Memory Addressing'},
   {id:'p3',part:'Part 3',name:'Control Flow'},
+  {id:'p4',part:'Part 4',name:'Procedures'},
+  {id:'p5',part:'Part 5',name:'Arrays'},
   {id:'rev',part:'Review',name:'Mixed practice'}
 ];
 var LAB_FLAG_EX=[
@@ -1576,7 +1852,7 @@ var LAB_OPS={
 /* ---------- game state ---------- */
 var STORE='will-it-assemble:v1';
 var S={view:'home',sec:'p1',xp:0,streak:0,best:{},cur:null,lab:'movb %eax, (%esp)',labMode:'val',labM:'practice',labOp:'(%rax,%rdx,4)',labF:{op:'cmp',bits:8,v1:'0xaa',v2:'0x53'},confirmReset:false};
-function save(){try{localStorage.setItem(STORE,JSON.stringify({best:S.best,xp:S.xp}));}catch(e){}}
+function save(){try{localStorage.setItem(STORE,JSON.stringify({best:S.best,xp:S.xp,v:5}));}catch(e){}}
 function loadSaved(){try{var v=JSON.parse(localStorage.getItem(STORE)||'null');if(v&&typeof v==='object')return v;}catch(e){}return null;}
 function pipsFor(m){return m===0?4:m===1?3:m<=3?2:1;}
 function secLevels(id){var out=[];LEVELS.forEach(function(L,k){if(L.sec===id)out.push(k);});return out;}
@@ -1596,7 +1872,7 @@ function startLevel(li){
   if(S.cur&&S.cur.li===li&&S.cur.phase!=='done')return;
   var set=buildSet(L), perm={};
   set.forEach(function(k){var q=L.qs[k];if(q.options){var p=range(q.options.length);if(L.shuffleOpts&&!q.keep)shuffle(p);perm[k]=p;}});
-  S.cur={li:li,phase:'lesson',set:set,queue:set.slice(),perm:perm,solved:[],missed:[],mistakes:0,answered:null};
+  S.cur={li:li,id:L.id,phase:'lesson',set:set,queue:set.slice(),perm:perm,solved:[],missed:[],mistakes:0,answered:null};
 }
 function curQ(){var c=S.cur;if(!c||!c.queue.length)return null;return LEVELS[c.li].qs[c.queue[0]];}
 function permOf(c,qi,q){var p=c.perm&&c.perm[qi];if(p&&q.options&&p.length===q.options.length)return p;return q.options?range(q.options.length):[];}
@@ -1644,14 +1920,34 @@ function sectionHTML(sec){
   if(sec==='p3'){
     if(!mainBtn) mainBtn='<button class="btn" data-go="sec-rev">Go to the mixed practice</button>';
     return '<div class="eyebrow">Part 3 · In-Class Practice 3</div><h2>Control Flow</h2>'+
-    (cleared?'<p><b>Part 3 is cleared.</b> Replay any level from the strip above, or try the Part 3 mix.</p>':'<p>Parts 1 and 2 were about moving data. Part 3 is about deciding what runs next. One compare sets four flags, and everything else, set, jumps, loops, reads those flags.</p>')+
-    '<ol class="path"><li><span class="pn">Levels 17–21</span><b>The flags</b><span class="pd">Which way cmp subtracts, then ZF, SF, CF and OF one at a time, then all four together.</span></li>'+
-    '<li><span class="pn">Levels 22–25</span><b>Using the flags</b><span class="pd">set, jumps, if/else, and loops.</span></li>'+
-    '<li><span class="pn">Level 26</span><b>Class questions</b><span class="pd">All three worksheet questions, in the worksheet\'s format.</span></li></ol>'+
+    (cleared?'<p><b>Part 3 is cleared.</b> Replay any level from the strip above, or try the Part 3 mix.</p>':'<p>Parts 1 and 2 were about moving data. Part 3 is about making decisions. <code>cmp</code> compares two values and leaves four yes/no flags. Then set, jumps and loops read them. One small idea per level.</p>')+
+    '<ol class="path"><li><span class="pn">Levels '+lvOf('c1')+'–'+lvOf('c6')+'</span><b>The flags, one at a time</b><span class="pd">cmp order, then ZF, SF, signed bytes, CF and OF.</span></li>'+
+    '<li><span class="pn">Levels '+lvOf('c7')+'–'+lvOf('c9')+'</span><b>Using the flags</b><span class="pd">set, jumps, then if and loops.</span></li>'+
+    '<li><span class="pn">Level '+lvOf('c10')+'</span><b>Class questions</b><span class="pd">Every blank from Practice 3, in the worksheet\'s order.</span></li></ol>'+
     '<div class="actions">'+mainBtn+'<button class="btn ghost" data-go="lab-flags">Open the Lab</button></div>'+
-    '<p class="fine">Flag questions use 0/1 toggles. Pick every flag, then press Check or Enter.</p>';
+    '<p class="fine">Part 3 was rebuilt in the Part 1–2 style, so earlier Part 3 blocks don\'t carry over.</p>';
   }
-  var items=ls.map(function(li){var L=LEVELS[li],done=!!S.best[L.id];var on=inprog===li;var lbl=on?'Resume':done?'Play a new mix':'Start';var d=L.id==='mix'?'Parts 1 and 2 together, 12 questions.':L.id==='mix3'?'Part 3 on its own, 10 questions.':'All three parts, 12 questions.';return '<li><span class="pn">Level '+(li+1)+'</span><b>'+L.short+'</b><span class="pd">'+d+'</span><div class="actions"><button class="btn'+(on?'':' ghost')+'" data-go="'+li+'">'+lbl+'</button></div></li>';}).join('');
+  if(sec==='p4'){
+    if(!mainBtn) mainBtn='<button class="btn" data-go="sec-p5">Go to Part 5</button>';
+    return '<div class="eyebrow">Part 4 · In-Class Practice 4</div><h2>Procedures</h2>'+
+    (cleared?'<p><b>Part 4 is cleared.</b> Replay any level from the strip above, or move on to Part 5.</p>':'<p>How one function calls another. Three things have to happen: jump to the function and back, hand it the arguments, and give it some memory. The stack and a few registers do all three.</p>')+
+    '<ol class="path"><li><span class="pn">Levels '+lvOf('stk')+'–'+lvOf('callret')+'</span><b>Jumping there and back</b><span class="pd">push and pop, then call and ret.</span></li>'+
+    '<li><span class="pn">Levels '+lvOf('args')+'–'+lvOf('frame')+'</span><b>Data and memory</b><span class="pd">Which registers hold the arguments, and making room on the stack.</span></li>'+
+    '<li><span class="pn">Level '+lvOf('cls4')+'</span><b>Class questions</b><span class="pd">All three Practice 4 questions, with the worksheet\'s choices.</span></li></ol>'+
+    '<div class="actions">'+mainBtn+'</div>'+
+    '<p class="fine">On a keyboard, press the number keys to answer and Enter to continue.</p>';
+  }
+  if(sec==='p5'){
+    if(!mainBtn) mainBtn='<button class="btn" data-go="sec-rev">Go to the mixed practice</button>';
+    return '<div class="eyebrow">Part 5 · In-Class Practice 5</div><h2>Arrays</h2>'+
+    (cleared?'<p><b>Part 5 is cleared.</b> Replay any level from the strip above, or try the Parts 4–5 mix.</p>':'<p>How arrays sit in memory, and how C array expressions like <code>S[3]</code> and <code>&amp;S[i]</code> turn into lea and mov. It uses Part 1\'s sizes and Part 2\'s addressing.</p>')+
+    '<ol class="path"><li><span class="pn">Levels '+lvOf('tsize')+'–'+lvOf('decl')+'</span><b>How big</b><span class="pd">Type sizes, then reading a declaration.</span></li>'+
+    '<li><span class="pn">Levels '+lvOf('eaddr')+'–'+lvOf('leamov')+'</span><b>Where and what</b><span class="pd">Where element i starts, pointer math, then lea vs mov.</span></li>'+
+    '<li><span class="pn">Levels '+lvOf('cls5a')+'–'+lvOf('cls5b')+'</span><b>Class questions</b><span class="pd">Both Practice 5 questions, one blank at a time.</span></li></ol>'+
+    '<div class="actions">'+mainBtn+'</div>'+
+    '<p class="fine">Some answers are typed numbers, like 24. Type them in plain decimal.</p>';
+  }
+  var items=ls.map(function(li){var L=LEVELS[li],done=!!S.best[L.id];var on=inprog===li;var lbl=on?'Resume':done?'Play a new mix':'Start';var d=L.id==='mix'?'Parts 1 and 2 together, 12 questions.':L.id==='mix3b'?'Part 3 on its own, 10 questions.':L.id==='mix45'?'Parts 4 and 5 together, 12 questions.':'All five parts, 12 questions.';return '<li><span class="pn">Level '+(li+1)+'</span><b>'+L.short+'</b><span class="pd">'+d+'</span><div class="actions"><button class="btn'+(on?'':' ghost')+'" data-go="'+li+'">'+lbl+'</button></div></li>';}).join('');
   var reset=S.confirmReset?'<span class="confirm">Really reset every level\'s blocks and XP? <button class="link" data-act="reset-yes">Yes, reset</button> <button class="link" data-act="reset-no">Keep them</button></span>':'<button class="link" data-act="reset-ask">Reset progress</button>';
   return '<div class="eyebrow">Review · Mixed practice</div><h2>Mix it up before a quiz</h2>'+
   '<p>A quiz won\'t tell you which part a question comes from. Each mix shuffles its parts together and picks new questions every time, so replay it as often as you like.</p>'+
@@ -1666,22 +1962,23 @@ function lessonHTML(){
   '<div class="actions"><button class="btn" data-act="practice">Start practice ('+c.set.length+' questions) <span class="kbd">Enter</span></button></div>';
 }
 function optsHTML(q,a,perm){
-  var row=q.options.length<=5&&q.options.every(function(o){return o.length<=16;});
+  var row=q.options.every(function(o){return o.length<=16;});
   return '<div class="opts'+(row?' row':'')+'" role="group" aria-label="Answers">'+perm.map(function(oi,k){
     var o=q.options[oi], cls='opt'+(q.code?' code':''), mark='';
     if(a){if(oi===q.answer){cls+=' right';mark='✓';}else if(k===a.picked){cls+=' wrong';mark='✗';}else cls+=' dim';}
     return '<button class="'+cls+'" data-ans="'+k+'"'+(a?' disabled':'')+'><span class="key">'+(k+1)+'</span><span class="lbl">'+(q.code?esc(o):fmtOpt(o))+'</span>'+(mark?'<span class="mark" aria-hidden="true">'+mark+'</span>':'')+'</button>';
   }).join('')+'</div>';
 }
-function inputHTML(a){
+function inputHTML(a,q){
   if(a) return '<div class="ans-done '+(a.correct?'right':'wrong')+'"><span class="ans-l">Your answer</span><span class="ans-v">'+esc(a.typed)+'</span><span class="mark" aria-hidden="true">'+(a.correct?'✓':'✗')+'</span></div>';
-  return '<div class="ans"><label for="ans-in" class="sr">Your answer</label><input id="ans-in" class="labin" type="text" placeholder="0x…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-autofocus><button class="btn" data-act="check">Check <span class="kbd">Enter</span></button></div><p class="ans-msg" id="ans-msg" role="alert" hidden></p>';
+  return '<div class="ans"><label for="ans-in" class="sr">Your answer</label><input id="ans-in" class="labin" type="text" placeholder="'+(q&&q.dec?'a number':'0x…')+'"'+(q&&q.dec?' inputmode="numeric"':'')+' autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-autofocus><button class="btn" data-act="check">Check <span class="kbd">Enter</span></button></div><p class="ans-msg" id="ans-msg" role="alert" hidden></p>';
 }
 function feedbackHTML(q,a,sol,exp,last){
   var h='<div class="fb '+(a.correct?'ok':'no')+'" role="status"><div class="fb-h">'+(a.correct?'✓ Correct':'✗ Not quite')+(a.correct?'<span class="gain">+'+a.gain+' XP</span>':'')+'</div>';
   if(!a.correct&&a.trap) h+='<p class="trap">'+a.trap+'</p>';
   if(!a.correct&&q.input&&exp) h+='<p>The answer is <b class="mono">'+esc(exp)+'</b>.</p>';
   if(q.explain) h+='<p>'+q.explain+'</p>';
+  if(q.after) h+=q.after;
   if(q.bd&&q.instr) h+=breakdownHTML(analyze(q.instr),q.bd);
   if(sol) h+=stepsHTML(sol);
   if(q.fl) h+=flagsStepsHTML(solveFlags(q.fl),q.fl,{only:q.flags||q.only,set:q.set,jmp:q.jmp});
@@ -1703,11 +2000,12 @@ function questionHTML(){
   if(q.instr) h+=instrHTML(q.instr,{labels:q.labels,plain:q.plain});
   if(q.token) h+='<div class="token">'+esc(q.token)+'</div>';
   if(q.op) h+='<div class="token op">'+esc(q.op)+'</div>';
+  if(q.vis) h+=q.vis;
   if(q.fl) h+=flagsSetupHTML(q.fl);
   if(q.given) h+=givenHTML(q.given);
   if(M) h+=machineHTML(M,a&&sol&&!sol.error?sol.hl:null);
   if(q.flags) h+=flagsWidgetHTML(q,a,c.picks||{});
-  else h+=q.input?inputHTML(a):optsHTML(q,a,permOf(c,qi,q));
+  else h+=q.input?inputHTML(a,q):optsHTML(q,a,permOf(c,qi,q));
   if(a) h+=feedbackHTML(q,a,sol,exp,last);
   else if(q.hint) h+='<div class="hintrow"><button class="link" data-act="hint" aria-controls="hint">Show a hint</button><p class="hint" id="hint" hidden>'+q.hint+'</p></div>';
   h+='<details class="peek"><summary>Review the lesson</summary><div class="lesson">'+L.lesson+'</div></details>';
@@ -1727,8 +2025,9 @@ function doneHTML(){
     acts='<button class="btn" data-act="replay">Play a new '+L.short+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="'+nextLi+'">Try the '+LEVELS[nextLi].short+'</button>';
   } else if(secEnd){
     var nxt=LEVELS[nextLi].sec;
-    extra=L.sec==='p1'?'<p>That\'s all of Part 1. Part 2 covers memory addressing, the second in-class practice.</p>':L.sec==='p2'?'<p>That\'s all of Part 2. Part 3 covers condition codes and jumps, the third in-class practice. The Quiz 1 mix in the Review tab shuffles Parts 1 and 2 together.</p>':'<p>That\'s all of Part 3. The Part 3 mix in the Review tab shuffles it the way a quiz would.</p>';
-    acts='<button class="btn" data-act="nextlevel">'+(nxt==='p2'?'Start Part 2: Level '+(nextLi+1):nxt==='p3'?'Start Part 3: Level '+(nextLi+1):'Go to the Part 3 mix')+' <span class="kbd">Enter</span></button><button class="btn ghost" data-act="replay">Replay this level</button>';
+    var NEXTTXT={p2:'Part 2 covers memory addressing.',p3:'Part 3 covers condition codes and jumps.',p4:'Part 4 covers procedures: the stack, call and ret, and argument registers.',p5:'Part 5 covers arrays.',rev:'The Review tab has mixes that shuffle the parts together, the way a quiz would.'};
+    extra='<p>That\'s all of '+L.sec.replace('p','Part ')+'. '+(NEXTTXT[nxt]||'')+'</p>';
+    acts='<button class="btn" data-act="nextlevel">'+(nxt.charAt(0)==='p'?'Start '+nxt.replace('p','Part ')+': Level '+(nextLi+1):'Go to the mixed practice')+' <span class="kbd">Enter</span></button><button class="btn ghost" data-act="replay">Replay this level</button>';
   } else {
     acts='<button class="btn" data-act="nextlevel">Next: Level '+(nextLi+1)+', '+LEVELS[nextLi].short+' <span class="kbd">Enter</span></button><button class="btn ghost" data-act="replay">Replay this level</button>';
   }
@@ -1850,6 +2149,14 @@ function submitTyped(){
   var q=curQ(); if(!q||!q.input)return;
   var inp=$('#ans-in'), msg=$('#ans-msg'); if(!inp)return;
   var raw=inp.value.trim(), n=normHex(raw);
+  if(q.dec){
+    var d=raw.replace(/\s+/g,'').replace(/[−–]/g,'-');
+    if(!d){msg.textContent='Type a number first, like 24.';msg.hidden=false;inp.focus();return;}
+    if(!/^-?\d+$/.test(d)){msg.textContent='Type a whole number in decimal, like 24.';msg.hidden=false;inp.focus();return;}
+    var okd=Number(d)===Number(q.expect), infod={typed:raw};
+    if(!okd&&q.traps){q.traps.some(function(t){if(String(Number(t.v))===String(Number(d))){infod.trap=t.msg;return true;}return false;});}
+    record(okd,infod);return;
+  }
   if(!raw){msg.textContent='Type a hex value first, like 0x2D.';msg.hidden=false;inp.focus();return;}
   if(n===null){msg.textContent='Use hex digits 0–9 and A–F, like 0x2D.';msg.hidden=false;inp.focus();return;}
   var sol=solFor(q), exp=expectedFor(q,sol), correct=n===normHex(exp), info={typed:raw};
@@ -1941,10 +2248,14 @@ document.addEventListener('keydown',function(e){
 function start(data){
   var base={view:'home',sec:null,xp:0,streak:0,best:{},cur:null,lab:'movb %eax, (%esp)',labMode:'val',labM:'practice',labOp:'(%rax,%rdx,4)',labF:{op:'cmp',bits:8,v1:'0xaa',v2:'0x53'},confirmReset:false};
   if(data&&data.S&&typeof data.S==='object'&&data.S.best){for(var k in data.S)base[k]=data.S[k];S=base;}
-  else{S=base;var sv=loadSaved();if(sv){S.best=sv.best||{};S.xp=sv.xp||0;}}
+  else{S=base;var sv=loadSaved();if(sv){S.best=sv.best||{};S.xp=sv.xp||0;if(!sv.v||sv.v<5)S.sec='p4';}}
   if(!MACHINES[S.labM])S.labM='practice';
   if(!S.labF||typeof S.labF!=='object')S.labF={op:'cmp',bits:8,v1:'0xaa',v2:'0x53'};
   S.confirmReset=false;
+  if(S.cur){
+    if(S.cur.id){var kk=lvOf(S.cur.id)-1;if(kk<0)S.cur=null;else S.cur.li=kk;}
+    else if(S.cur.li>=lvOf('stk')-1)S.cur=null;
+  }
   if(S.cur){
     var L=LEVELS[S.cur.li];
     if(!L||!S.cur.queue){S.cur=null;}
