@@ -1,5 +1,7 @@
 # Will It Assemble?
 
+[Control Flow Chronicles](https://iisurf.github.io/ControlFlowChronicles/)
+
 A learning game for x86 assembly (AT&T syntax), built around five in-class practice sets:
 
 - **Part 1 · Moving Data** — operand kinds, suffix sizes, register names, and the rules that make a `mov` legal.
