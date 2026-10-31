@@ -1,5 +1,7 @@
 # Will It Assemble?
 
+Check out [ControlFlowChronicles](https://iisurf.github.io/ControlFlowChronicles/) to play the game and learn at the same time.
+
 A learning game for a computer systems class: x86 assembly (AT&T syntax) and the memory hierarchy, in nine parts.
 
 **x86 assembly** (In-Class Practice 1–5)
