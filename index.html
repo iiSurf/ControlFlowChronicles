@@ -614,6 +614,7 @@ table.acc th{white-space:nowrap}
 table.acc td{text-align:center;font-family:var(--font-code);font-size:13px;padding:6px 7px}
 table.acc td.acc-o{font-weight:700;color:var(--accent)}
 .acc-fit>[hidden]{display:none!important}
+.rule-lines{display:grid;gap:10px}
 table.acc-sm th{white-space:normal;line-height:1.25;padding:6px 8px 6px 0;min-width:5.5em}
 table.acc-sm td{padding:6px 5px;min-width:2.6em}
 table.acc-sm tbody+tbody tr:first-child>*{border-top:2px solid var(--line);padding-top:12px}
@@ -1731,14 +1732,15 @@ TOYDEF.shape={title:'Try it · the best rows × columns',
   act:function(st,a){var p=a.split(':');if(p[0]==='n')st.n=+p[1];else if(p[0]==='w')st.w=+p[1];}};
 
 TOYDEF.fileread={title:'Try it · time to read a whole file',
-  init:function(d){return {rpm:d.rpm||10000,seek:d.seek!=null?d.seek:5,sec:d.sec||1000,blocks:d.blocks||2000};},
-  ctl:function(st){return '<div class="labgrid"><label>Spin rate (RPM)<input type="number" min="1" inputmode="numeric" value="'+st.rpm+'" data-ti="rpm"></label><label>Avg seek (ms)<input type="number" min="0" step="any" inputmode="decimal" value="'+st.seek+'" data-ti="seek"></label><label>Sectors per track<input type="number" min="1" inputmode="numeric" value="'+st.sec+'" data-ti="sec"></label><label>Blocks in the file<input type="number" min="1" inputmode="numeric" value="'+st.blocks+'" data-ti="blocks"></label></div>';},
+  init:function(d){return {rpm:d.rpm||15000,seek:d.seek!=null?d.seek:4,sec:d.sec||400,surf:d.surf||2,blocks:d.blocks||800};},
+  ctl:function(st){return '<div class="labgrid"><label>Spin rate (RPM)<input type="number" min="1" inputmode="numeric" value="'+st.rpm+'" data-ti="rpm"></label><label>Avg seek (ms)<input type="number" min="0" step="any" inputmode="decimal" value="'+st.seek+'" data-ti="seek"></label><label>Sectors per track<input type="number" min="1" inputmode="numeric" value="'+st.sec+'" data-ti="sec"></label><label>Surfaces<input type="number" min="1" inputmode="numeric" value="'+st.surf+'" data-ti="surf"></label><label>Blocks in the file<input type="number" min="1" inputmode="numeric" value="'+st.blocks+'" data-ti="blocks"></label></div>';},
   out:function(st){
-    if(!(st.rpm>0)||!(st.sec>0)||!(st.blocks>0)) return '<p class="fine">Type numbers above 0.</p>';
-    var turn=60000/st.rpm, avg=turn/2, tr=st.blocks/st.sec, best=st.seek+avg+tr*turn, rnd=st.blocks*(st.seek+avg), f=function(x){return fmtNum(+x.toFixed(3));};
-    return '<div class="pair2"><div class="cbox"><b>Best case: side by side</b>'+calcHTML([{l:'Seek + avg rotation',s:'',v:f(st.seek+avg)+' ms'},{l:f(tr)+' tracks × '+f(turn)+' ms a turn',s:'+',v:f(tr*turn)+' ms'},{l:'Total',s:'=',v:f(best)+' ms',tot:true}])+'</div>'+
-      '<div class="cbox"><b>Random: scattered</b>'+calcHTML([{l:fmtNum(st.blocks)+' blocks',s:'',v:''},{l:'each: seek + avg rotation',s:'×',v:f(st.seek+avg)+' ms'},{l:'Total',s:'=',v:f(rnd)+' ms',tot:true}])+'</div></div>'+
-      '<p class="fine">Here, random is about <b>'+fmtNum(Math.round(rnd/best))+'×</b> slower than best.</p>';
+    if(!(st.rpm>0)||!(st.sec>0)||!(st.surf>0)||!(st.blocks>0)) return '<p class="fine">Type numbers above 0.</p>';
+    var f=function(x){return fmtNum(+x.toFixed(4));}, turn=60000/st.rpm, avg=turn/2, xfer=turn/st.sec, per=st.blocks/st.surf, best=st.seek+avg+per*xfer, rnd=st.blocks*(st.seek+avg+xfer);
+    return '<p class="fine">One turn takes '+f(turn)+' ms, so T avg rotation = '+f(avg)+' ms and T avg transfer = '+f(turn)+' ÷ '+fmtNum(st.sec)+' = <b>'+f(xfer)+' ms</b> a block.</p>'+
+      '<div class="pair2"><div class="cbox"><b>Best case: one cylinder</b>'+calcHTML([{l:'Seek + avg rotation',s:'',v:f(st.seek+avg)+' ms'},{l:f(per)+' blocks a head × '+f(xfer)+' ms',s:'+',v:f(per*xfer)+' ms'},{l:'Total',s:'=',v:f(best)+' ms',tot:true}])+'</div>'+
+      '<div class="cbox"><b>Random: scattered</b>'+calcHTML([{l:fmtNum(st.blocks)+' blocks',s:'',v:''},{l:'each: seek + rotation + transfer',s:'×',v:f(st.seek+avg+xfer)+' ms'},{l:'Total',s:'=',v:f(rnd)+' ms',tot:true}])+'</div></div>'+
+      '<p class="fine">Here, random is about <b>'+fmtNum(Math.round(rnd/best))+'×</b> slower than best.'+(per>st.sec?' Each head reads more than a whole track here, so the file really spills onto the next cylinder. This leaves out that short extra seek.':'')+'</p>';
   },
   sync:syncRange,
   act:function(st,a,el){var v=parseFloat(el.value);st[a]=isNaN(v)?0:v;}};
@@ -3097,22 +3099,25 @@ qs:[
 
 {id:'fileread',sec:'p7',name:'Reading a whole file',short:'Whole files',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<p>Practice 7 Q3 reads a whole file, block after block. Getting to the <b>first</b> block costs the usual wait: <b>T avg seek + T avg rotation</b>. After that, it depends on where the other blocks are:</p>`+
-cardPair('<b>Best case: side by side</b><p>The blocks fill whole tracks of one cylinder, so the head just keeps reading. <b>Each full track takes one full rotation</b> (T max rotation). Moving to the next surface of the same cylinder needs no seek, because all the heads move together.</p>','<b>Random case: scattered</b><p>Every block is somewhere new, so <b>every block</b> pays T avg seek + T avg rotation all over again.</p>')+
-`<div class="rule-box">Best = T avg seek + T avg rotation + (number of full tracks) × T max rotation<br>Random = (number of blocks) × (T avg seek + T avg rotation)</div>
-<p>A textbook example: a 1 MB file of 512-byte blocks is 2,000 blocks. The disk spins at 10,000 RPM (6 ms a turn, 3 ms on average), seeks in 5 ms, and fits 1,000 sectors on a track. Best: 5 + 3 + 2 × 6 = <b>20 ms</b>. Random: 2,000 × (5 + 3) = <b>16,000 ms</b>. That's 800 times slower.</p>`+
+lesson:`<p>Practice 7 Q3 reads a whole file, block after block. Each block costs the same three parts as any disk read: <b>T avg seek + T avg rotation + T avg transfer</b>. The two cases differ in how often you pay them:</p>`+
+cardPair('<b>Best case: one cylinder</b><p>The file sits on one cylinder, spread evenly over <b>all the surfaces</b>. Seek and rotate <b>once</b> to reach the start. Then all the heads read at the same time, so each head reads only <b>blocks ÷ surfaces</b> blocks.</p>','<b>Random case: scattered</b><p>Every block is somewhere new, so <b>every block</b> pays seek + rotation + transfer all over again.</p>')+
+`<div class="rule-box rule-lines"><div>T avg transfer = T max rotation ÷ sectors per track</div><div><b>Best</b> = T avg seek + T avg rotation + (blocks ÷ surfaces) × T avg transfer</div><div><b>Random</b> = blocks × (T avg seek + T avg rotation + T avg transfer)</div></div>
+<p>An example: 800 blocks, on a disk that spins at 15,000 RPM (4 ms a turn, 2 ms on average), seeks in 4 ms, and has 400 sectors per track and 2 surfaces. One block's transfer is 4 ÷ 400 = 0.01 ms.</p>
+<ul class="facts"><li>Best: 4 + 2 + (800 ÷ 2) × 0.01 = 4 + 2 + 4 = <b>10 ms</b>.</li><li>Random: 800 × (4 + 2 + 0.01) = <b>4,808 ms</b>, almost 500 times slower.</li></ul>`+
 toy('fileread')+
-`<div class="tip"><span class="tl">Counting blocks</span>Like the textbook, count 1 MB as 1,000 KB in these estimates, so 1 KB blocks make 1,000 blocks. The tiny transfer time for each block (a hundredth of a millisecond) is left out.</div>`,
+`<div class="tip"><span class="tl">Counting blocks</span>Count 1 MB as 1,000 KB, so a 1 MB file of 1 KB blocks is 1,000 blocks. Your class's answer key counts it this way too.</div>
+<p class="fine">If you check the textbook's own solution, its numbers come out different: it reads one surface at a time, and it leaves out the transfer time in the random case. Your class's answer key uses the method above.</p>`,
 qs:[
 {prompt:'Before it can read the first block, the disk has to wait',options:['T avg seek + T avg rotation','one full rotation','nothing'],answer:0,explain:'Move the arm to the right cylinder, then wait for the block to spin around.'},
 {prompt:'At 10,000 RPM, how long is one full rotation (T max rotation)?',options:['6 ms','3 ms','10 ms','0.6 ms'],answer:0,explain:'60,000 ms ÷ 10,000 = 6 ms.'},
 {prompt:'At 10,000 RPM, what is T avg rotation?',options:['3 ms','6 ms','1.5 ms'],answer:0,explain:'Half a turn: 6 ÷ 2 = 3 ms.'},
-{prompt:'A file is 1,000 blocks, and a track holds 500 of them. Best case: how many full rotations does reading it take?',input:true,dec:true,expect:'2',explain:'1,000 ÷ 500 = 2 tracks, and each track takes one full rotation.'},
-{prompt:'In the best case, why don\'t the later blocks need a seek?',options:['They\'re side by side on one cylinder, and switching surfaces doesn\'t move the arm','The disk skips seeks for files','The CPU caches them'],answer:0,explain:'All the heads move together, so every surface of the cylinder is already under a head.'},
-{prompt:'In the random case, each block costs',options:['T avg seek + T avg rotation, all over again','one full rotation','nothing extra'],answer:0,explain:'Each block is somewhere new.'},
-{prompt:'2,000 blocks, random case, 5 ms seek and 3 ms average rotation. Type the total in ms.',input:true,dec:true,expect:'16000',explain:'2,000 × (5 + 3) = 16,000 ms. That\'s 16 seconds.'},
-{prompt:'How many 1 KB blocks are in a 1 MB file, counting the textbook way?',options:['1,000','1,024','512'],answer:0,explain:'The textbook counts 1 MB as 1,000 KB for these estimates.'},
-{prompt:'Same disk: 10,000 RPM, 5 ms seek, 1,000 sectors per track. A 4,000-block file, best case. Total?',options:['32 ms','24 ms','20 ms','32,000 ms'],answer:0,explain:'5 + 3 + 4 tracks × 6 ms = 32 ms.'}
+{prompt:'One turn takes 6 ms, and a track has 1,000 sectors. What is T avg transfer for one block?',options:['0.006 ms','0.06 ms','6 ms','0.6 ms'],answer:0,explain:'6 ms ÷ 1,000 sectors = 0.006 ms.'},
+{prompt:'Best case: a 2,000-block file is spread evenly over 4 surfaces. How many blocks does each head read?',input:true,dec:true,expect:'500',explain:'2,000 ÷ 4 = 500, and all 4 heads read at the same time.'},
+{prompt:'In the best case, why don\'t the later blocks need a seek?',options:['They\'re all on one cylinder, and all the heads move together','The disk skips seeks for files','The CPU caches them'],answer:0,explain:'Every surface of that cylinder is already under a head.'},
+{prompt:'In the random case, each block costs',options:['T avg seek + T avg rotation + T avg transfer, all over again','just T avg transfer','one full rotation'],answer:0,explain:'Each block is somewhere new, so it pays the whole access time.'},
+{prompt:'2,000 blocks, random case: 5 ms seek, 3 ms average rotation, 0.006 ms transfer. Type the total in ms.',input:true,dec:true,expect:'16012',explain:'2,000 × (5 + 3 + 0.006) = 2,000 × 8.006 = 16,012 ms. That\'s 16 seconds.'},
+{prompt:'Best case: 5 ms seek, 3 ms average rotation, 0.006 ms transfer, and 2,000 blocks spread over 2 surfaces. Total?',options:['14 ms','20 ms','11 ms','8 ms'],answer:0,explain:'5 + 3 + (2,000 ÷ 2) × 0.006 = 5 + 3 + 6 = 14 ms.'},
+{prompt:'How many 1 KB blocks are in a 1 MB file, counting the way your class does?',options:['1,000','1,024','512'],answer:0,explain:'Count 1 MB as 1,000 KB, so it\'s 1,000 blocks.'}
 ]},
 
 {id:'cls7',sec:'p7',name:'Class Practice 7',short:'Class P7',shuffleOpts:true,
@@ -3135,19 +3140,20 @@ qs:[
   {label:'Transfer',ask:'T avg transfer: 4 ms ÷ 500 sectors =',options:['0.008 ms','0.08 ms','0.8 ms','8 ms'],answer:0,say:'0.008 ms.',fill:{c:'0.008 ms'}},
   {label:'Total',ask:'T access = 8 + 2 + 0.008 = 10.008 ms. As an integer:',options:['10','11','8','14'],answer:0,say:'10.008 rounds to 10.',fill:{d:'10 ms'}}],
  explain:'T access ≈ 10 ms. The seek and the rotation make up the 10, and the transfer adds only 0.008 ms.'},
-{tag:'From class · Q3',prompt:'Q3, best case: a 1 MB file of 1 KB blocks, stored side by side. 10,000 RPM, 5 ms seek, 500 sectors per track, 1 KB sectors.',
- board:rowBoard(['Blocks','Full tracks','T max rotation','T avg rotation','T optimal'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'}]),
- guided:[{label:'Blocks',ask:'How many 1 KB blocks are in the 1 MB file?',options:['1,000','500','2,000','1'],answer:0,say:'Count 1 MB as 1,000 KB, like the textbook.',fill:{a:'1,000'}},
-  {label:'Tracks',ask:'A track holds 500 one-KB sectors. How many full tracks is the file?',options:['2','4','1','500'],answer:0,say:'1,000 ÷ 500 = 2.',fill:{b:'2'}},
-  {label:'T max rotation',ask:'One full rotation at 10,000 RPM:',options:['6 ms','3 ms','10 ms'],answer:0,say:'60,000 ÷ 10,000 = 6 ms.',fill:{c:'6 ms'}},
-  {label:'T avg rotation',ask:'T avg rotation:',options:['3 ms','6 ms','1.5 ms'],answer:0,say:'Half of 6 ms.',fill:{d:'3 ms'}},
-  {label:'T optimal',ask:'T optimal = seek + avg rotation + 2 full rotations = 5 + 3 + 2 × 6 =',options:['20 ms','14 ms','8 ms','26 ms'],answer:0,say:'20 ms.',fill:{e:'20 ms'}}],
- explain:'T optimal = 20 ms: 8 ms to reach the first block, then 2 full rotations to read both tracks. (If your class counts 1 MB as 1,024 KB, that\'s 2.048 tracks and about 20.3 ms, which still rounds to 20.)'},
+{tag:'From class · Q3',prompt:'Q3, best case: a 1 MB file of 1 KB blocks, stored side by side on one cylinder. 10,000 RPM, 5 ms seek, 500 sectors per track, 4 surfaces, 1 KB sectors.',
+ board:rowBoard(['Blocks','Per head','T avg rotation','T avg transfer','Reading','T optimal'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'},{k:'f'}]),
+ guided:[{label:'Blocks',ask:'How many 1 KB blocks are in the 1 MB file?',options:['1,000','500','2,000','4'],answer:0,say:'Count 1 MB as 1,000 KB.',fill:{a:'1,000'}},
+  {label:'Per head',ask:'The file is spread over all 4 surfaces, and the heads read at the same time. How many blocks does each head read?',options:['250','1,000','500','4,000'],answer:0,hint:'Split the blocks evenly over the 4 surfaces.',say:'1,000 ÷ 4 = 250.',fill:{b:'250'}},
+  {label:'T avg rotation',ask:'One full turn at 10,000 RPM is 60,000 ÷ 10,000 = 6 ms. So T avg rotation is',options:['3 ms','6 ms','1.5 ms'],answer:0,say:'Half a turn: 3 ms.',fill:{c:'3 ms'}},
+  {label:'T avg transfer',ask:'T avg transfer for one block: 6 ms ÷ 500 sectors =',options:['0.012 ms','0.12 ms','1.2 ms','0.6 ms'],answer:0,say:'0.012 ms.',fill:{d:'0.012 ms'}},
+  {label:'Reading',ask:'Reading time: 250 blocks × 0.012 ms =',options:['3 ms','12 ms','6 ms','0.3 ms'],answer:0,hint:'250 is half of the 500 sectors on a track.',say:'3 ms, half a turn.',fill:{e:'3 ms'}},
+  {label:'T optimal',ask:'T optimal = seek + avg rotation + reading = 5 + 3 + 3 =',options:['11 ms','20 ms','8 ms','14 ms'],answer:0,say:'11 ms.',fill:{f:'11 ms'}}],
+ explain:'T optimal = <b>11 ms</b>: 8 ms to reach the first block, then 3 ms while all 4 heads read their 250 blocks at once. In the answer box, type <b>11</b>.'},
 {tag:'From class · Q3',prompt:'Q3, random case: the same 1,000 blocks, scattered at random.',
  board:rowBoard(['Each block costs','Blocks','T'],[{k:'a'},'1,000',{k:'b'}]),
- guided:[{label:'Per block',ask:'Each block pays T avg seek + T avg rotation =',options:['8 ms','5 ms','11 ms','6 ms'],answer:0,say:'5 + 3 = 8 ms.',fill:{a:'8 ms'}},
-  {label:'Total',ask:'T = 1,000 blocks × 8 ms =',options:['8,000 ms','800 ms','20 ms','80,000 ms'],answer:0,say:'8,000 ms, which is 8 seconds.',fill:{b:'8,000 ms'}}],
- explain:'T = 8,000 ms, 400 times slower than the best case. If your class counts 1 MB as 1,024 KB instead, it\'s 1,024 blocks × 8 ms = 8,192 ms. (Adding each block\'s 0.012 ms transfer barely changes it: 8,012 ms.)'}
+ guided:[{label:'Per block',ask:'Each block pays T avg seek + T avg rotation + T avg transfer = 5 + 3 + 0.012 =',options:['8.012 ms','8 ms','8.12 ms','11 ms'],answer:0,say:'8.012 ms.',fill:{a:'8.012 ms'}},
+  {label:'Total',ask:'T = 1,000 blocks × 8.012 ms =',options:['8,012 ms','8,000 ms','8,120 ms','801.2 ms'],answer:0,say:'8,012 ms, about 8 seconds.',fill:{b:'8,012 ms'}}],
+ explain:'T = <b>8,012 ms</b>, over 700 times slower than the best case. In the answer box, type <b>8012</b>, with no comma.'}
 ]},
 
 {id:'ex7',sec:'p7',name:'Exam-style: buses and disks',short:'Exam practice',shuffleOpts:true,
@@ -3601,7 +3607,7 @@ var SECTIONS=[
    '<div class="rule-box">Capacity = bytes/sector × sectors/track × tracks/surface × surfaces/platter × platters<br>1 GB = 10⁹ bytes</div>'+
    '<div class="rule-box">T access = T seek + T rotation + T transfer<br>one turn = 60,000 ms ÷ RPM<br>T rotation = ½ turn,  T transfer = turn ÷ sectors per track</div>'+
    '<p>Example: 7,200 RPM, 9 ms seek, 400 sectors → 9 + 4 + 0.02 = 13.02 ms. Seek and rotation dominate. A disk is about 2,500× slower than DRAM and 40,000× slower than SRAM.</p>'+
-   '<h3>Reading a whole file (Practice 7 Q3)</h3><p>Best case, side by side: T avg seek + T avg rotation + (full tracks) × T max rotation. Random: blocks × (T avg seek + T avg rotation). Count 1 MB as 1,000 KB. Cylinders = tracks per surface.</p>'},
+   '<h3>Reading a whole file (Practice 7 Q3)</h3><p>T avg transfer = T max rotation ÷ sectors per track. Best case (one cylinder, all heads reading at once): T avg seek + T avg rotation + (blocks ÷ surfaces) × T avg transfer. Random: blocks × (T avg seek + T avg rotation + T avg transfer). Count 1 MB as 1,000 KB. Cylinders = tracks per surface.</p>'},
   {id:'p8',part:'Part 8',name:'I/O & SSDs',src:'L06 part 3 · In-Class Practice 8',next:'p9',
    intro:'How devices hang off the I/O bus, how a disk read happens without tying up the CPU, and how solid state disks work, including why writing to them is slow. Then Practice 8\'s SSD lifetimes.',
    after:'or move on to Part 9.',
