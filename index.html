@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Will It Assemble? A learning game for x86 assembly and the memory hierarchy: mov rules, addressing, control flow, procedures, arrays, DRAM, disks, SSDs and locality.">
+<meta name="description" content="Will It Assemble? A learning game for x86 assembly, the memory hierarchy, caches and virtual memory: mov rules, addressing, control flow, procedures, arrays, DRAM, disks, SSDs, locality, caches and address spaces.">
 <meta name="color-scheme" content="light dark">
 <style>
   :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -614,6 +614,7 @@ table.acc th{white-space:nowrap}
 table.acc td{text-align:center;font-family:var(--font-code);font-size:13px;padding:6px 7px}
 table.acc td.acc-o{font-weight:700;color:var(--accent)}
 .acc-fit>[hidden]{display:none!important}
+.acc-fit{min-width:0;max-width:100%}
 .rule-lines{display:grid;gap:10px}
 table.acc-sm th{white-space:normal;line-height:1.25;padding:6px 8px 6px 0;min-width:5.5em}
 table.acc-sm td{padding:6px 5px;min-width:2.6em}
@@ -687,6 +688,76 @@ table.acc td.hl{background:var(--byte-soft);color:var(--byte-ink)}
 .gs-l{stroke:var(--accent);stroke-width:.6;opacity:.6}
 .shape-out{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start}
 @media (max-width:480px){.shape-out{grid-template-columns:1fr}}
+/* ---------- v8: caches and virtual memory ---------- */
+b.ok{color:var(--good)} b.no{color:var(--bad)}
+.abits{display:grid;grid-template-columns:repeat(var(--m),minmax(0,1fr));gap:2px;max-width:calc(var(--m) * 36px);font-family:var(--font-code);text-align:center;margin-block:8px 4px}
+.ab{display:grid;gap:1px;padding:5px 0 3px;border-radius:5px;border:1px solid var(--line);background:var(--panel);min-width:0}
+.ab b{font-weight:600;font-size:15px;line-height:1.2}
+.ab i{font-style:normal;font-size:10px;color:var(--muted);line-height:1.1}
+.ab.ct{background:var(--accent-soft);border-color:var(--accent)}
+.ab.ci{background:var(--src-soft);border-color:var(--src)}
+.ab.co{background:var(--byte-soft);border-color:var(--byte)}
+.ab-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13.5px;margin-bottom:8px}
+.ab-leg span{padding-left:15px;position:relative}
+.ab-leg span::before{content:"";position:absolute;left:0;top:.4em;width:10px;height:10px;border-radius:3px}
+.ab-leg .ct::before{background:var(--accent)} .ab-leg .ci::before{background:var(--src)} .ab-leg .co::before{background:var(--byte)}
+table.ctbl{font-family:var(--font-code);font-size:13px;width:auto}
+table.ctbl th,table.ctbl td{padding:5px 7px;text-align:center}
+table.ctbl tbody th{font-family:var(--font-code);font-size:13px}
+table.ctbl th.ln{border-bottom:1px solid var(--line)}
+table.ctbl td.vb{color:var(--muted)}
+table.ctbl tr.hs>*{background:var(--src-soft)}
+table.ctbl td.tg.cmp{outline:2px dashed var(--accent);outline-offset:-3px}
+table.ctbl td.tg.hit{background:var(--accent-soft);color:var(--accent);font-weight:700;outline:2px solid var(--accent);outline-offset:-2px}
+table.ctbl td.by.pick{background:var(--byte-soft);color:var(--byte-ink);font-weight:700;outline:2px solid var(--byte);outline-offset:-2px}
+.ctbl-st table+table{margin-top:10px}
+.steps.lk{margin-block:6px 10px}
+.cb-lab{font-size:12px;color:var(--muted);margin-top:8px}
+.cb-cache{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;max-width:420px;margin-block:4px 8px}
+.cb-slot{display:grid;justify-items:center;gap:2px;padding:8px 4px;border:1.5px solid var(--line);border-radius:10px;background:var(--sunk);font-family:var(--font-code)}
+.cb-slot i{font-style:normal;font-size:11px;color:var(--muted)}
+.cb-slot b{font-size:17px}
+.cb-slot.hit{border-color:var(--good);background:var(--good-soft)}
+.cb-slot.miss{border-color:var(--bad);background:var(--bad-soft)}
+.cb-mem{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;max-width:420px;margin-block:4px 8px}
+.cb-blk{font:inherit;font-family:var(--font-code);font-size:14px;min-height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);cursor:pointer}
+.cb-blk.in{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700}
+.cb-blk:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cb-log{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.cb-log span{display:grid;justify-items:center;min-width:38px;padding:3px 6px;border-radius:7px;font-family:var(--font-code);font-weight:600;font-size:14px}
+.cb-log span i{font-style:normal;font-weight:400;font-size:10.5px}
+.cb-log span.h{background:var(--good-soft);color:var(--good)}
+.cb-log span.m{background:var(--bad-soft);color:var(--bad)}
+.geo{display:grid;gap:4px;margin-block:8px}
+.geo-set{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
+.geo-sl{font-family:var(--font-code);font-size:12px;color:var(--muted);min-width:3.6em}
+.geo-lines{display:flex;flex-wrap:wrap;gap:4px}
+.geo-line{display:inline-flex;align-items:stretch;gap:2px;padding:2px;border:1px solid var(--line);border-radius:6px;background:var(--sunk)}
+.geo-line .gv,.geo-line .gt{font-family:var(--font-code);font-size:10px;display:grid;place-items:center;border-radius:3px;padding:0 3px}
+.geo-line .gv{background:var(--src-soft);color:var(--src)}
+.geo-line .gt{background:var(--accent-soft);color:var(--accent)}
+.geo-line .gb{display:inline-flex;gap:1px}
+.geo-line .gb i{display:block;width:9px;height:16px;border-radius:2px;background:var(--byte-soft);border:1px solid var(--byte)}
+.dp{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 8px;align-items:center;margin-block:8px}
+.dp-l{font-family:var(--font-code);font-size:12px;color:var(--muted)}
+.dp-row{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:2px;max-width:480px}
+.dp-row span{text-align:center;font-family:var(--font-code);font-size:12px;font-weight:600;padding:3px 0;border-radius:4px}
+.dp-row span.h{background:var(--good-soft);color:var(--good)}
+.dp-row span.m{background:var(--bad-soft);color:var(--bad)}
+.vmf{display:grid;gap:12px;margin-block:10px}
+.vmf-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.vmf-lab{flex-basis:100%;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.vmf-tail{display:inline-flex;align-items:center;gap:6px}
+.vmf-box{padding:6px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--panel);font-weight:600;font-size:14px}
+.vmf-box.mmu{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.vmf-box.mem{border-color:var(--src);background:var(--src-soft)}
+.vmf-ar{font-family:var(--font-code);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.vmf-chip{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;padding:16px 6px 6px;border:1.5px dashed var(--line);border-radius:12px;position:relative}
+.vmf-cl{position:absolute;top:2px;left:10px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ustrip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;max-width:420px;margin-block:8px;text-align:center}
+.ustrip span{display:grid;gap:1px;padding:6px 0;border-radius:8px;background:var(--panel);border:1px solid var(--line)}
+.ustrip b{font-family:var(--font-code);font-size:17px;color:var(--accent)}
+.ustrip i{font-style:normal;font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -696,7 +767,7 @@ table.acc td.hl{background:var(--byte-soft);color:var(--byte-ink)}
   <header class="top">
     <div>
       <h1><button class="brand" data-go="home">Will It Assemble<span class="qm">?</span></button></h1>
-      <div class="tagline">x86 assembly · memory hierarchy · parts 1–9</div>
+      <div class="tagline">x86 assembly · memory · caches · parts 1–12</div>
     </div>
     <div class="stats" id="stats"></div>
   </header>
@@ -1784,6 +1855,244 @@ TOYDEF.loops3={title:'Try it · clear a tiny m[2][2][2] three ways',
       '<div class="toy-btns"><button class="btn sm" data-ta="next"'+(st.n>=8?' disabled':'')+'>Next write ▶</button><button class="btn sm ghost" data-ta="all"'+(st.n>=8?' disabled':'')+'>Show all</button>'+(st.n?'<button class="link" data-ta="reset">Start over</button>':'')+'</div>';
   },
   act:function(st,a){if(a==='next'&&st.n<8)st.n++;else if(a==='all')st.n=8;else if(a==='reset')st.n=0;else if(a.indexOf('f:')===0){st.f=a.slice(2);st.n=0;}}};
+/* ---------- v8: Parts 10-12, caches and virtual memory ---------- */
+function hx0(n){return '0x'+n.toString(16).toUpperCase();}
+function hx2(n){return n==null?'–':('0'+n.toString(16).toUpperCase()).slice(-2);}
+function lg2(n){var k=0;while(Math.pow(2,k)<n)k++;return k;}
+function parseHexIn(v){v=String(v==null?'':v).trim().replace(/^0x/i,'');if(!/^[0-9a-f]{1,8}$/i.test(v))return null;return parseInt(v,16);}
+
+/* an m-bit address, one box per bit, coloured by field: tag (CT), set index (CI), block offset (CO) */
+function addrBits(a,m,s,b,o){
+  o=o||{}; var t=m-s-b, show=o.show||{ct:1,ci:1,co:1}, bits='';
+  for(var j=m-1;j>=0;j--)bits+=o.blank?'':((a>>>j)&1);
+  var h='<div class="abits" style="--m:'+m+'" role="img" aria-label="'+(o.blank?m+' empty bit boxes':m+'-bit address '+bits)+'">';
+  for(var i=m-1;i>=0;i--){var f=i<b?'co':i<b+s?'ci':'ct';h+='<span class="ab'+(show[f]?' '+f:'')+'"><b>'+(o.blank?'&nbsp;':((a>>>i)&1))+'</b><i>'+i+'</i></span>';}
+  h+='</div>';
+  if(o.legend!==false&&!o.blank){
+    var co=b?a&(Math.pow(2,b)-1):0, ci=s?Math.floor(a/Math.pow(2,b))%Math.pow(2,s):0, ct=Math.floor(a/Math.pow(2,s+b)), L=[];
+    if(show.ct)L.push('<span class="ct">Tag, CT: '+t+' bit'+(t===1?'':'s')+' = <b>'+hx0(ct)+'</b></span>');
+    if(show.ci)L.push(s?'<span class="ci">Set index, CI: '+s+' bit'+(s===1?'':'s')+' = <b>'+ci+'</b></span>':'<span class="ci">Set index: 0 bits (only one set)</span>');
+    if(show.co)L.push(b?'<span class="co">Offset, CO: '+b+' bit'+(b===1?'':'s')+' = <b>'+co+'</b></span>':'<span class="co">Offset: 0 bits (1-byte blocks)</span>');
+    h+='<div class="ab-leg">'+L.join('')+'</div>';
+  }
+  return h;
+}
+
+/* a set-by-set cache table. On narrow screens a 2-line cache shows one table per line (fitAcc picks). */
+function setTable(o){
+  function tbl(lines){
+    var h='<table class="t ctbl"><thead>'+(o.E>1?'<tr><th rowspan="2" scope="col">Set</th>'+lines.map(function(L){return '<th colspan="'+o.cols.length+'" class="ln" scope="colgroup">Line '+L+'</th>';}).join('')+'</tr><tr>':'<tr><th scope="col">Set</th>')+
+      lines.map(function(){return o.cols.map(function(c){return '<th scope="col">'+c+'</th>';}).join('');}).join('')+'</tr></thead><tbody>';
+    for(var si=0;si<o.S;si++){h+='<tr'+(o.hlSet===si?' class="hs"':'')+'><th scope="row">'+si+'</th>'+lines.map(function(L){return o.cell(si,L).map(function(c){return '<td'+(c.c?' class="'+c.c+'"':'')+'>'+c.v+'</td>';}).join('');}).join('')+'</tr>';}
+    return h+'</tbody></table>';
+  }
+  var all=[];for(var L=0;L<o.E;L++)all.push(L);
+  if(o.E<2)return '<div class="tbl-wrap">'+tbl(all)+'</div>';
+  return '<div class="acc-fit"><div class="tbl-wrap acc-v">'+tbl(all)+'</div><div class="tbl-wrap acc-v ctbl-st" hidden>'+all.map(function(L){return tbl([L]);}).join('')+'</div></div>';
+}
+
+/* the 2-way cache from In-Class Practice 11, Q1-Q2 (also CS:APP practice problems 6.12-6.16) */
+var CACHE12=[
+ [{tag:0x09,v:1,d:[0x86,0x30,0x3F,0x10]},{tag:0x00,v:0}],
+ [{tag:0x45,v:1,d:[0x60,0x4F,0xE0,0x23]},{tag:0x38,v:1,d:[0x00,0xBC,0x0B,0x37]}],
+ [{tag:0xEB,v:0},{tag:0x0B,v:0}],
+ [{tag:0x06,v:0},{tag:0x32,v:1,d:[0x12,0x08,0x7B,0xAD]}],
+ [{tag:0xC7,v:1,d:[0x06,0x78,0x07,0xC5]},{tag:0x05,v:1,d:[0x40,0x67,0xC2,0x3B]}],
+ [{tag:0x71,v:1,d:[0x0B,0xDE,0x18,0x4B]},{tag:0x6E,v:0}],
+ [{tag:0x91,v:1,d:[0xA0,0xB7,0x26,0x2D]},{tag:0xF0,v:0}],
+ [{tag:0x46,v:0},{tag:0xDE,v:1,d:[0x12,0xC0,0x88,0x37]}]];
+function cacheLook(a){var co=a&3,ci=(a>>>2)&7,ct=a>>>5,set=CACHE12[ci],line=-1;set.forEach(function(L,i){if(L.v&&L.tag===ct)line=i;});return {co:co,ci:ci,ct:ct,line:line,byte:line>=0?set[line].d[co]:null};}
+function cacheTbl(o){
+  o=o||{};
+  return setTable({S:8,E:2,cols:['Tag','V','B0','B1','B2','B3'],hlSet:o.hlSet,cell:function(si,L){
+    var ln=CACHE12[si][L], on=o.hlSet===si&&o.hlLine===L, cmp=o.cmp===si, c=[{v:hx2(ln.tag),c:'tg'+(on?' hit':cmp?' cmp':'')},{v:String(ln.v),c:'vb'}];
+    for(var k=0;k<4;k++)c.push({v:ln.v?hx2(ln.d[k]):'–',c:'by'+(on&&o.hlByte===k?' pick':'')});
+    return c;}});
+}
+/* the direct-mapped cache from In-Class Practice 11, Q4: 8 sets, valid bit and tag */
+var DM11=[[1,4],[1,7],[0,7],[1,0],[0,15],[0,9],[1,8],[1,8]];
+function dmTbl(hl){return setTable({S:8,E:1,cols:['Valid','Tag'],hlSet:hl,cell:function(si){var r=DM11[si];return [{v:String(r[0]),c:'vb'},{v:r[1]>9?'0x'+r[1].toString(16):String(r[1]),c:'tg'}];}});}
+
+function chipRow(lab,key,vals,cur,fmt){return '<div class="chips"><span class="lab-l">'+lab+'</span>'+vals.map(function(v){return '<button class="chip'+(cur===v?' on':'')+'" data-ta="'+key+':'+v+'" aria-pressed="'+(cur===v)+'">'+(fmt?fmt(v):v)+'</button>';}).join('')+'</div>';}
+
+/* Part 10: a 4-slot cache, block b goes in slot b % 4 */
+TOYDEF.blocks={title:'Try it · a cache with 4 slots',
+  init:function(){return {sl:[null,null,null,null],seen:{},log:[],last:null};},
+  out:function(st){
+    var L=st.last, h='<div class="cb-lab">The cache</div><div class="cb-cache">'+st.sl.map(function(x,i){var c=L&&L.slot===i?(L.hit?' hit':' miss'):'';return '<div class="cb-slot'+c+'"><i>slot '+i+'</i><b>'+(x===null?'empty':x)+'</b></div>';}).join('')+'</div>', note;
+    if(!L) note='Tap a memory block to ask for it. Block b can only go in slot <b>b % 4</b>.';
+    else if(L.hit) note='Block '+L.b+' → slot '+L.b+' % 4 = '+L.slot+'. It\'s already there: <b class="ok">hit!</b>';
+    else if(L.old===null) note='Block '+L.b+' → slot '+L.b+' % 4 = '+L.slot+', which is empty. <b class="no">Miss</b> (cold): '+L.b+' is copied in from memory.';
+    else if(L.kind==='cold') note='Block '+L.b+' → slot '+L.slot+', which holds '+L.old+'. <b class="no">Miss</b> (cold: the first time you asked for '+L.b+'). Block '+L.old+' is evicted.';
+    else note='Block '+L.b+' → slot '+L.slot+', which holds '+L.old+'. <b class="no">Miss</b> (conflict): '+L.b+' was here before, but '+L.old+' needs the same slot and pushed it out.';
+    h+='<p class="tr-note">'+note+'</p>';
+    var mem='';for(var i=0;i<16;i++){var inC=st.sl[i%4]===i;mem+='<button class="cb-blk'+(inC?' in':'')+'" data-ta="r:'+i+'" aria-label="Ask for block '+i+(inC?', in the cache':'')+'">'+i+'</button>';}
+    h+='<div class="cb-lab">Memory: tap a block</div><div class="cb-mem">'+mem+'</div>';
+    if(st.log.length){var hits=st.log.filter(function(x){return x.hit;}).length, cold=st.log.filter(function(x){return x.kind==='cold';}).length, ms=st.log.length-hits;
+      h+='<div class="cb-log" aria-label="Your requests">'+st.log.slice(-12).map(function(x){return '<span class="'+(x.hit?'h':'m')+'">'+x.b+'<i>'+(x.hit?'hit':'miss')+'</i></span>';}).join('')+'</div>'+
+        '<p class="fine">'+hits+' hit'+(hits===1?'':'s')+', '+ms+' miss'+(ms===1?'':'es')+(ms?' ('+cold+' cold, '+(ms-cold)+' conflict)':'')+'.</p>';}
+    h+='<div class="chips"><span class="lab-l">Try</span><button class="chip" data-ta="p:0,8,0,8,0,8">0 8 0 8 0 8</button><button class="chip" data-ta="p:0,1,2,3,0,1,2,3">0 1 2 3 0 1 2 3</button>'+(st.log.length?'<button class="link" data-ta="reset">Empty the cache</button>':'')+'</div>';
+    return h;
+  },
+  act:function(st,a){
+    function req(b){var s=b%4,old=st.sl[s],hit=old===b,kind=hit?'hit':st.seen[b]?'conflict':'cold';st.seen[b]=1;st.sl[s]=b;st.last={b:b,slot:s,old:old,hit:hit,kind:kind};st.log.push({b:b,hit:hit,kind:kind});}
+    function clear(){st.sl=[null,null,null,null];st.seen={};st.log=[];st.last=null;}
+    if(a==='reset')clear();
+    else if(a.indexOf('r:')===0)req(+a.slice(2));
+    else if(a.indexOf('p:')===0){clear();a.slice(2).split(',').forEach(function(x){req(+x);});}
+  }};
+
+/* Part 10: S sets x E lines x B bytes */
+TOYDEF.cgeo={title:'Try it · build a cache from S, E and B',
+  init:function(){return {S:4,E:2,B:4};},
+  out:function(st){
+    var h=chipRow('S sets','S',[1,2,4,8],st.S)+chipRow('E lines per set','E',[1,2,4],st.E)+chipRow('B bytes per block','B',[2,4,8],st.B), g='<div class="geo" aria-hidden="true">';
+    for(var s=0;s<st.S;s++){g+='<div class="geo-set"><span class="geo-sl">Set '+s+'</span><div class="geo-lines">';for(var e=0;e<st.E;e++){var bb='';for(var k=0;k<st.B;k++)bb+='<i></i>';g+='<span class="geo-line"><span class="gv">v</span><span class="gt">tag</span><span class="gb">'+bb+'</span></span>';}g+='</div></div>';}
+    g+='</div>';
+    var kind=st.S===1?'Fully associative: one set holds every line.':st.E===1?'Direct-mapped: one line per set.':st.E+'-way set associative: '+st.E+' lines in every set.';
+    return h+g+'<p class="tr-note">'+kind+'</p>'+calcHTML([{l:'S × E × B',s:'',v:st.S+' × '+st.E+' × '+st.B},{l:'C, the cache size',s:'=',v:fmtNum(st.S*st.E*st.B)+' bytes',tot:true}])+'<p class="fine">Each line also has a valid bit (v) and a tag, but C only counts the data bytes.</p>';
+  },
+  act:function(st,a){var p=a.split(':');st[p[0]]=+p[1];}};
+
+/* Part 10: split an address into tag, set index and block offset */
+TOYDEF.addrsplit={title:'Try it · split an address',
+  init:function(){return {m:8,S:8,B:4,a:0x2C,raw:'0x2C'};},
+  ctl:function(st){return '<div class="labgrid"><label>Address (hex)<input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(st.raw)+'" data-ti="raw"></label></div>';},
+  out:function(st){
+    var s=lg2(st.S), b=lg2(st.B), t=st.m-s-b;
+    var h=chipRow('m address bits','m',[4,8,10,13,16],st.m)+chipRow('S sets','S',[1,2,4,8,16,32],st.S)+chipRow('B bytes per block','B',[1,2,4,8,16],st.B)+
+      calcHTML([{l:'b = log₂ B = log₂ '+st.B,s:'',v:String(b)},{l:'s = log₂ S = log₂ '+st.S,s:'',v:String(s)},{l:'t = m − s − b = '+st.m+' − '+s+' − '+b,s:'=',v:String(t),tot:true}]);
+    if(t<0) return h+'<p class="fine">s + b is more than m. Pick a bigger m, or fewer sets or bytes.</p>';
+    if(st.a===null) return h+'<p class="fine">Type an address in hex, like 0x2C.</p>';
+    if(st.a>=Math.pow(2,st.m)) return h+'<p class="fine">'+hx0(st.a)+' needs more than '+st.m+' bits. Type a smaller address or pick a bigger m.</p>';
+    return h+addrBits(st.a,st.m,s,b);
+  },
+  sync:syncRange,
+  act:function(st,a,el){if(a==='raw'){st.raw=el.value;st.a=parseHexIn(el.value);}else{var p=a.split(':');st[p[0]]=+p[1];}}};
+
+/* Part 10: look a byte up in the Practice 10 cache, one step at a time */
+TOYDEF.lookup={title:'Try it · look a byte up',
+  init:function(){return {a:0x00B2,raw:'0x00B2',k:0};},
+  ctl:function(st){return '<div class="labgrid"><label>13-bit address (hex)<input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(st.raw)+'" data-ti="raw"></label></div>';},
+  out:function(st){
+    var picks=['0x00B2','0x0DD5','0x1FE4','0x064D'], h='<div class="chips"><span class="lab-l">Try</span>'+picks.map(function(p){var on=st.a===parseHexIn(p);return '<button class="chip'+(on?' on':'')+'" data-ta="pick:'+p+'" aria-pressed="'+on+'">'+p+'</button>';}).join('')+'</div>';
+    if(st.a===null||st.a>0x1FFF) return h+'<p class="fine">Type a hex address from 0x0000 to 0x1FFF. It has to fit in 13 bits.</p>';
+    var r=cacheLook(st.a), k=st.k, set=CACHE12[r.ci], tagHit=set.some(function(L){return L.tag===r.ct;});
+    var steps=['Split it: CO = '+r.co+' (bits 1–0), CI = '+r.ci+' (bits 4–2), CT = '+hx0(r.ct)+' (bits 12–5).',
+      'CI = '+r.ci+', so go to <b>set '+r.ci+'</b>.',
+      'Compare CT = '+hx0(r.ct)+' with both lines. Line 0 has tag '+hx2(set[0].tag)+' (valid '+set[0].v+'), line 1 has tag '+hx2(set[1].tag)+' (valid '+set[1].v+'). '+(r.line>=0?'Line '+r.line+' matches, and it\'s valid.':tagHit?'A tag matches, but that line\'s valid bit is 0, so it doesn\'t count.':'Neither tag matches.'),
+      r.line>=0?'<b class="ok">Hit!</b> CO = '+r.co+', so return byte '+r.co+' of line '+r.line+': <b>'+hx0(r.byte)+'</b>.':'<b class="no">Miss.</b> The block has to come from memory, so the cache returns no byte: <b>---</b>.'];
+    h+=addrBits(st.a,13,3,2,{legend:false})+'<ol class="steps lk">'+steps.slice(0,k+1).map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol>';
+    h+=cacheTbl({hlSet:k>=1?r.ci:null,cmp:k>=2?r.ci:null,hlLine:k>=3&&r.line>=0?r.line:null,hlByte:k>=3&&r.line>=0?r.co:null});
+    h+='<div class="toy-btns"><button class="btn sm" data-ta="next"'+(k>=3?' disabled':'')+'>Next step ▶</button><button class="btn sm ghost" data-ta="all"'+(k>=3?' disabled':'')+'>Show all</button>'+(k?'<button class="link" data-ta="restart">Start over</button>':'')+'</div>';
+    return h;
+  },
+  sync:syncRange,
+  act:function(st,a,el){
+    if(a==='raw'){st.raw=el.value;st.a=parseHexIn(el.value);st.k=0;}
+    else if(a.indexOf('pick:')===0){st.raw=a.slice(5);st.a=parseHexIn(st.raw);st.k=0;}
+    else if(a==='next'&&st.k<3)st.k++;else if(a==='all')st.k=3;else if(a==='restart')st.k=0;}};
+
+/* Part 11: the slides' 16-byte machine, B = 2, direct-mapped (S = 4) or 2-way (S = 2), LRU */
+TOYDEF.csim={title:'Try it · run the slides\' cache',
+  init:function(d){return {E:d.E||1,k:0,extra:[]};},
+  out:function(st){
+    var TR=[0,1,7,8,0], E=st.E, S=4/E, s=lg2(S), reads=TR.slice(0,st.k).concat(st.extra), sets=[], log=[], clock=0, i;
+    for(i=0;i<S;i++){sets.push([]);for(var e=0;e<E;e++)sets[i].push(null);}
+    reads.forEach(function(a){var si=(a>>1)&(S-1), tag=a>>(s+1), L=sets[si], j=-1, q;
+      for(q=0;q<E;q++)if(L[q]&&L[q].tag===tag)j=q;
+      clock++;
+      if(j>=0){L[j].t=clock;log.push({a:a,hit:true,si:si,tag:tag,line:j});}
+      else{var v=-1;for(q=0;q<E;q++)if(!L[q]){v=q;break;}
+        if(v<0){v=0;for(q=1;q<E;q++)if(L[q].t<L[v].t)v=q;}
+        var old=L[v];L[v]={tag:tag,blk:a>>1,t:clock};log.push({a:a,hit:false,si:si,tag:tag,line:v,old:old});}});
+    var last=log[log.length-1], tb=function(x){var w=3-s,r='';for(var q=w-1;q>=0;q--)r+=(x>>q)&1;return r;};
+    var h=chipRow('Lines per set','E',[1,2],E,function(v){return v===1?'E = 1 (S = 4)':'E = 2 (S = 2)';})+
+      '<p class="fine">16 bytes of memory, so addresses are 4 bits. B = 2, '+(E===1?'S = 4, E = 1: t = 1, s = 2, b = 1.':'S = 2, E = 2: t = 2, s = 1, b = 1.')+'</p>';
+    if(last){
+      var note='Read '+last.a+': tag '+tb(last.tag)+', set '+last.si+'. ';
+      if(last.hit) note+='Line '+last.line+' of set '+last.si+' has that tag: <b class="ok">hit</b>.';
+      else if(!last.old) note+='Set '+last.si+(E>1?' has an empty line':' is empty')+': <b class="no">miss</b>. M['+(last.a&~1)+'] and M['+((last.a&~1)+1)+'] are copied in.';
+      else note+='Set '+last.si+' is full, and no line has tag '+tb(last.tag)+': <b class="no">miss</b>. '+(E>1?'The least recently used line, ':'Its line, ')+'holding M['+last.old.blk*2+'] and M['+(last.old.blk*2+1)+'], is evicted.';
+      h+=addrBits(last.a,4,s,1)+'<p class="tr-note">'+note+'</p>';
+    } else h+='<p class="tr-note">Press Next read to run the slides\' trace: 0, 1, 7, 8, 0.</p>';
+    h+=setTable({S:S,E:E,cols:['V','Tag','Block[0]','Block[1]'],hlSet:last?last.si:null,cell:function(si,L){var x=sets[si][L],on=last&&last.si===si&&last.line===L;
+      return x?[{v:'1',c:'vb'},{v:tb(x.tag),c:'tg'+(on?' hit':'')},{v:'M['+x.blk*2+']',c:'by'},{v:'M['+(x.blk*2+1)+']',c:'by'}]:[{v:'0',c:'vb'},{v:'–',c:'tg'},{v:'',c:'by'},{v:'',c:'by'}];}});
+    if(log.length){var ms=log.filter(function(x){return !x.hit;}).length;
+      h+='<div class="cb-log" aria-label="Reads so far">'+log.map(function(x){return '<span class="'+(x.hit?'h':'m')+'">'+x.a+'<i>'+(x.hit?'hit':'miss')+'</i></span>';}).join('')+'</div><p class="fine">'+ms+' miss'+(ms===1?'':'es')+' out of '+log.length+' read'+(log.length===1?'':'s')+'.</p>';}
+    h+='<div class="toy-btns">'+(st.k<5?'<button class="btn sm" data-ta="next">Next read ▶</button><button class="btn sm ghost" data-ta="all">Show all</button>':'')+(log.length?'<button class="link" data-ta="restart">Start over</button>':'')+'</div>';
+    if(st.k>=5){var ab='';for(i=0;i<16;i++)ab+='<button class="chip" data-ta="rd:'+i+'">'+i+'</button>';h+='<div class="chips"><span class="lab-l">Read more</span>'+ab+'</div>';}
+    return h;
+  },
+  act:function(st,a){
+    if(a==='next'&&st.k<5)st.k++;else if(a==='all')st.k=5;else if(a==='restart'){st.k=0;st.extra=[];}
+    else if(a.indexOf('E:')===0){st.E=+a.slice(2);st.k=0;st.extra=[];}
+    else if(a.indexOf('rd:')===0){st.extra.push(+a.slice(3));if(st.extra.length>12)st.extra.shift();}}};
+
+/* Part 11: dotprod's x and y in Practice 11's cache (8 sets of 8-byte lines, direct-mapped) */
+TOYDEF.dotprod={title:'Try it · dotprod in an 8-set cache',
+  init:function(){return {pad:0};},
+  out:function(st){
+    var y0=(16+st.pad)*4, tags=[], res=[], hits=0, i;
+    for(i=0;i<8;i++)tags.push(null);
+    for(i=0;i<16;i++)[0,y0].forEach(function(base,w){var a=base+4*i,blk=a>>3,si=blk&7,h=tags[si]===blk;tags[si]=blk;if(h)hits++;res.push({w:w,i:i,a:a,si:si,h:h});});
+    var row=function(w){return res.filter(function(r){return r.w===w;}).map(function(r){return '<span class="'+(r.h?'h':'m')+'" title="'+(w?'y':'x')+'['+r.i+'] at '+hx0(r.a)+', set '+r.si+'">'+(r.h?'H':'M')+'</span>';}).join('');};
+    var frac=hits===0?'0':hits===32?'1':hits===16?'1/2':hits+'/32';
+    return chipRow('Declare x as','pad',[0,1,2,4],st.pad,function(p){return 'float x['+(16+p)+']';})+
+      '<p class="tr-note">x starts at 0x0, so x[0] is in set 0. y starts right after x, at <b>'+hx0(y0)+'</b>. That\'s block '+(y0>>3)+', so y[0] is in <b>set '+((y0>>3)&7)+'</b>.</p>'+
+      '<div class="dp" aria-label="Hits and misses for each access"><span class="dp-l">x[i]</span><div class="dp-row">'+row(0)+'</div><span class="dp-l">y[i]</span><div class="dp-row">'+row(1)+'</div></div>'+
+      '<p class="fine">i = 0 to 15, left to right. The loop reads x[0], y[0], x[1], y[1], and so on. H is a hit, M a miss.</p>'+
+      '<p class="tr-note">'+hits+' hits out of 32 reads: <b>'+frac+'</b>. '+(hits===0?'x[i] and y[i] keep kicking each other out of the same set. That\'s thrashing.':'x and y no longer collide. Each 8-byte line holds two floats, so the first read of a line misses and the second hits.')+'</p>';
+  },
+  act:function(st,a){st.pad=+a.split(':')[1];}};
+
+/* Part 11: write-through vs write-back */
+TOYDEF.writes={title:'Try it · write-through vs write-back',
+  init:function(){return {n:0,thru:0,back:0,dirty:0,ev:0};},
+  out:function(st){
+    return '<div class="pair2"><div class="cbox"><b>Write-through</b>'+calcHTML([{l:'Writes to x',s:'',v:String(st.n)},{l:'Trips to memory',s:'',v:String(st.thru),tot:true}])+'<p class="fine">Every write goes on to memory right away.</p></div>'+
+      '<div class="cbox"><b>Write-back</b>'+calcHTML([{l:'Writes to x',s:'',v:String(st.n)},{l:'Dirty bit',s:'',v:String(st.dirty)},{l:'Trips to memory',s:'',v:String(st.back),tot:true}])+'<p class="fine">Memory is only updated when a dirty line is evicted.</p></div></div>'+
+      '<div class="toy-btns"><button class="btn sm" data-ta="w">Write to x</button><button class="btn sm ghost" data-ta="e">Evict x\'s line</button>'+(st.n||st.ev?'<button class="link" data-ta="reset">Start over</button>':'')+'</div>'+
+      '<p class="fine">Write a few times, then evict. x\'s line comes back into the cache on the next write.</p>';
+  },
+  act:function(st,a){if(a==='w'){st.n++;st.thru++;st.dirty=1;}else if(a==='e'){st.ev++;if(st.dirty){st.back++;st.dirty=0;}}else if(a==='reset'){st.n=0;st.thru=0;st.back=0;st.dirty=0;st.ev=0;}}};
+
+/* Part 11: average access time */
+TOYDEF.amat={title:'Try it · average access time',
+  init:function(){return {hr:97,ht:1,mp:100};},
+  ctl:function(st){return '<div class="labgrid"><label>Hit rate (%)<input type="number" min="0" max="100" step="any" inputmode="decimal" value="'+st.hr+'" data-ti="hr"></label><label>Hit time (cycles)<input type="number" min="0" step="any" inputmode="decimal" value="'+st.ht+'" data-ti="ht"></label><label>Miss penalty (cycles)<input type="number" min="0" step="any" inputmode="decimal" value="'+st.mp+'" data-ti="mp"></label></div>';},
+  out:function(st){
+    var chips=chipRow('Hit rate','hr',[90,97,99],st.hr,function(v){return v+'%';});
+    if(!(st.hr>=0&&st.hr<=100)||!(st.ht>=0)||!(st.mp>=0)) return chips+'<p class="fine">Type a hit rate from 0 to 100, and times of 0 or more.</p>';
+    var h=st.hr/100, m=1-h, f=function(x){return fmtNum(+x.toFixed(4));}, avg=h*st.ht+m*st.mp;
+    return chips+calcHTML([{l:'Hits: '+f(h)+' × '+f(st.ht)+' cycles',s:'',v:f(h*st.ht)},{l:'Misses: '+f(m)+' × '+f(st.mp)+' cycles',s:'+',v:f(m*st.mp)},{l:'Average access time',s:'=',v:f(avg)+' cycles',tot:true}])+
+      '<p class="fine">Miss rate = 1 − hit rate = '+f(m*100)+'%.</p>';
+  },
+  sync:syncRange,
+  act:function(st,a,el){if(a.indexOf('hr:')===0){st.hr=+a.slice(3);return;}var v=parseFloat(el.value);st[a]=isNaN(v)?NaN:v;}};
+
+/* Part 12: virtual vs physical addressing */
+function vmFlow(){
+  return '<div class="vmf"><div class="vmf-row"><span class="vmf-lab">Physical addressing</span><span class="vmf-box">CPU</span><span class="vmf-tail"><span class="vmf-ar">PA 4 →</span><span class="vmf-box mem">Memory</span></span></div>'+
+    '<div class="vmf-row"><span class="vmf-lab">Virtual addressing</span><span class="vmf-chip"><span class="vmf-cl">CPU chip</span><span class="vmf-box">CPU</span><span class="vmf-ar">VA 4100 →</span><span class="vmf-box mmu">MMU</span></span><span class="vmf-tail"><span class="vmf-ar">PA 4 →</span><span class="vmf-box mem">Memory</span></span></div></div>';
+}
+var UNITS2=[['',0],['K',10],['M',20],['G',30],['T',40],['P',50]];
+function powUnit(n){var k=Math.min(Math.floor(n/10),5),r=n-10*k;return {txt:fmtNum(Math.pow(2,r))+UNITS2[k][0],r:r,k:k};}
+function maxHex(n){var full=Math.floor(n/4),rem=n%4,s=rem?((1<<rem)-1).toString(16).toUpperCase():'';for(var i=0;i<full;i++)s+='F';return '0x'+(s||'0');}
+function unitStrip(){return '<div class="ustrip">'+UNITS2.slice(1).map(function(u){return '<span><b>'+u[0]+'</b><i>2'+supNum(u[1])+'</i></span>';}).join('')+'</div>';}
+
+/* Part 12: n bits, N = 2^n addresses */
+TOYDEF.vaspace={title:'Try it · count the addresses',
+  init:function(){return {n:12};},
+  out:function(st){
+    var n=st.n, p=powUnit(n), rows=[];
+    rows.push({l:'N = 2'+supNum(n)+(p.k?' = 2'+supNum(p.r)+' × 2'+supNum(10*p.k):''),s:'=',v:p.txt+' addresses',tot:true});
+    rows.push({l:'Largest address = N − 1',s:'=',v:p.k?p.txt+' − 1':fmtNum(Math.pow(2,n)-1)});
+    if(p.k&&n<=52)rows.push({l:'In decimal',s:'=',v:fmtNum(Math.pow(2,n)-1)});
+    rows.push({l:'In hex: all '+n+' bits are 1',s:'=',v:maxHex(n)});
+    return chipRow('n bits','n',[4,8,12,20,30,36,45,52],n)+calcHTML(rows)+'<p class="fine">The addresses run 0, 1, 2, …, N − 1.'+(p.k?' '+UNITS2[p.k][0]+' = 2'+supNum(10*p.k)+', a power of 2, not of 10.':'')+'</p>';
+  },
+  act:function(st,a){st.n=+a.split(':')[1];}};
 
 /* ---------- levels ---------- */
 var KIND=['Immediate','Register','Memory'];
@@ -3492,6 +3801,415 @@ qs:[
 {pre:'for (i = 0; i < n; i++)\n    b[i] = a[i] + a[i];',prompt:'Which kind of locality does reading <code>a[i]</code> twice in one pass show?',options:['Temporal','Spatial'],answer:0,keep:true,explain:'The same item used again right away. (Going on to a[i+1] next pass is spatial.)'}
 ]},
 
+{id:'cblocks',sec:'p10',name:'Caches and blocks',short:'Blocks',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>A <b>cache</b> is a smaller, faster memory that keeps a copy of <b>some</b> of the data from a bigger, slower one. Every level of the memory pyramid is a cache for the level below it: L1 caches L2, main memory caches the disk, and so on.</p>
+<ul class="facts"><li>Memory is split into equal <b>blocks</b>, and data moves between levels one whole block at a time.</li><li><b>Hit</b>: the block you need is already in the cache. <b>Miss</b>: it isn't, so it's copied in from memory, and another block may be evicted to make room.</li><li>Where can a block go? In your slides' 4-slot cache, block b goes in slot <b>b % 4</b>. Block 4 goes in slot 0, block 10 in slot 2.</li></ul>`+
+toy('blocks')+
+`<h3>Three kinds of miss</h3>
+<ul class="facts"><li><b>Cold</b> (compulsory): the first time you ask for a block. Every cache starts empty.</li><li><b>Conflict</b>: there's room, but two blocks need the same slot. Asking for 0, 8, 0, 8, … misses every time.</li><li><b>Capacity</b>: the blocks you're using (your working set) don't all fit in the cache.</li></ul>
+<p>When a block has to go, the <b>replacement policy</b> picks the victim: least recently used (LRU), first in first out (FIFO), or random.</p>`,
+qs:[
+{prompt:'Data moves between the cache and memory in units of',options:['whole blocks','single bytes','whole files'],answer:0,explain:'Your slides: data is copied in block-sized transfer units.'},
+{prompt:'In the 4-slot cache, block b goes in slot b % 4. Which slot does block 10 go in?',options:['2','10','0','1'],answer:0,explain:'10 % 4 = 2, as on your slide.'},
+{prompt:'Same cache. Type the slot that block 13 goes in.',input:true,dec:true,expect:'1',explain:'13 % 4 = 1: 13 = 3 × 4 + 1.'},
+{prompt:'You ask for block 14, and slot 2 already holds 14. That\'s a',options:['hit','miss'],answer:0,keep:true,explain:'The block is in the cache, so it\'s read straight from there.'},
+{prompt:'You ask for block 12. Slot 0 holds block 8. What happens?',options:['Miss: 12 is copied in from memory, and 8 is evicted','Hit: slot 0 has a block in it','Miss: 12 goes in an empty slot instead'],answer:0,explain:'12 % 4 = 0, and slot 0 holds 8, not 12. In this cache, 12 can only go in slot 0.'},
+{prompt:'The cache is empty and you ask for block 5. What kind of miss is it?',options:['Cold (compulsory)','Conflict','Capacity'],answer:0,explain:'The first time you ask for a block, it can\'t be in the cache yet.'},
+{prompt:'Asking for blocks 0, 8, 0, 8, … misses every time, even though slots 1 to 3 are free. What kind of miss is that?',options:['Conflict','Cold','Capacity'],answer:0,explain:'0 and 8 both need slot 0 (0 % 4 = 8 % 4 = 0), so they keep evicting each other.'},
+{prompt:'A loop keeps using more data than the whole cache can hold. Its misses are',options:['capacity misses','conflict misses','only cold misses'],answer:0,explain:'The working set is bigger than the cache.'},
+{prompt:'Which replacement policy evicts the block that hasn\'t been used for the longest time?',options:['LRU, least recently used','FIFO, first in first out','Random'],answer:0,explain:'LRU looks at when each block was last used.'},
+{prompt:'Why does a hierarchy of caches work?',options:['Locality: programs use the data at level k more often than the data at level k + 1','Caches are bigger than memory','Memory is never slow'],answer:0,explain:'That\'s why level k + 1 can be slower, bigger and cheaper.'}
+]},
+
+{id:'cgeo',sec:'p10',name:'S, E and B: the shape of a cache',short:'S, E and B',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>Every cache in your slides has the same shape, described by three numbers:</p>
+<ul class="facts"><li><b>S</b> sets, where S = 2ˢ.</li><li><b>E</b> lines in every set.</li><li><b>B</b> data bytes in every line's block, where B = 2ᵇ.</li></ul>
+<p>Each line also has <b>1 valid bit</b> (does it hold real data?) and <b>t tag bits</b> (which block is it?).</p>
+<div class="rule-box">C = S × E × B data bytes</div>`+
+toy('cgeo')+
+`<div class="tip"><span class="tl">Two special shapes</span>E = 1 is <b>direct-mapped</b>: each block has exactly one place it can go. S = 1 is <b>fully associative</b>: one set holds every line, so a block can go anywhere.</div>`,
+qs:[
+{prompt:'In a cache described by (S, E, B), S is the number of',options:['sets','lines per set','bytes per block'],answer:0,explain:'S = 2ˢ sets.'},
+{prompt:'E is the number of',options:['lines in each set','sets','bytes per block'],answer:0,explain:'Each set has E lines.'},
+{prompt:'B is the number of',options:['data bytes per block','sets','tag bits'],answer:0,explain:'B = 2ᵇ bytes per cache block.'},
+{prompt:'Besides its B data bytes, each line has',options:['1 valid bit and t tag bits','nothing else','its full address'],answer:0,explain:'The valid bit says whether the line holds real data. The tag says which block it is.'},
+{prompt:'The cache size C is',options:['S × E × B','S + E + B','S × B','E × B'],answer:0,explain:'Sets × lines per set × bytes per line.'},
+{prompt:'S = 8, E = 2 and B = 4. Type C, in bytes.',input:true,dec:true,expect:'64',explain:'8 × 2 × 4 = 64 bytes.'},
+{prompt:'C = 512 bytes, B = 8 and E = 2. How many sets are there?',input:true,dec:true,expect:'32',hint:'S = C ÷ (B × E).',explain:'512 ÷ (8 × 2) = 32 sets.',traps:[{v:'64',msg:'That\'s 512 ÷ 8. Divide by E too: 512 ÷ (8 × 2).'},{v:'256',msg:'That\'s 512 ÷ 2. Divide by B too: 512 ÷ (8 × 2).'}]},
+{prompt:'A cache with E = 1, one line in every set, is called',options:['direct-mapped','fully associative','2-way set associative'],answer:0,explain:'Each block has exactly one place it can go.'},
+{prompt:'C = 2,048 bytes, B = 64 and E = 32. How many sets?',options:['1, so it\'s fully associative','32','64'],answer:0,explain:'2,048 ÷ (64 × 32) = 1. A single set holds every line.'},
+{prompt:'Does C count the valid bits and the tags?',options:['No, only the data bytes','Yes, everything in each line'],answer:0,keep:true,explain:'C = S × E × B data bytes.'}
+]},
+
+{id:'caddr',sec:'p10',name:'Split the address: tag, set, offset',short:'Tag, set, offset',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>To find a byte, the cache cuts its m-bit address into three fields:</p>
+<div class="rule-box">tag (t bits)  |  set index (s bits)  |  block offset (b bits)</div>
+<ul class="facts"><li><b>Block offset</b>, CO: the lowest <b>b = log₂ B</b> bits. Which byte inside the block.</li><li><b>Set index</b>, CI: the next <b>s = log₂ S</b> bits. Which set to look in.</li><li><b>Tag</b>, CT: everything left, <b>t = m − s − b</b> bits. Which block it is.</li></ul>
+<p>Write the address in binary, count b bits in from the right, then s more. The rest is the tag. Change the numbers and watch the colors move:</p>`+
+toy('addrsplit')+
+`<div class="tip"><span class="tl">E doesn't move the split</span>The address only picks a set and a byte. E just says how many lines that set has.</div>`,
+qs:[
+{prompt:'Tap the three fields from the leftmost bits to the rightmost.',order:['tag','set index','block offset'],explain:'t bits | s bits | b bits, with the offset in the lowest bits.'},
+{prompt:'B = 8 bytes per block. How many block offset bits?',options:['3','8','2','4'],answer:0,explain:'b = log₂ 8 = 3. Three bits count from 0 to 7.'},
+{prompt:'S = 32 sets. Type how many set index bits that takes.',input:true,dec:true,expect:'5',explain:'s = log₂ 32 = 5.'},
+{prompt:'m = 16, S = 16 and B = 8. Type how many tag bits there are.',input:true,dec:true,expect:'9',hint:'t = m − s − b.',explain:'s = 4 and b = 3, so t = 16 − 4 − 3 = 9.',traps:[{v:'4',msg:'That\'s s. The tag is what\'s left: 16 − 4 − 3.'}]},
+{prompt:'Does E, the number of lines per set, change t, s or b?',options:['No: only m, S and B set the split','Yes: more lines means more tag bits','Yes: each line adds an offset bit'],answer:0,explain:'The address picks a set and a byte. E only says how many lines are in the set. (For a fixed C, though, a bigger E means fewer sets.)'},
+{prompt:'Your slides\' tiny cache: 4-bit addresses, B = 2, S = 4. What are t, s and b?',options:['t = 1, s = 2, b = 1','t = 2, s = 1, b = 1','t = 1, s = 1, b = 2'],answer:0,explain:'b = log₂ 2 = 1, s = log₂ 4 = 2, t = 4 − 2 − 1 = 1.'},
+{prompt:'Same cache. Address 7 = 0111. Which set does it use?',options:['3','1','7','0'],answer:0,explain:'Split it 0 | 11 | 1: tag 0, set 11 = 3, offset 1.'},
+{prompt:'8-bit addresses, s = 3 and b = 2. Address 0x2C = 0010 1100. What is CI, the set index?',code:true,options:['0x3','0x0','0x1','0x2C'],answer:0,explain:'Split it 001 | 011 | 00: CT = 0x1, CI = 0x3, CO = 0x0.'},
+{prompt:'Same split. Address 0x9A = 1001 1010. Type CT, the tag, in hex.',input:true,expect:'0x4',explain:'Split it 100 | 110 | 10: CT = 0x4, CI = 6, CO = 2.',traps:[{v:'0x9',msg:'That\'s the top 4 bits. With s = 3 and b = 2, the tag is only the top 3 bits: 100.'},{v:'0x6',msg:'That\'s the set index, the middle 3 bits. The tag is the top 3: 100.'}]}
+]},
+
+{id:'clook',sec:'p10',name:'Look it up: hit or miss?',short:'Look it up',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>With the address split, a read takes three steps:</p>
+<ol class="steps"><li><b>Find the set</b>: go to set CI.</li><li><b>Check the lines</b>: a line is a hit only if its <b>valid bit is 1</b> and its <b>tag equals CT</b>. In a 2-way cache, check both lines.</li><li><b>Read the byte</b>: on a hit, return the byte at offset CO.</li></ol>
+<p>On a miss, the block is copied in from memory. If the set is full, one line is evicted (random or LRU). Practice 11 uses this 2-way cache: 13-bit addresses, S = 8 and B = 4, so CO is bits 1–0, CI is bits 4–2 and CT is bits 12–5.</p>`+
+toy('lookup')+
+`<div class="tip"><span class="tl">Leftover tags</span>A line with valid = 0 still shows an old tag. It doesn't count, even if the tag matches.</div>`,
+qs:[
+{prompt:'Tap the steps of a cache read in order.',order:['Use CI to find the set','Check each line: valid = 1 and tag = CT?','On a hit, read the byte at offset CO'],explain:'Find the set, check the tags, then find the data at the offset.'},
+{prompt:'A line counts as a hit only if',options:['its valid bit is 1 and its tag matches CT','its tag matches CT, whatever the valid bit is','its valid bit is 1'],answer:0,explain:'A tag in a line with valid = 0 is left over from before.'},
+{prompt:'In a 2-way set associative cache, how many tags do you check on each read?',options:['2, one for each line in the set','1','Every tag in the cache'],answer:0,explain:'Only the lines in set CI can hold the block, and there are E = 2 of them.'},
+{prompt:'On a hit, which byte is returned?',options:['The byte at the block offset, CO','Always byte 0','The byte at the set index, CI'],answer:0,explain:'CO says how far into the block the byte is.'},
+{prompt:'A read misses, and both lines of its set already hold blocks. What happens?',options:['One of them is evicted (by LRU or at random), and the new block is copied in','The read fails','The block goes into a different set'],answer:0,explain:'A block can use either line of its set, but only its own set.'},
+{vis:cacheTbl(),prompt:'In this cache, address 0x00B2 has CO = 2, CI = 4 and CT = 0x05. Hit or miss?',options:['Hit','Miss'],answer:0,keep:true,explain:'Set 4, line 1 has tag 05 and valid = 1. It returns byte 2 of that line: 0xC2.'},
+{vis:cacheTbl(),prompt:'Address 0x0DD5 has CO = 1, CI = 5 and CT = 0x6E. Hit or miss?',options:['Miss','Hit'],answer:0,keep:true,explain:'Set 5, line 1 does have tag 6E, but its valid bit is 0. That\'s a miss.'},
+{vis:cacheTbl(),prompt:'Address 0x1FE4 has CO = 0, CI = 1 and CT = 0xFF. What does the cache return?',code:true,options:['---, it\'s a miss','0x60','0x00','0x45'],answer:0,explain:'Set 1 holds tags 45 and 38, not FF. On a miss there\'s no byte to return.'}
+]},
+
+{id:'cls10',sec:'p10',name:'Class Practice 10',short:'Class P10',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'From class'},
+lesson:`<p>In-Class Practice 10 has one question: a table of three caches. From m, C, B and E, find S, t, s and b for each one. Here it is one cache at a time, in four small steps.</p>
+<div class="rule-box rule-lines"><div>S = C ÷ (B × E)</div><div>s = log₂ S,  b = log₂ B</div><div>t = m − s − b</div></div>`,
+qs:(function(){
+  var rows=[[1,32,1024,4,1],[2,32,1024,8,4],[3,32,1024,32,32]];
+  var out=rows.map(function(r){
+    var m=r[1],C=r[2],B=r[3],E=r[4],S=C/(B*E),s=lg2(S),b=lg2(B),t=m-s-b;
+    var sOpts=[S,C/B,C/E,S*2].filter(function(v,i,a){return a.indexOf(v)===i;}).slice(0,4);
+    return {tag:'From class · Q1',prompt:'Q1, cache '+r[0]+': m = '+m+', C = 1,024, B = '+B+', E = '+E+'. Find S, t, s and b.',
+      board:rowBoard(['m','C','B','E','S','t','s','b'],[String(m),'1,024',String(B),String(E),{k:'S'},{k:'t'},{k:'s'},{k:'b'}]),
+      guided:[
+        {label:'S',ask:'S = C ÷ (B × E) = 1,024 ÷ ('+B+' × '+E+') =',options:sOpts.map(function(v){return fmtNum(v);}),answer:0,say:fmtNum(S)+(S===1?': one set, so it\'s fully associative.':' sets.'),fill:{S:String(S)}},
+        {label:'s',ask:'s = log₂ S = log₂ '+fmtNum(S)+' =',options:[String(s),String(S===1?1:S),String(s+1)].filter(function(v,i,a){return a.indexOf(v)===i;}),answer:0,say:S===1?'2⁰ = 1, so s = 0: with one set, no bits are needed to pick it.':'2'+supNum(s)+' = '+fmtNum(S)+'.',fill:{s:String(s)}},
+        {label:'b',ask:'b = log₂ B = log₂ '+B+' =',options:[String(b),String(B),String(b+1)],answer:0,say:'2'+supNum(b)+' = '+B+'.',fill:{b:String(b)}},
+        {label:'t',ask:'t = m − s − b = '+m+' − '+s+' − '+b+' =',options:[String(t),String(m-s),String(m-b),String(t-2)].filter(function(v,i,a){return a.indexOf(v)===i;}),answer:0,say:t+' tag bits.',fill:{t:String(t)}}],
+      explain:'S = '+S+', t = '+t+', s = '+s+', b = '+b+'.'+(S===1?' With E = 32 lines in a single set, this cache is fully associative.':'')};
+  });
+  return out;
+})()},
+
+{id:'ex10',sec:'p10',name:'Exam-style: cache lookups',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'Exam-style'},
+lesson:`<p>The same skills with new numbers: the two other addresses from this textbook problem, a reverse lookup, and two more cache shapes. Every one is step by step.</p>`,
+qs:[
+{prompt:'Look up 0x0DD5 in Practice 11\'s cache.',board:function(f){return addrBits(0x0DD5,13,3,2,{legend:false})+cacheTbl({hlSet:f.ci?5:null,cmp:f.ct?5:null})+rowBoard(['CO','CI','CT','Hit?','Byte returned'],[{k:'co'},{k:'ci'},{k:'ct'},{k:'h'},{k:'by'}])(f);},
+ guided:[{label:'CO',ask:'0x0DD5 = 0 1101 1101 0101. CO, bits 1–0, is',options:['0x1','0x0','0x5','0x3'],answer:0,say:'01.',fill:{co:'0x1'}},
+  {label:'CI',ask:'CI, bits 4–2, is',options:['0x5','0x7','0x1','0x6'],answer:0,say:'101 = 5.',fill:{ci:'0x5'}},
+  {label:'CT',ask:'CT, bits 12–5, is',options:['0x6E','0x6D','0xDD','0x37'],answer:0,say:'0110 1110 = 0x6E.',fill:{ct:'0x6E'}},
+  {label:'Hit?',ask:'Set 5, line 1 has tag 6E. Its valid bit is 0. Hit?',options:['N','Y'],answer:0,keep:true,say:'An invalid line never hits.',fill:{h:'N'}},
+  {label:'Byte',ask:'So the byte returned is',options:['---','0xDE','0x0B'],answer:0,say:'A miss returns no byte.',fill:{by:'---'}}],
+ explain:'CO = 0x1, CI = 0x5, CT = 0x6E, a miss, and the byte returned is ---. The tag matches, but valid = 0.'},
+{prompt:'Look up 0x1FE4 in Practice 11\'s cache.',board:function(f){return addrBits(0x1FE4,13,3,2,{legend:false})+cacheTbl({hlSet:f.ci?1:null,cmp:f.ct?1:null})+rowBoard(['CO','CI','CT','Hit?','Byte returned'],[{k:'co'},{k:'ci'},{k:'ct'},{k:'h'},{k:'by'}])(f);},
+ guided:[{label:'CO',ask:'0x1FE4 = 1 1111 1110 0100. CO is',options:['0x0','0x4','0x1'],answer:0,say:'00.',fill:{co:'0x0'}},
+  {label:'CI',ask:'CI is',options:['0x1','0x4','0x9'],answer:0,say:'001 = 1.',fill:{ci:'0x1'}},
+  {label:'CT',ask:'CT is',options:['0xFF','0xFE','0x7F','0x1F'],answer:0,say:'1111 1111.',fill:{ct:'0xFF'}},
+  {label:'Hit?',ask:'Set 1 holds tags 45 and 38, both valid. Hit?',options:['N','Y'],answer:0,keep:true,say:'Neither tag is FF.',fill:{h:'N'}},
+  {label:'Byte',ask:'Byte returned:',options:['---','0x60','0x00'],answer:0,say:'Miss, so ---.',fill:{by:'---'}}],
+ explain:'CO = 0x0, CI = 0x1, CT = 0xFF: a miss.'},
+{prompt:'Which addresses would hit in set 3 of Practice 11\'s cache?',vis:cacheTbl({hlSet:3}),
+ guided:[{label:'Valid line',ask:'Which line in set 3 is valid, and what\'s its tag?',options:['Line 1, tag 0x32','Line 0, tag 0x06','Both lines'],answer:0,say:'Line 0 has valid = 0.'},
+  {label:'Build it',ask:'Address = tag | set | offset = 0011 0010 | 011 | 00 to 11. In hex, that\'s',options:['0x064C to 0x064F','0x0320 to 0x0323','0x064D only','0x0C80 to 0x0C83'],answer:0,hint:'0 0110 0100 1100 = 0x064C.',say:'0 0110 0100 11xx: 0x064C, 0x064D, 0x064E, 0x064F.'}],
+ explain:'Four addresses hit in set 3: 0x064C, 0x064D, 0x064E and 0x064F, one for each byte of the block.'},
+{prompt:'A 13-bit address has CT = 0x71, CI = 5 and CO = 2. Type the address in hex.',input:true,expect:'0x0E36',hint:'Put the bits back together: 0111 0001 | 101 | 10.',explain:'0111 0001 101 10 = 0 1110 0011 0110 = 0x0E36, the byte two after 0x0E34.'},
+{prompt:'m = 32, C = 2,048, B = 16, E = 2. Find S, s, b and t.',board:rowBoard(['S','s','b','t'],[{k:'S'},{k:'s'},{k:'b'},{k:'t'}]),
+ guided:[{label:'S',ask:'S = 2,048 ÷ (16 × 2) =',options:['64','128','1,024'],answer:0,say:'64 sets.',fill:{S:'64'}},
+  {label:'s',ask:'s = log₂ 64 =',options:['6','64','5'],answer:0,say:'2⁶ = 64.',fill:{s:'6'}},
+  {label:'b',ask:'b = log₂ 16 =',options:['4','16','3'],answer:0,say:'2⁴ = 16.',fill:{b:'4'}},
+  {label:'t',ask:'t = 32 − 6 − 4 =',options:['22','26','28'],answer:0,say:'22 tag bits.',fill:{t:'22'}}],
+ explain:'S = 64, s = 6, b = 4, t = 22.'},
+{prompt:'m = 16, C = 256, B = 4, E = 64. Find S, s, b and t.',board:rowBoard(['S','s','b','t'],[{k:'S'},{k:'s'},{k:'b'},{k:'t'}]),
+ guided:[{label:'S',ask:'S = 256 ÷ (4 × 64) =',options:['1','64','4'],answer:0,say:'One set: fully associative.',fill:{S:'1'}},
+  {label:'s',ask:'s = log₂ 1 =',options:['0','1'],answer:0,say:'No bits are needed to pick the only set.',fill:{s:'0'}},
+  {label:'b',ask:'b = log₂ 4 =',options:['2','4'],answer:0,say:'2² = 4.',fill:{b:'2'}},
+  {label:'t',ask:'t = 16 − 0 − 2 =',options:['14','16','12'],answer:0,say:'Everything but the offset is tag.',fill:{t:'14'}}],
+ explain:'S = 1, s = 0, b = 2, t = 14. In a fully associative cache, the tag is every bit except the offset.'},
+{prompt:'Two caches have the same C and B. One is direct-mapped and the other is 4-way set associative. Which has more tag bits?',code:false,options:['The 4-way one, by 2 bits','The direct-mapped one','They have the same'],answer:0,explain:'4 lines per set means 4 times fewer sets: s drops by 2, so t grows by 2.'}
+]},
+
+{id:'dmsim',sec:'p11',name:'Run a direct-mapped cache',short:'Direct-mapped',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>Your slides run a cache by hand on a toy machine: <b>16 bytes</b> of memory, so addresses are 4 bits. B = 2 bytes per block, S = 4 sets, E = 1 line per set.</p>
+<div class="rule-box">t = 1, s = 2, b = 1   →   address bits: x | xx | x</div>
+<ul class="facts"><li>Block number = address ÷ B, so addresses 0 and 1 are block 0, 8 and 9 are block 4.</li><li>The two middle bits pick the set. Every set holds one block at a time.</li></ul>
+<p>Run the slides' trace, 0, 1, 7, 8, 0, one read at a time:</p>`+
+toy('csim',{E:1})+
+`<div class="tip"><span class="tl">Why the last read misses</span>Address 0 and address 8 both have set bits 00. Reading 8 evicts block 0, so reading 0 again is a conflict miss.</div>`,
+qs:[
+{prompt:'16 bytes of memory need addresses with how many bits?',options:['4','16','8','2'],answer:0,explain:'2⁴ = 16 addresses, 0 to 15.'},
+{prompt:'B = 2, S = 4, E = 1 and 4-bit addresses. Which split is right?',options:['t = 1, s = 2, b = 1','t = 2, s = 1, b = 1','t = 1, s = 1, b = 2'],answer:0,explain:'b = log₂ 2 = 1, s = log₂ 4 = 2, t = 4 − 2 − 1 = 1.'},
+{prompt:'Address 8 = 1000. Which set does it go in, and which block is it?',options:['Set 0, block 4','Set 2, block 8','Set 0, block 8','Set 4, block 0'],answer:0,explain:'Split it 1 | 00 | 0: set 00 = 0. Block number = 8 ÷ 2 = 4.'},
+{prompt:'Run the trace 0, 1, 7, 8, 0. The cache starts empty.',board:rowBoard(['Read 0','Read 1','Read 7','Read 8','Read 0'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'}]),
+ guided:[{label:'Read 0',ask:'Read 0 (0 | 00 | 0). Set 0 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Cold miss. M[0] and M[1] are copied into set 0, with tag 0.',fill:{a:'miss'}},
+  {label:'Read 1',ask:'Read 1 (0 | 00 | 1). Set 0 holds tag 0.',options:['Hit','Miss'],answer:0,keep:true,say:'Same block as address 0.',fill:{b:'hit'}},
+  {label:'Read 7',ask:'Read 7 (0 | 11 | 1). Set 3 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Cold miss. M[6] and M[7] go into set 3.',fill:{c:'miss'}},
+  {label:'Read 8',ask:'Read 8 (1 | 00 | 0). Set 0 holds tag 0, but 8 has tag 1.',options:['Miss: M[8] and M[9] replace M[0] and M[1]','Hit','Miss: M[8] goes in set 1'],answer:0,say:'Set 0 has only one line, so block 0 is evicted.',fill:{d:'miss'}},
+  {label:'Read 0',ask:'Read 0 again. Set 0 now holds tag 1.',options:['Miss','Hit'],answer:0,keep:true,say:'Block 0 was evicted by 8: a conflict miss.',fill:{e:'miss'}}],
+ explain:'Miss, hit, miss, miss, miss: 4 misses in 5 reads. The last one is a conflict miss.'},
+{prompt:'Why does the second read of address 0 miss?',options:['8 needed set 0 too, and evicted it: a conflict miss','The cache was completely full','It\'s the first time 0 was read'],answer:0,explain:'Sets 1 and 2 are still empty, so it isn\'t a capacity miss.'},
+{prompt:'In this cache, which addresses use set 0?',options:['0, 1, 8 and 9','0 to 3','0, 4, 8 and 12'],answer:0,explain:'The set bits are the middle two: 0000, 0001, 1000 and 1001 all have 00 there.'},
+{prompt:'In a direct-mapped cache, a miss always evicts',options:['the one line in that set, if it\'s valid','the least recently used line in the whole cache','nothing'],answer:0,explain:'With E = 1 there\'s no choice to make.'},
+{prompt:'Type how many of the 5 reads in the trace missed.',input:true,dec:true,expect:'4',explain:'Only the read of 1 hit.'}
+]},
+
+{id:'sasim',sec:'p11',name:'Two lines per set',short:'2-way',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>In an <b>E-way set associative</b> cache, every set has E lines, and a block can go in <b>any</b> line of its set. A read compares CT with every valid line in the set.</p>
+<p>Your slides run the same trace on a <b>2-way</b> cache: the same 16 bytes and B = 2, but S = 2 sets of E = 2 lines.</p>
+<div class="rule-box">t = 2, s = 1, b = 1   →   address bits: xx | x | x</div>`+
+toy('csim',{E:2})+
+`<p>When both lines of a set are full, the <b>replacement policy</b> picks the victim. The toy uses LRU, least recently used. Switch E back to 1 to compare: the 2-way cache saves the last read.</p>`,
+qs:[
+{prompt:'Same 16 bytes and B = 2, but S = 2 and E = 2. What are t, s and b?',options:['t = 2, s = 1, b = 1','t = 1, s = 2, b = 1','t = 3, s = 0, b = 1'],answer:0,explain:'b = 1, s = log₂ 2 = 1, t = 4 − 1 − 1 = 2.'},
+{prompt:'In this cache, address 8 = 1000. Which set, and what tag?',code:true,options:['Set 0, tag 10','Set 1, tag 00','Set 0, tag 1'],answer:0,explain:'Split it 10 | 0 | 0.'},
+{prompt:'Run the trace 0, 1, 7, 8, 0 on the 2-way cache.',board:rowBoard(['Read 0','Read 1','Read 7','Read 8','Read 0'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'}]),
+ guided:[{label:'Read 0',ask:'Read 0 (00 | 0 | 0). Set 0 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'M[0] and M[1] go into set 0, with tag 00.',fill:{a:'miss'}},
+  {label:'Read 1',ask:'Read 1 (00 | 0 | 1).',options:['Hit','Miss'],answer:0,keep:true,say:'Same block as 0.',fill:{b:'hit'}},
+  {label:'Read 7',ask:'Read 7 (01 | 1 | 1). Set 1 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'M[6] and M[7] go into set 1, with tag 01.',fill:{c:'miss'}},
+  {label:'Read 8',ask:'Read 8 (10 | 0 | 0). Set 0 has tag 00 in one line, and one empty line.',options:['Miss: M[8] and M[9] go in the empty line','Miss: they replace M[0] and M[1]','Hit'],answer:0,say:'Nothing is evicted this time.',fill:{d:'miss'}},
+  {label:'Read 0',ask:'Read 0 again. Set 0 holds tags 00 and 10.',options:['Hit','Miss'],answer:0,keep:true,say:'Block 0 is still there.',fill:{e:'hit'}}],
+ explain:'Miss, hit, miss, miss, hit: one miss fewer than direct-mapped, because set 0 has room for both blocks.'},
+{prompt:'Both lines of a set are full, and a new block needs that set. What decides which line goes?',options:['The replacement policy, like LRU or random','The new block\'s tag','Nothing: the block goes into another set'],answer:0,explain:'A block can only live in its own set, so one of that set\'s lines has to go.'},
+{prompt:'Under LRU, which line is evicted?',options:['The one used longest ago','The one loaded most recently','Always line 0'],answer:0,explain:'Least recently used.'},
+{prompt:'Going from E = 1 to E = 2 with the same C usually gives',options:['fewer conflict misses, but two tags to compare on each read','more conflict misses','no tags to compare'],answer:0,explain:'More places for each block means fewer fights over a set.'},
+{prompt:'A cache whose single set holds every line (S = 1) is called',options:['fully associative','direct-mapped','2-way set associative'],answer:0,explain:'A block can go in any line.'},
+{prompt:'In the 2-way cache, which set does address 13 = 1101 use?',options:['Set 0','Set 1'],answer:0,keep:true,explain:'Split it 11 | 0 | 1: the set bit is 0.'}
+]},
+
+{id:'conflict',sec:'p11',name:'Conflict misses and padding',short:'Padding',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>Practice 11 uses a direct-mapped cache with <b>8 sets of 8-byte lines</b>, 64 bytes in all. Addresses a multiple of 64 apart share a set: set 3 holds 0x18–0x1F, or 0x58–0x5F, or 0x98–0x9F, and so on, but only one of them at a time.</p>
+<div class="rule-box">set = (address ÷ 8) mod 8</div>
+<p>So two arrays exactly 64 bytes apart fight over the same sets. In dotprod, x[i] and y[i] keep kicking each other out, and every read misses. That's called <b>thrashing</b>. The fix is to pad x, so y starts in a different set:</p>`+
+codeBlock('float dotprod(float x[16], float y[16]) {\n    float sum = 0.0;\n    for (int i = 0; i < 16; i++)\n        sum += x[i] * y[i];\n    return sum;\n}')+
+toy('dotprod')+
+`<div class="tip"><span class="tl">Why half, not all</span>Each 8-byte line holds two floats. Reading x[0] misses and brings in x[1] too, so x[1] hits. Same for y.</div>`,
+qs:[
+{prompt:'A direct-mapped cache has 8 sets of 8-byte lines. Type how many bytes it holds.',input:true,dec:true,expect:'64',explain:'8 × 8 = 64.'},
+{prompt:'Same cache. Which set holds address 0x2C?',options:['5','2','4','6'],answer:0,explain:'0x2C = 44. 44 ÷ 8 = 5 (block 5), and 5 mod 8 = 5.'},
+{prompt:'Set 3 holds 0x18–0x1F, or 0x58–0x5F, or 0x98–0x9F. How far apart are those ranges?',options:['64 bytes, the size of the whole cache','8 bytes, one line','16 bytes'],answer:0,explain:'0x58 − 0x18 = 0x40 = 64.'},
+{prompt:'x[16] starts at 0 and y starts right after it, at 0x40. Which sets hold x[0] and y[0]?',options:['Both are in set 0','Set 0 and set 1','Set 0 and set 8'],answer:0,explain:'0x40 = 64 is block 8, and 8 mod 8 = 0, the same set as x[0].'},
+{prompt:'So in dotprod, which reads x[0], y[0], x[1], y[1], …, what fraction of the reads hit?',options:['0: every read misses','1/2','3/4'],answer:0,explain:'Each read of y evicts x\'s line, and the next read of x evicts y\'s. That\'s thrashing.'},
+{prompt:'Declare float x[20] instead. Where does y start now? Type it in hex.',input:true,expect:'0x50',explain:'20 floats × 4 bytes = 80 = 0x50.',traps:[{v:'0x80',msg:'80 is in decimal. In hex, it\'s 0x50.'},{v:'0x20',msg:'That\'s the number of floats. Each is 4 bytes: 80 bytes = 0x50.'}]},
+{prompt:'With y at 0x50, which set holds y[0]?',options:['2','0','10','5'],answer:0,explain:'0x50 = 80. 80 ÷ 8 = block 10, and 10 mod 8 = 2.'},
+{prompt:'Once x[i] and y[i] are in different sets, why do only half the reads hit?',options:['Each 8-byte line holds 2 floats: the first read of a line misses and the second hits','Half the cache is empty','A float is 8 bytes'],answer:0,explain:'x[0] misses and brings in x[1], so x[1] hits.'}
+]},
+
+{id:'cwrite',sec:'p11',name:'What about writes?',short:'Writes',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>Reads are simple. Writes are harder, because copies of the same data sit in L1, L2, L3, main memory and on disk. A cache has to answer two questions:</p>`+
+cardPair('<b>On a write hit</b><p><b>Write-through</b>: write to the next lower level right away. Simple, but every write uses the bus.</p><p><b>Write-back</b>: just update the cache, and write the line out when it\'s evicted. It needs a <b>dirty bit</b> to remember the line has changed.</p>','<b>On a write miss</b><p><b>Write-allocate</b>: load the block into the cache, then update it there. Good if more writes to it follow.</p><p><b>No-write-allocate</b>: write straight to the next lower level, without loading the block.</p>')+
+`<div class="rule-box">Typical pairs: write-through + no-write-allocate, or write-back + write-allocate</div>`+
+toy('writes'),
+qs:[
+{prompt:'Write-through means',options:['every write hit is also written to the next lower level right away','the line is written to memory only when it\'s evicted','writes skip the cache'],answer:0,explain:'Simple, but every write uses the bus.'},
+{prompt:'Write-back means',options:['the line is written to memory only when it\'s evicted','every write goes straight to memory','the cache is never written'],answer:0,explain:'It defers the write until the line is replaced.'},
+{prompt:'What does the dirty bit say?',options:['The line has changed since it was loaded, so memory is out of date','The line is empty','The line was used recently'],answer:0,explain:'If it\'s set when the line is evicted, the line must be written back.'},
+{prompt:'Which policy needs a dirty bit?',options:['Write-back','Write-through'],answer:0,keep:true,explain:'Write-through keeps memory up to date, so there\'s nothing to remember.'},
+{prompt:'Write-allocate means that on a write miss, the cache',options:['loads the block, then updates it in the cache','writes straight to the next lower level','ignores the write'],answer:0,explain:'Good if more writes to that block follow.'},
+{prompt:'No-write-allocate means that on a write miss, the cache',options:['writes straight to the next lower level, without loading the block','loads the block first','evicts every line'],answer:0,explain:'The block stays out of the cache.'},
+{prompt:'Which of these is a typical pair?',options:['Write-back + write-allocate','Write-back + no-write-allocate','Write-through + write-allocate'],answer:0,explain:'The other typical pair is write-through + no-write-allocate.'},
+{prompt:'You write to x 10 times, then its line is evicted. With write-back, how many times is memory written? Type it.',input:true,dec:true,expect:'1',explain:'Once, at eviction. Write-through would write memory all 10 times.',traps:[{v:'10',msg:'That\'s write-through. Write-back only writes the line out when it\'s evicted.'}]},
+{prompt:'Why is write-through simple but slow?',options:['Every write uses the bus','It needs a dirty bit','It loads every block twice'],answer:0,explain:'Memory is always up to date, but the bus traffic adds up.'}
+]},
+
+{id:'cperf',sec:'p11',name:'Measuring a cache',short:'Performance',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>Three numbers describe how well a cache works:</p>
+<ul class="facts"><li><b>Miss rate</b> = misses ÷ accesses = 1 − hit rate. Typically 3–10% for L1, and it can be under 1% for L2.</li><li><b>Hit time</b>: how long a hit takes, including checking the tag. 1–2 cycles for L1, 5–20 for L2.</li><li><b>Miss penalty</b>: the extra time a miss costs. Typically 50–200 cycles for main memory, and growing.</li></ul>
+<div class="rule-box">average access time = hit rate × hit time + miss rate × miss penalty</div>
+<p>Your slide: hit time 1 cycle, miss penalty 100 cycles. With 97% hits, 0.97 × 1 + 0.03 × 100 ≈ <b>4 cycles</b>. With 99% hits, 0.99 × 1 + 0.01 × 100 ≈ <b>2 cycles</b>. So 99% hits is twice as fast as 97%, and that's why people quote the miss rate.</p>`+
+toy('amat')+
+`<h3>A real one: Intel Core i7</h3>
+<div class="tbl-wrap"><table class="t"><thead><tr><th>Cache</th><th>Size</th><th>Ways</th><th>Access</th></tr></thead><tbody>
+<tr><td>L1 i-cache and d-cache, per core</td><td>32 KB</td><td>8-way</td><td>4 cycles</td></tr><tr><td>L2 unified, per core</td><td>256 KB</td><td>8-way</td><td>11 cycles</td></tr><tr><td>L3 unified, shared by all cores</td><td>8 MB</td><td>16-way</td><td>30–40 cycles</td></tr></tbody></table></div>
+<p class="fine">All three use 64-byte blocks.</p>
+<div class="tip"><span class="tl">Cache-friendly code</span>Focus on the inner loops. Reuse variables (temporal locality) and walk arrays with stride 1 (spatial locality).</div>`,
+qs:[
+{prompt:'Miss rate =',options:['misses ÷ accesses','hits ÷ misses','misses × miss penalty'],answer:0,explain:'It also equals 1 − hit rate.'},
+{prompt:'1,000 reads, and 30 of them miss. Type the miss rate, as a percent.',input:true,dec:true,expect:'3',explain:'30 ÷ 1,000 = 0.03 = 3%.'},
+{prompt:'The hit rate is 97%. What\'s the miss rate?',options:['3%','97%','0.97%'],answer:0,explain:'1 − 0.97 = 0.03.'},
+{prompt:'The miss penalty is',options:['the extra time a miss costs','the number of misses','the time a hit takes'],answer:0,explain:'Typically 50–200 cycles to get to main memory.'},
+{prompt:'Hit time 1 cycle, miss penalty 100 cycles, 99% hits. About how long is the average access?',options:['2 cycles','1 cycle','4 cycles','100 cycles'],answer:0,explain:'0.99 × 1 + 0.01 × 100 = 1.99, about 2 cycles.'},
+{prompt:'Hit time 2 cycles, miss penalty 50 cycles, 90% hits. Type the average access time in cycles.',input:true,num:true,expect:6.8,tol:0.01,show:'6.8 cycles',unit:'cycles',explain:'0.9 × 2 + 0.1 × 50 = 1.8 + 5 = 6.8 cycles.'},
+{prompt:'Why do people quote the miss rate, not the hit rate?',options:['Small changes in it change the speed a lot: going from 97% to 99% hits halves the time','The hit rate is always 100%','The miss rate is easier to measure'],answer:0,explain:'The slide\'s point: 99% hits is twice as good as 97%.'},
+{prompt:'On the Core i7, which cache is shared by all the cores?',options:['L3','L1','L2'],answer:0,explain:'L1 and L2 belong to each core.'},
+{prompt:'Writing cache-friendly code mostly means',options:['in inner loops, reuse variables and use stride-1 access','using bigger arrays','writing to memory less often by hand'],answer:0,explain:'Temporal locality plus spatial locality, where it counts.'}
+]},
+
+{id:'cls11',sec:'p11',name:'Class Practice 11',short:'Class P11',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'From class'},
+lesson:`<p>All five questions from In-Class Practice 11, step by step. They use two different caches:</p>
+<ul class="facts"><li><b>Q1–Q2</b>: the <b>2-way</b> cache with 13-bit addresses, S = 8 and B = 4. Write 0x0E34 one bit per box, then look it up: CO, CI, CT, hit or miss, and the byte returned. (Part 10's <b>Look it up</b> level teaches this.)</li><li><b>Q3–Q5</b>: a <b>direct-mapped</b> cache with 8 sets of 8-byte lines. Find b, s and t for m = 10, decide hit or miss for three addresses, then pad dotprod's x array.</li></ul>`,
+qs:(function(){
+  var out=[];
+  out.push({tag:'From class · Q1',prompt:'Q1: write address 0x0E34 in the 13-bit address format, one bit per box.',
+    board:function(f){return f.bits?addrBits(0x0E34,13,3,2,{show:{co:!!f.co,ci:!!f.ci,ct:!!f.ct},legend:!!(f.co&&f.ci&&f.ct)}):addrBits(0,13,3,2,{blank:true,show:{}});},
+    guided:[
+      {label:'Hex to binary',ask:'Each hex digit is 4 bits. 0x0E34 = 0 E 3 4 =',options:['0000 1110 0011 0100','0000 1110 0110 0100','0000 1101 0011 0100','0000 1110 0011 1000'],answer:0,hint:'E = 14 = 8 + 4 + 2.',say:'E = 1110, 3 = 0011, 4 = 0100.'},
+      {label:'13 bits',ask:'That\'s 16 bits, but the address is only 13 bits wide. Bits 12 down to 0 are',options:['0 1110 0011 0100','0000 1110 0011 0','1110 0011 0100 0'],answer:0,say:'Drop the top three zeros.',fill:{bits:'1'}},
+      {label:'CO',ask:'B = 4, so b = 2. Which bits are the block offset, CO?',options:['Bits 1–0','Bits 12–11','Bits 3–0'],answer:0,say:'The lowest b bits: 00.',fill:{co:'1'}},
+      {label:'CI',ask:'S = 8, so s = 3. Which bits are the set index, CI?',options:['Bits 4–2','Bits 2–0','Bits 5–3'],answer:0,say:'The next s bits up: 101.',fill:{ci:'1'}},
+      {label:'CT',ask:'The rest is the tag, CT:',options:['Bits 12–5, 8 bits','Bits 12–6, 7 bits','Bits 12–4, 9 bits'],answer:0,say:'t = 13 − 3 − 2 = 8 bits: 0111 0001.',fill:{ct:'1'}}],
+    explain:'One bit per box, from bit 12 down to bit 0: <b>0 1 1 1 0 0 0 1 1 0 1 0 0</b>. (If your form wants the field names instead: bits 12–5 are CT, 4–2 are CI and 1–0 are CO.)'});
+  out.push({tag:'From class · Q2',prompt:'Q2: the program reads the byte at 0x0E34. Find CO, CI and CT, then look it up.',
+    board:function(f){return addrBits(0x0E34,13,3,2,{legend:false})+cacheTbl({hlSet:f.ci?5:null,cmp:f.ct?5:null,hlLine:f.h?0:null,hlByte:f.by?0:null})+rowBoard(['Cache block offset (CO)','Cache set index (CI)','Cache tag (CT)','Cache hit? (Y/N)','Cache byte returned'],[{k:'co'},{k:'ci'},{k:'ct'},{k:'h'},{k:'by'}])(f);},
+    guided:[
+      {label:'CO',ask:'CO is bits 1–0: 00. CO =',options:['0x0','0x2','0x4','0x3'],answer:0,say:'0x0.',fill:{co:'0x0'}},
+      {label:'CI',ask:'CI is bits 4–2: 101. CI =',options:['0x5','0x4','0x1','0x2'],answer:0,say:'101 = 5, so set 5.',fill:{ci:'0x5'}},
+      {label:'CT',ask:'CT is bits 12–5: 0111 0001. CT =',options:['0x71','0x7','0x63','0x45'],answer:0,say:'0111 = 7 and 0001 = 1: 0x71.',fill:{ct:'0x71'}},
+      {label:'Hit?',ask:'Set 5: line 0 has tag 71 with valid = 1, line 1 has tag 6E with valid = 0. Cache hit?',options:['Y','N'],answer:0,keep:true,say:'Line 0 is valid and its tag matches: hit.',fill:{h:'Y'}},
+      {label:'Byte',ask:'Line 0 holds 0B DE 18 4B. Which byte does CO = 0 return?',options:['0xB','0xDE','0x4B','0x18'],answer:0,say:'Byte 0 is 0B.',fill:{by:'0xB'}}],
+    explain:'CO = 0x0, CI = 0x5, CT = 0x71, a hit (Y), and the byte returned is <b>0xB</b>.'});
+  out.push({tag:'From class · Q3',prompt:'Q3: 8 sets, each holding one line of 8 bytes. m = 10. Find b, s and t.',
+    board:rowBoard(['b','s','t'],[{k:'b'},{k:'s'},{k:'t'}]),
+    guided:[{label:'b',ask:'Each line holds 8 bytes. b = log₂ 8 =',options:['3','8','2','4'],answer:0,say:'2³ = 8.',fill:{b:'3'}},
+      {label:'s',ask:'There are 8 sets. s = log₂ 8 =',options:['3','8','1'],answer:0,say:'Also 3.',fill:{s:'3'}},
+      {label:'t',ask:'t = m − s − b = 10 − 3 − 3 =',options:['4','7','6','10'],answer:0,say:'4 tag bits.',fill:{t:'4'}}],
+    explain:'b = 3, s = 3, t = 4. Enter them as integers.'});
+  [['0x38c','11 1000 1100',['11 1000 1010','10 1000 1100','11 0011 1000'],'1110 | 001 | 100',['1110 | 0011 | 00','111 | 000 | 1100','11 | 1000 | 1100'],'0xe (14)',1,'Miss'],
+   ['0x1ce','01 1100 1110',['01 1100 1101','11 1100 1110','01 1110 1100'],'0111 | 001 | 110',['0111 | 0011 | 10','011 | 100 | 1110','01 | 1100 | 1110'],'7',1,'Hit'],
+   ['0x230','10 0011 0000',['10 0010 0011','11 0011 0000','10 0011 0011'],'1000 | 110 | 000',['1000 | 1100 | 00','100 | 011 | 0000','10 | 0011 | 0000'],'8',6,'Hit']].forEach(function(r){
+    var tg=r[5], si=r[6], res=r[7], row=DM11[si], vt=row[1]>9?'0x'+row[1].toString(16):String(row[1]), hit=res==='Hit';
+    out.push({tag:'From class · Q4',prompt:'Q4: is address '+r[0]+' a hit or a miss?',
+      board:function(f){return dmTbl(f.s!=null?si:null)+rowBoard(['Address','Tag','Set','Hit or miss?'],[r[0],{k:'t'},{k:'s'},{k:'r'}])(f);},
+      guided:[{label:'Binary',ask:r[0]+' as 10 bits is',options:[r[1]].concat(r[2]),answer:0,say:'Each hex digit is 4 bits. Keep the low 10.'},
+        {label:'Split',ask:'Split it t | s | b = 4 | 3 | 3 bits:',options:[r[3]].concat(r[4]),answer:0,say:'Tag '+r[3].split(' | ')[0]+' = '+tg+', set '+r[3].split(' | ')[1]+' = '+si+'.',fill:{t:tg,s:String(si)}},
+        {label:'Compare',ask:'Set '+si+' has valid = '+row[0]+' and tag = '+vt+'. This address\'s tag is '+tg+'. Hit or miss?',options:['Hit','Miss'],answer:hit?0:1,keep:true,say:hit?'Valid, and the tags match: hit.':'Valid, but the tags don\'t match: miss.',fill:{r:res}}],
+      explain:r[0]+' has tag '+tg+' and set '+si+'. Set '+si+' holds tag '+vt+' with valid = '+row[0]+', so it\'s a <b>'+res.toLowerCase()+'</b>.'});
+  });
+  out.push({tag:'From class · Q5',prompt:'Q5: dotprod with float x[18], and y right after x. Which set does y start in, and what fraction of the reads hit?',
+    board:rowBoard(['y starts at','Block','y starts in set','Fraction of hits'],[{k:'a'},{k:'b'},{k:'s'},{k:'f'}]),
+    guided:[{label:'Start',ask:'float x[18] takes 18 × 4 = 72 bytes. So y starts at',options:['0x48','0x40','0x72','0x18'],answer:0,hint:'72 = 4 × 16 + 8.',say:'72 = 0x48.',fill:{a:'0x48'}},
+      {label:'Block',ask:'Blocks are 8 bytes. 0x48 = 72 is in block',options:['9','8','18'],answer:0,say:'72 ÷ 8 = 9.',fill:{b:'9'}},
+      {label:'Set',ask:'Set = block mod 8 = 9 mod 8 =',options:['1','0','2'],answer:0,say:'y starts in set 1. x[0] is in set 0, so they no longer collide.',fill:{s:'1'}},
+      {label:'Hits',ask:'Each 8-byte line holds two floats. Reading x[0], y[0], x[1], y[1]: which ones hit?',code:false,options:['x[1] and y[1]: the first read of each line misses, the second hits','All four','None of them'],answer:0,say:'Miss, miss, hit, hit, and the pattern repeats.'},
+      {label:'Fraction',ask:'So the fraction of reads that hit is',options:['1/2','3/4','1/4','0','1'],answer:0,say:'16 of the 32 reads hit.',fill:{f:'1/2'}}],
+    explain:'y starts in set <b>1</b>, and <b>1/2</b> of the reads hit.'});
+  return out;
+})()},
+
+{id:'ex11',sec:'p11',name:'Exam-style: hits, misses and speed',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:false,tag:'Exam-style'},
+lesson:`<p>New traces on the slides' 16-byte machine, plus miss rates, average access times and write policies. Every trace is step by step.</p>`,
+qs:[
+{prompt:'Direct-mapped: S = 4, E = 1, B = 2, 4-bit addresses (t = 1, s = 2, b = 1). Run the trace 2, 3, 10, 2.',board:rowBoard(['Read 2','Read 3','Read 10','Read 2'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'}]),
+ guided:[{label:'Read 2',ask:'Read 2 = 0 | 01 | 0. Set 1 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'M[2] and M[3] go into set 1.',fill:{a:'miss'}},
+  {label:'Read 3',ask:'Read 3 = 0 | 01 | 1.',options:['Hit','Miss'],answer:0,keep:true,say:'Same block.',fill:{b:'hit'}},
+  {label:'Read 10',ask:'Read 10 = 1 | 01 | 0. Set 1 holds tag 0.',options:['Miss','Hit'],answer:0,keep:true,say:'Tag 1 ≠ 0: M[10] and M[11] evict M[2] and M[3].',fill:{c:'miss'}},
+  {label:'Read 2',ask:'Read 2 again. Set 1 now holds tag 1.',options:['Miss','Hit'],answer:0,keep:true,say:'A conflict miss.',fill:{d:'miss'}}],
+ explain:'Miss, hit, miss, miss.'},
+{prompt:'Same trace, 2, 3, 10, 2, on the 2-way cache: S = 2, E = 2, B = 2 (t = 2, s = 1, b = 1).',board:rowBoard(['Read 2','Read 3','Read 10','Read 2'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'}]),
+ guided:[{label:'Read 2',ask:'Read 2 = 00 | 1 | 0. Set 1 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Tag 00 goes into set 1.',fill:{a:'miss'}},
+  {label:'Read 3',ask:'Read 3 = 00 | 1 | 1.',options:['Hit','Miss'],answer:0,keep:true,say:'Same block.',fill:{b:'hit'}},
+  {label:'Read 10',ask:'Read 10 = 10 | 1 | 0. Set 1 has tag 00 and an empty line.',options:['Miss: it goes in the empty line','Hit','Miss: it evicts tag 00'],answer:0,say:'Both blocks fit in set 1.',fill:{c:'miss'}},
+  {label:'Read 2',ask:'Read 2 again. Set 1 holds tags 00 and 10.',options:['Hit','Miss'],answer:0,keep:true,say:'Still there.',fill:{d:'hit'}}],
+ explain:'Miss, hit, miss, hit. Two lines per set saved the last read.'},
+{prompt:'A loop makes 200 reads, and 12 of them miss. Type the miss rate, as a percent.',input:true,dec:true,expect:'6',explain:'12 ÷ 200 = 0.06 = 6%.'},
+{prompt:'Hit time 1 cycle, miss penalty 200 cycles, 95% hits. About how long is the average access?',options:['11 cycles','10 cycles','6 cycles','200 cycles'],answer:0,explain:'0.95 × 1 + 0.05 × 200 = 0.95 + 10 = 10.95, about 11 cycles.'},
+{prompt:'Direct-mapped, 8 sets of 8-byte lines. Set 3 holds 0x18–0x1F, 0x58–0x5F or 0x98–0x9F. Which range comes next?',code:true,options:['0xD8–0xDF','0xA0–0xA7','0x118–0x11F'],answer:0,explain:'Add 64 = 0x40 each time: 0x98 + 0x40 = 0xD8.'},
+{prompt:'A write-back cache evicts a line whose dirty bit is 0. What happens to memory?',options:['Nothing: memory already matches the line','The line is written back anyway','Memory is cleared'],answer:0,explain:'Only dirty lines need writing back.'},
+{prompt:'Which pair of policies is typical?',options:['Write-through + no-write-allocate','Write-through + write-allocate','Write-back + no-write-allocate'],answer:0,explain:'The two typical pairs: write-through + no-write-allocate, and write-back + write-allocate.'},
+{prompt:'Same 64-byte direct-mapped cache. float a[16] starts at 0 and float b[16] starts at 0x80. Do a[i] and b[i] collide?',options:['Yes: 0x80 is 128 bytes later, a multiple of 64, so b[0] is in set 0 too','No: b starts after a ends'],answer:0,keep:true,explain:'Any two arrays a multiple of 64 bytes apart thrash in this cache.'}
+]},
+
+{id:'vmidea',sec:'p12',name:'Physical vs virtual addresses',short:'Virtual memory',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<p>Up to now, the CPU's addresses went straight to memory. Your L08 slides compare two ways of doing that:</p>`+
+vmFlow()+
+`<ul class="facts"><li><b>Physical addressing</b>: the CPU sends the real address, the <b>physical address (PA)</b>, straight to memory. Simple systems do this, like the microcontrollers in cars, elevators and digital picture frames.</li><li><b>Virtual addressing</b>: the CPU makes a <b>virtual address (VA)</b>, and the <b>MMU</b> (memory management unit), on the CPU chip, translates it into a physical address. Every modern server, desktop and laptop works this way.</li></ul>
+<h3>Address spaces</h3>
+<ul class="facts"><li>A <b>virtual address space</b> with n-bit addresses has <b>N = 2ⁿ</b> addresses: 0, 1, 2, …, N − 1.</li><li>A <b>physical address space</b> with m-bit addresses has <b>M = 2ᵐ</b> addresses: 0, 1, 2, …, M − 1.</li><li>Every byte of main memory has <b>one physical address</b> and <b>one or more virtual addresses</b>.</li></ul>`,
+qs:[
+{prompt:'Which kind of system uses physical addressing?',options:['A simple embedded system, like the controller in an elevator','A laptop','A web server'],answer:0,explain:'Your slide: cars, elevators and digital picture frames.'},
+{prompt:'What translates a virtual address into a physical address?',options:['The MMU, on the CPU chip','Main memory','The disk controller'],answer:0,explain:'MMU stands for memory management unit.'},
+{prompt:'Your laptop uses',options:['virtual addressing','physical addressing'],answer:0,keep:true,explain:'All modern servers, desktops and laptops do.'},
+{prompt:'On the slide, the CPU asks for virtual address 4100. What goes out to main memory?',options:['Physical address 4','Virtual address 4100','Both addresses'],answer:0,explain:'The MMU translated 4100 into 4.'},
+{prompt:'VA and PA stand for',options:['virtual address and physical address','variable address and pointer address','valid address and page address'],answer:0,explain:'The CPU makes VAs, and memory sees PAs.'},
+{prompt:'An n-bit virtual address space has how many addresses?',code:true,options:['2ⁿ','n²','2n','n'],answer:0,explain:'Each extra bit doubles the count.'},
+{prompt:'Its addresses run from',code:true,options:['0 to 2ⁿ − 1','1 to 2ⁿ','0 to 2ⁿ'],answer:0,explain:'N = 2ⁿ addresses, starting at 0, so the last one is N − 1.'},
+{prompt:'Each byte of main memory has',options:['one physical address, and one or more virtual addresses','one virtual address, and several physical addresses','exactly one address'],answer:0,explain:'Several virtual addresses can map to the same physical byte.'},
+{prompt:'The physical address space has M = 2ᵐ addresses. What is m?',options:['The number of bits in a physical address','The number of bytes on the disk','The number of programs running'],answer:0,explain:'Just like n for virtual addresses.'}
+]},
+
+{id:'vspace',sec:'p12',name:'How many addresses?',short:'Counting addresses',shuffleOpts:true,
+defaults:{m:null,code:false},
+lesson:`<div class="rule-box">N = 2ⁿ addresses   ·   largest address = N − 1</div>
+<p>Big powers of 2 get short names. Careful: here they're powers of <b>2</b>, not the powers of 10 from disk sizes in Part 7.</p>`+
+unitStrip()+
+`<div class="tip"><span class="tl">The trick</span>Split n into tens plus what's left. 2¹² = 2² × 2¹⁰ = 4K. 2³⁶ = 2⁶ × 2³⁰ = 64G. Going the other way, 32T = 2⁵ × 2⁴⁰ = 2⁴⁵.</div>`+
+toy('vaspace')+
+`<p>The largest address has all n bits set to 1. For n = 4 that's 1111 = 0xF = 15 = 2⁴ − 1.</p>`,
+qs:[
+{prompt:'n = 4 bits. Type how many addresses there are.',input:true,dec:true,expect:'16',explain:'2⁴ = 16: addresses 0 to 15.'},
+{prompt:'n = 4 bits. Type the largest address, in decimal.',input:true,dec:true,expect:'15',explain:'N − 1 = 16 − 1 = 15, which is 1111 in binary.',traps:[{v:'16',msg:'That\'s how many addresses there are. They start at 0, so the largest is 16 − 1.'}]},
+{prompt:'Here, K means',code:true,options:['2¹⁰ = 1,024','10³ = 1,000','2⁸ = 256'],answer:0,explain:'For addresses, the units are powers of 2.'},
+{prompt:'2²⁰ is',code:true,options:['1M','1K','1G','20K'],answer:0,explain:'M = 2²⁰.'},
+{prompt:'2¹² is',code:true,options:['4K','12K','2K','4M'],answer:0,explain:'2¹² = 2² × 2¹⁰ = 4K.'},
+{prompt:'2³⁶ = 2⁶ × 2³⁰ =',code:true,options:['64G','36G','64M','6G'],answer:0,explain:'2⁶ = 64, and 2³⁰ = G.'},
+{prompt:'32T = 2 to the what? Type the power.',input:true,dec:true,expect:'45',hint:'32 = 2⁵ and T = 2⁴⁰.',explain:'2⁵ × 2⁴⁰ = 2⁴⁵.'},
+{prompt:'n = 20. Type the largest address in hex.',input:true,expect:'0xFFFFF',explain:'20 bits of 1s is five hex Fs: 0xFFFFF.'},
+{prompt:'n = 12. The largest address is',code:true,options:['4K − 1 = 4,095','4K = 4,096','12K − 1'],answer:0,explain:'N = 2¹² = 4K, and the addresses stop one short of that.'},
+{prompt:'Which needs more address bits: 1M addresses or 1G addresses?',options:['1G: 30 bits','1M: 20 bits','They need the same'],answer:0,explain:'1M = 2²⁰ and 1G = 2³⁰.'}
+]},
+
+{id:'cls12',sec:'p12',name:'Class Practice 12',short:'Class P12',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'From class'},
+lesson:`<p>Practice 12's table, one row at a time. Each row gives you one of three things: n, the number of virtual address bits; N, the number of virtual addresses; or the largest address. Find the other two.</p>
+<div class="rule-box">N = 2ⁿ · largest address = N − 1 · K = 2¹⁰, M = 2²⁰, G = 2³⁰, T = 2⁴⁰, P = 2⁵⁰</div>`,
+qs:[
+{tag:'From class · row 1',prompt:'Row 1: n = 8. Find N and the largest possible virtual address.',board:rowBoard(['n','N','Largest address'],['8',{k:'N'},{k:'L'}]),
+ guided:[{label:'N',ask:'N = 2⁸ =',options:['256','8','64','255'],answer:0,say:'2⁸ = 256. It\'s under 2¹⁰, so no unit.',fill:{N:'256'}},
+  {label:'Largest',ask:'The largest address is N − 1 =',options:['255','256','0xFF'],answer:0,say:'255, which is 0xFF.',fill:{L:'255'}}],
+ explain:'N = <b>256</b> and the largest address is <b>255</b>.'},
+{tag:'From class · row 2',prompt:'Row 2: N = 2^? = 64K. Find n and the largest address.',board:rowBoard(['n','N','Largest address'],[{k:'n'},'2^? = 64K',{k:'L'}]),
+ guided:[{label:'64',ask:'64 = 2 to the',options:['6','8','4'],answer:0,say:'2⁶ = 64.'},
+  {label:'n',ask:'64K = 2⁶ × 2¹⁰ = 2 to the',options:['16','60','64','10'],answer:0,say:'6 + 10 = 16, so n = 16.',fill:{n:'16'}},
+  {label:'Largest',ask:'The largest address is N − 1. What goes in the box before "−1"?',options:['64K','16','2¹⁶ − 1'],answer:0,say:'64K, so the largest address is 64K − 1.',fill:{L:'64K − 1'}}],
+ explain:'n = <b>16</b>, and the largest address is <b>64K</b> − 1. The "?" in 2^? is 16 too.'},
+{tag:'From class · row 3',prompt:'Row 3: the largest address is 2³² − 1 = ?G − 1. Find n and N.',board:rowBoard(['n','N','Largest address'],[{k:'n'},{k:'N'},'2³² − 1 = ?G − 1']),
+ guided:[{label:'n',ask:'The largest address is 2³² − 1, so N = 2³². Then n =',options:['32','31','4'],answer:0,say:'n = 32.',fill:{n:'32'}},
+  {label:'?G',ask:'2³² = 2² × 2³⁰ =',options:['4G','32G','2G','4M'],answer:0,say:'2² = 4 and 2³⁰ = G, so ? = 4.',fill:{N:'2³² = 4G'}}],
+ explain:'n = <b>32</b>, N = 2³² = <b>4G</b>, and the ? is <b>4</b>: the largest address is 4G − 1.'},
+{tag:'From class · row 4',prompt:'Row 4: N = 2^? = 256T. Find n and the largest address.',board:rowBoard(['n','N','Largest address'],[{k:'n'},'2^? = 256T',{k:'L'}]),
+ guided:[{label:'256',ask:'256 = 2 to the',options:['8','16','6'],answer:0,say:'2⁸ = 256.'},
+  {label:'n',ask:'256T = 2⁸ × 2⁴⁰ = 2 to the',options:['48','40','320','56'],answer:0,say:'8 + 40 = 48, so n = 48.',fill:{n:'48'}},
+  {label:'Largest',ask:'What goes in the box before "−1"?',options:['256T','48','255T'],answer:0,say:'The largest address is 256T − 1.',fill:{L:'256T − 1'}}],
+ explain:'n = <b>48</b>, and the largest address is <b>256T</b> − 1.'},
+{tag:'From class · row 5',prompt:'Row 5: n = 64. Find N and the largest address, using K, M, G, T or P.',board:rowBoard(['n','N','Largest address'],['64',{k:'N'},{k:'L'}]),
+ guided:[{label:'Split',ask:'P = 2⁵⁰ is the biggest unit. 64 = 50 + ?',options:['14','4','16'],answer:0,say:'64 = 50 + 14.'},
+  {label:'N',ask:'2⁶⁴ = 2¹⁴ × 2⁵⁰ = ',options:['16,384P','64P','16P','1,024P'],answer:0,hint:'2¹⁴ = 2⁴ × 2¹⁰ = 16 × 1,024.',say:'2¹⁴ = 16,384, so N = 16,384P.',fill:{N:'16,384P'}},
+  {label:'Largest',ask:'What goes in the box before "−1"?',options:['16,384P','64','16,383P'],answer:0,say:'The largest address is 16,384P − 1.',fill:{L:'16,384P − 1'}}],
+ explain:'N = 2⁶⁴ = <b>16,384P</b>, and the largest address is 16,384P − 1. If the box won\'t take a comma, type 16384P. (The textbook writes this as 16E, with E = 2⁶⁰, but your table\'s units stop at P.)'}
+]},
+
+{id:'ex12',sec:'p12',name:'Exam-style: address spaces',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:false,tag:'Exam-style'},
+lesson:`<p>More address-space problems: virtual and physical, in both directions.</p>`,
+qs:[
+{prompt:'A machine has 1 GB of physical memory, one address per byte. Type m, the number of physical address bits.',input:true,dec:true,expect:'30',explain:'1G = 2³⁰, so m = 30.'},
+{prompt:'n = 39. N = 2³⁹ =',code:true,options:['512G','39G','512M','256G'],answer:0,explain:'2³⁹ = 2⁹ × 2³⁰ = 512G.'},
+{prompt:'Type the largest 24-bit address in hex.',input:true,expect:'0xFFFFFF',explain:'24 bits of 1s is six hex Fs.'},
+{prompt:'A 32-bit virtual address space and 16 GB of physical memory. Which has more addresses?',options:['The 16 GB of physical memory','The 32-bit virtual address space','They\'re the same'],answer:0,explain:'2³² = 4G addresses, but 16 GB needs 2³⁴. A virtual address space can be smaller than physical memory.'},
+{prompt:'How many address bits does it take to name 256T bytes?',input:true,dec:true,expect:'48',explain:'256T = 2⁸ × 2⁴⁰ = 2⁴⁸.'},
+{prompt:'The largest address is 0xFFFF. What is n?',options:['16','4','65,535'],answer:0,explain:'Four hex Fs is 16 bits of 1s.'},
+{prompt:'Disk makers use GB = 10⁹ bytes. For addresses, G means',code:true,options:['2³⁰','10⁹','2⁹'],answer:0,explain:'Address spaces count in powers of 2.'},
+{pre:'CPU → VA 4100 → MMU → PA 4 → main memory',prompt:'In this picture, which address does the program use?',options:['4100, the virtual address','4, the physical address'],answer:0,keep:true,explain:'Programs see virtual addresses. Only the MMU and memory deal with the physical one.'}
+]},
+
 /* ===== Review ===== */
 {id:'mix',sec:'rev',name:'Quiz 1 mix: Parts 1–2',short:'Quiz 1 mix',shuffleOpts:true,pick:{p1:4,p2:5,both:3},
 defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?'},
@@ -3527,10 +4245,11 @@ qs:[
 ];
 LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o={};for(var k in d)o[k]=d[k];for(var k2 in q)o[k2]=q[k2];return o;});});
 (function(){
-  var m12=null, pools={p3:[],p45:[],p69:[]};
+  var m12=null, pools={p3:[],p45:[],p69:[],p1012:[]};
   var src={p3:['c1','c2','c3','c4','c5','c6','cflags','c7','c8','c9'],
     p45:['stk','callret','args','frame','saves','tsize','decl','eaddr','parith','leamov','grid2d','mat','multi','struct'],
-    p69:['pyr','sram','dram','rascas','module','nvm','bus','disk','cap','atime','iobus','dread','ssd','ssdw','ssdvs','gap','loc','stride','rowcol','rcbits','fileread','wear','loop3d']};
+    p69:['pyr','sram','dram','rascas','module','nvm','bus','disk','cap','atime','iobus','dread','ssd','ssdw','ssdvs','gap','loc','stride','rowcol','rcbits','fileread','wear','loop3d'],
+    p1012:['cblocks','cgeo','caddr','clook','dmsim','sasim','conflict','cwrite','cperf','vmidea','vspace']};
   function copy(q,g){var o={};for(var k in q)o[k]=q[k];o.grp=g;return o;}
   LEVELS.forEach(function(L){
     if(L.id==='mix')m12=L;
@@ -3542,9 +4261,11 @@ LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o=
     lesson:'<p>Twelve questions from Parts 4 and 5, procedures and arrays, in a random order with a new pick every time.</p>',qs:pools.p45});
   LEVELS.push({id:'mix69',sec:'rev',name:'Parts 6–9 mix: the memory hierarchy',short:'Parts 6–9 mix',desc:'DRAM, buses, disks, SSDs and locality, 12 questions.',shuffleOpts:true,pick:{p69:12},
     lesson:'<p>Twelve questions from Parts 6 to 9, DRAM, buses, disks, SSDs and locality, in a random order with a new pick every time.</p>',qs:pools.p69});
-  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',desc:'All nine parts, 14 questions.',shuffleOpts:true,pick:{p1:2,p2:2,both:1,p3:3,p45:3,p69:3},
-    lesson:'<p>Fourteen questions drawn from all nine parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Part 2.</p>'+machineHTML(MACHINES.practice),
-    qs:m12.qs.concat(pools.p3).concat(pools.p45).concat(pools.p69)});
+  LEVELS.push({id:'mix1012',sec:'rev',name:'Parts 10–12 mix: caches and virtual memory',short:'Parts 10–12 mix',desc:'Caches, hits and misses, and address spaces, 12 questions.',shuffleOpts:true,pick:{p1012:12},
+    lesson:'<p>Twelve questions from Parts 10 to 12, caches, hits and misses, and virtual addresses, in a random order with a new pick every time.</p>',qs:pools.p1012});
+  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',desc:'All twelve parts, 16 questions.',shuffleOpts:true,pick:{p1:2,p2:2,both:1,p3:2,p45:3,p69:3,p1012:3},
+    lesson:'<p>Sixteen questions drawn from all twelve parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Part 2.</p>'+machineHTML(MACHINES.practice),
+    qs:m12.qs.concat(pools.p3).concat(pools.p45).concat(pools.p69).concat(pools.p1012)});
 })();
 
 var T_=function(rows,head){return '<div class="tbl-wrap"><table class="t">'+(head?'<thead><tr>'+head.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead>':'')+'<tbody>'+rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';};
@@ -3618,7 +4339,7 @@ var SECTIONS=[
    T_([['Sequential','550 MB/s','470 MB/s'],['Random','365 MB/s','303 MB/s'],['Random access','50 µs','60 µs']],['','Read','Write'])+
    '<p>Random writes are slow: erasing takes ~1 ms and one page write copies the whole block. SSDs: no moving parts (faster, less power, rugged), but they wear out (wear leveling helps) and cost ~100× more per byte (2010).</p>'+
    '<h3>How long an SSD lasts (Practice 8)</h3><div class="rule-box">lifetime = total bytes ÷ write rate</div><p>PB = 10¹⁵, GB = 10⁹, MB = 10⁶ bytes. A year is 31,536,000 seconds, or 365 days.</p>'},
-  {id:'p9',part:'Part 9',name:'Locality',src:'L06 part 4 · In-Class Practice 9',next:'rev',
+  {id:'p9',part:'Part 9',name:'Locality',src:'L06 part 4 · In-Class Practice 9',next:'p10',
    intro:'Why the memory hierarchy works at all. CPUs got far faster than memory, and what saves us is locality. You\'ll judge code the way your slides ask: spot temporal and spatial locality, strides, and good and bad loops. Then Practice 9\'s three clear functions.',
    after:'or try the Parts 6–9 mix.',
    path:[['gap','loc','Why locality','The CPU–memory gap, then temporal vs spatial locality.'],['stride','loop3d','Access patterns','Stride-k, rows vs columns, then 3D arrays.'],['cls9','cls9','Class questions','All four Practice 9 questions on clear_one, clear_two and clear_three.'],['ex9','ex9','Exam-style practice','Judge real loops, step by step.']],
@@ -3628,6 +4349,32 @@ var SECTIONS=[
    '<h3>2D arrays</h3><p>C is row-major. <b>i outside, j inside</b>: stride-1, fast. <b>j outside, i inside</b>: stride-N, slow (copyji is 21× slower on a Pentium 4).</p>'+
    '<h3>Why a hierarchy</h3><p>Fast storage costs more per byte, holds less and uses more power. The CPU–memory gap is widening. Good programs have locality. Together: a memory hierarchy.</p>'+
    '<h3>3D arrays (Practice 9)</h3><p>m[i][j][k] is at m + (i·N·N + j·N + k) × 4. Put the loop for the last index, k, innermost for stride-1. A pointer stepping through with *ptr++ is stride-1 with the least loop work.</p>'},
+  {id:'p10',part:'Part 10',name:'Cache Memory',src:'L07 parts 1–2 · In-Class Practice 10',next:'p11',
+   intro:'Part 10 opens up the cache, the small fast memory between the CPU and DRAM. Fill a tiny cache block by block, build one from S, E and B, split an address into tag, set and offset, then look a byte up. Then Practice 10\'s table, one cache at a time.',
+   after:'or move on to Part 11.',
+   path:[['cblocks','cgeo','How caches work','Blocks, hits and misses, then the shape of a cache: S, E and B.'],['caddr','clook','Reading the cache','Split an address into tag, set and offset, then look a byte up.'],['cls10','cls10','Class questions','Practice 10\'s table: S, t, s and b, one cache at a time.'],['ex10','ex10','Exam-style practice','More lookups and cache shapes, step by step.']],
+   sheet:'<div class="rule-box">C = S × E × B   ·   address = tag (t) | set index (s) | block offset (b)</div><p>Practice 10: S = C ÷ (B × E), then s = log₂ S, b = log₂ B and t = m − s − b.</p>'+
+   T_([['S','sets','S = 2ˢ, so s = log₂ S'],['E','lines per set','E = 1: direct-mapped. S = 1: fully associative.'],['B','data bytes per block','B = 2ᵇ, so b = log₂ B'],['t','tag bits','t = m − s − b']],['Letter','Meaning','Rule'])+
+   '<h3>Hits and misses</h3><ul class="facts"><li>Data moves in whole blocks. Hit: the block is in the cache. Miss: copy it in, evicting a victim if needed (LRU, FIFO or random).</li><li><b>Cold</b>: the first use. <b>Conflict</b>: blocks fight over one set (0, 8, 0, 8, …). <b>Capacity</b>: the working set is bigger than the cache.</li></ul>'+
+   '<h3>Reading a byte (Practice 11, Q1–Q2)</h3><ol class="steps"><li>Write the address in binary. CO = the low b bits, CI = the next s bits, CT = the rest.</li><li>Go to set CI.</li><li>Hit only if a line there has valid = 1 and tag = CT.</li><li>On a hit, return the byte at offset CO. On a miss, the answer is ---.</li></ol>'},
+  {id:'p11',part:'Part 11',name:'Cache Misses',src:'L07 parts 2–3 · In-Class Practice 11',next:'p12',
+   intro:'Part 11 runs a cache for real. Step through the slides\' direct-mapped and 2-way simulations, watch conflict misses happen and padding fix them, then see what writes do and how to measure a cache. Then all five Practice 11 questions, step by step.',
+   after:'or move on to Part 12.',
+   path:[['dmsim','sasim','Run a cache','The slides\' direct-mapped and 2-way simulations, one read at a time.'],['conflict','cperf','Misses and speed','Conflict misses and padding, writes, and average access time.'],['cls11','cls11','Class questions','All five Practice 11 questions: the 0x0E34 lookup, then the direct-mapped cache.'],['ex11','ex11','Exam-style practice','New traces, miss rates and write policies.']],
+   sheet:'<h3>Running a cache</h3><p>The slides\' machine: 4-bit addresses, B = 2. Direct-mapped (S = 4): t = 1, s = 2, b = 1, and reads 0, 1, 7, 8, 0 go miss, hit, miss, miss, miss. 2-way (S = 2, E = 2): t = 2, s = 1, b = 1, and the same reads go miss, hit, miss, miss, hit.</p>'+
+   '<h3>Conflict misses (Practice 11, Q5)</h3><p>set = (address ÷ B) mod S. Addresses a whole cache size apart share a set, so arrays that line up thrash. Padding the first array shifts the second into other sets.</p>'+
+   T_([['Write-through','on a write hit, write the next level now','simple, but bus traffic on every write'],['Write-back','write the line out when it\'s evicted','needs a dirty bit'],['Write-allocate','on a write miss, load the block, then update it','good if more writes follow'],['No-write-allocate','on a write miss, write straight down','the block isn\'t loaded']],['Policy','What it does','Note'])+
+   '<p>Typical pairs: write-through + no-write-allocate, or write-back + write-allocate.</p>'+
+   '<div class="rule-box">miss rate = misses ÷ accesses = 1 − hit rate<br>average access time = hit rate × hit time + miss rate × miss penalty</div>'+
+   '<p>Hit time 1, miss penalty 100: 97% hits ≈ 4 cycles, 99% ≈ 2 cycles. Core i7: L1 32 KB 8-way (4 cycles), L2 256 KB 8-way (11), L3 8 MB 16-way and shared (30–40), all with 64-byte blocks.</p>'},
+  {id:'p12',part:'Part 12',name:'Virtual Memory',src:'L08 part 1 · In-Class Practice 12',next:'rev',
+   intro:'Part 12 starts virtual memory: the addresses a program uses aren\'t the real ones. See what the MMU does, then count address spaces: n bits give N = 2ⁿ addresses. Then Practice 12\'s table, one row at a time.',
+   after:'or try the Parts 10–12 mix.',
+   path:[['vmidea','vmidea','Virtual addresses','Physical vs virtual addressing, and address spaces.'],['vspace','vspace','Counting addresses','N = 2ⁿ, the largest address, and K, M, G, T and P.'],['cls12','cls12','Class questions','Practice 12\'s table, one row at a time.'],['ex12','ex12','Exam-style practice','More address-space problems.']],
+   sheet:'<div class="rule-box">N = 2ⁿ virtual addresses, from 0 to N − 1</div>'+
+   '<ul class="facts"><li>Physical addressing: the CPU sends real addresses (simple embedded systems).</li><li>Virtual addressing: the MMU on the CPU chip turns each virtual address into a physical one (servers, desktops, laptops).</li><li>Physical address space: M = 2ᵐ addresses. Each byte has one physical address and one or more virtual ones.</li></ul>'+
+   T_([['K','2¹⁰'],['M','2²⁰'],['G','2³⁰'],['T','2⁴⁰'],['P','2⁵⁰']],['Unit','Power of 2'])+
+   '<p>Split n into tens plus the rest: 2¹⁶ = 2⁶ × 2¹⁰ = 64K, 2³² = 4G, 2⁴⁸ = 256T, 2⁶⁴ = 2¹⁴ × 2⁵⁰ = 16,384P. The largest address is all 1s: 2⁸ − 1 = 255 = 0xFF.</p>'},
   {id:'rev',part:'Review',name:'Mixed practice'}
 ];
 var LAB_FLAG_EX=[
@@ -3823,7 +4570,7 @@ function doneHTML(){
     acts='<button class="btn" data-act="replay">Play a new '+L.short+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="'+nextLi+'">Try the '+LEVELS[nextLi].short+'</button>';
   } else if(secEnd){
     var nxt=LEVELS[nextLi].sec;
-    var NEXTTXT={p2:'Part 2 covers memory addressing.',p3:'Part 3 covers condition codes and jumps.',p4:'Part 4 covers procedures: the stack, call and ret, and argument registers.',p5:'Part 5 covers arrays, 2D arrays and structs.',p6:'Part 6 starts the memory hierarchy: SRAM, DRAM, and what happens inside a DRAM chip.',p7:'Part 7 covers buses, memory reads and writes, and spinning disks.',p8:'Part 8 covers I/O devices and solid state disks.',p9:'Part 9 covers locality, the reason the memory hierarchy works.',rev:'The Review tab has mixes that shuffle the parts together, the way a quiz would.'};
+    var NEXTTXT={p2:'Part 2 covers memory addressing.',p3:'Part 3 covers condition codes and jumps.',p4:'Part 4 covers procedures: the stack, call and ret, and argument registers.',p5:'Part 5 covers arrays, 2D arrays and structs.',p6:'Part 6 starts the memory hierarchy: SRAM, DRAM, and what happens inside a DRAM chip.',p7:'Part 7 covers buses, memory reads and writes, and spinning disks.',p8:'Part 8 covers I/O devices and solid state disks.',p9:'Part 9 covers locality, the reason the memory hierarchy works.',p10:'Part 10 opens up the cache: blocks, hits and misses, S, E and B, and reading a byte.',p11:'Part 11 runs a cache: direct-mapped and 2-way simulations, conflict misses, writes, and speed.',p12:'Part 12 starts virtual memory: the MMU and address spaces.',rev:'The Review tab has mixes that shuffle the parts together, the way a quiz would.'};
     extra=(secCleared(L.sec)===secLevels(L.sec).length?'<div class="cleared">'+L.sec.replace('p','Part ')+' complete</div>':'')+'<p>That\'s all of '+L.sec.replace('p','Part ')+'. Its cheat sheet has the whole part on one page. '+(NEXTTXT[nxt]||'')+'</p>';
     acts='<button class="btn" data-act="nextlevel">'+(nxt.charAt(0)==='p'?'Start '+nxt.replace('p','Part ')+': Level '+(nextLi+1):'Go to the mixed practice')+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="sheet-'+L.sec+'">Cheat sheet</button><button class="btn ghost" data-act="replay">Replay this level</button>';
   } else {

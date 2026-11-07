@@ -2,7 +2,7 @@
 
 Check out [ControlFlowChronicles](https://iisurf.github.io/ControlFlowChronicles/) to play the game and learn at the same time.
 
-A learning game for a computer systems class: x86 assembly (AT&T syntax) and the memory hierarchy, in nine parts.
+A learning game for a computer systems class: x86 assembly (AT&T syntax), the memory hierarchy, caches and virtual memory, in twelve parts.
 
 **x86 assembly** (In-Class Practice 1–5)
 
@@ -19,8 +19,14 @@ A learning game for a computer systems class: x86 assembly (AT&T syntax) and the
 - **Part 8 · I/O & SSDs**: the I/O bus, reading a disk sector with DMA and interrupts, how SSDs read, write and wear out, and how many years until they do.
 - **Part 9 · Locality**: the CPU–memory gap, temporal vs spatial locality, stride-k patterns, rows vs columns, and loop order for 3D arrays.
 
-**Review**: five shuffled mixes that pick new questions every replay, plus a Lab that works out any instruction, operand or flag result step by step.
+**Caches and virtual memory** (L07 parts 1–3, L08 part 1, In-Class Practice 10–12)
 
-Every part ends with a **Class Practice** level that works through that part's in-class worksheet, and has a one-page **cheat sheet** for exam review. Bigger problems are broken into **guided steps** that fill in as you answer, and many lessons have something to play with: a byte dial, a live stack, a DRAM chip, a rows × columns explorer, disk and file-read calculators, an SSD lifetime calculator, and loop-order explorers for 2D and 3D arrays.
+- **Part 10 · Cache Memory**: blocks, hits and misses, the three kinds of miss, S, E and B, splitting an address into tag, set and offset, and looking a byte up in a 2-way cache.
+- **Part 11 · Cache Misses**: the slides' direct-mapped and 2-way simulations, conflict misses and padding, write policies, miss rate and average access time.
+- **Part 12 · Virtual Memory**: physical vs virtual addressing, the MMU, and counting address spaces with N = 2ⁿ and K, M, G, T, P.
+
+**Review**: six shuffled mixes that pick new questions every replay, plus a Lab that works out any instruction, operand or flag result step by step.
+
+Every part ends with a **Class Practice** level that works through that part's in-class worksheet, and has a one-page **cheat sheet** for exam review. Bigger problems are broken into **guided steps** that fill in as you answer, and many lessons have something to play with: a byte dial, a live stack, a DRAM chip, a rows × columns explorer, disk and file-read calculators, an SSD lifetime calculator, loop-order explorers for 2D and 3D arrays, a 4-slot cache, an address splitter, a step-by-step cache lookup, the slides' cache simulations, and an address-space counter.
 
 The whole game is a single file, `index.html`, with no build step and no dependencies beyond Google Fonts.
