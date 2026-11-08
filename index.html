@@ -820,6 +820,53 @@ button.mm-b:hover{border-color:var(--accent)}
 .odo-blk button b{font-size:15px}
 .odo-blk button i{font-style:normal;font-size:10.5px;color:var(--muted)}
 .odo-blk button.pick{background:var(--byte-soft);color:var(--byte-ink)}
+/* v8.4: Part 11 rebuilt */
+.cr-trace{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.cr-trace span{display:grid;justify-items:center;min-width:52px;padding:4px 6px;border-radius:8px;border:1px solid var(--line);font-family:var(--font-code);font-size:12.5px;background:var(--panel)}
+.cr-trace span i{font-style:normal;font-size:10.5px;color:var(--muted)}
+.cr-trace span.now{border:2px solid var(--accent);color:var(--accent);font-weight:700}
+.cr-trace span.h{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.cr-trace span.m{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.cr-trace span.h i,.cr-trace span.m i{color:inherit}
+.mm-b.inc{box-shadow:inset 0 0 0 2px var(--good)}
+.crc{margin-top:2px}
+.crc-l{color:var(--good);font-weight:700}
+.crs{display:grid;gap:4px;padding:3px;border-radius:9px;border:1.5px solid transparent;min-width:0}
+.crs.on{border-color:var(--src);background:var(--src-soft)}
+.crl{display:grid;justify-items:center;gap:1px;padding:4px 2px;border:1.5px solid var(--line);border-radius:8px;background:var(--panel);font:inherit;font-family:var(--font-code);color:var(--ink);min-width:0}
+button.crl{cursor:pointer;border:1.5px dashed var(--accent)}
+.crl .mr-top{gap:4px}
+.crl-t{font-size:10.5px;color:var(--accent);font-weight:600;white-space:nowrap}
+.crl b{font-size:13px;white-space:nowrap}
+.crl b.crl-e{font-weight:400;color:var(--muted);font-size:11.5px}
+.crl i{font-style:normal;font-size:9.5px;color:var(--muted);white-space:nowrap}
+.crl.hit{border-color:var(--good);box-shadow:0 0 0 2px var(--good-soft)}
+.crl.v1 .mr-led{background:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
+.crl.bad{border-color:var(--bad);box-shadow:0 0 0 2px var(--bad-soft)}
+.crc-n{margin-top:2px}
+.mm.arm{grid-template-columns:3.4em repeat(8,minmax(0,1fr));gap:3px;font-size:10px}
+.arm .mm-r,.arm .mm-c{font-size:9.5px;padding:0}
+.arm .mm-h{font-size:11px}
+.arb{display:grid;gap:0;place-items:center;align-content:center;line-height:1.15;min-height:34px;padding:2px 0}
+.arb b{font-weight:600;font-size:10.5px}
+.arb.ax{background:var(--accent-soft);border-color:var(--accent)}
+.arb.ay{background:var(--src-soft);border-color:var(--src)}
+.arb.ap{background:var(--sunk);border-style:dashed;color:var(--muted)}
+.arb.a0{background:none;border-color:transparent}
+.arb.arc{border-width:1.5px;border-style:solid}
+.arb.arc.a0{border:1.5px dashed var(--line)}
+.wp{display:grid;gap:4px}
+.wp-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;border-top:1px solid var(--line);padding-top:4px}
+.wp-row>span:first-child{color:var(--muted);font-size:12.5px}
+.wp-v{font-family:var(--font-code);text-align:right}
+.wp-v.none{color:var(--muted);font-family:inherit;font-size:12.5px}
+.wp-v.old{color:var(--bad)}
+.wp-v em{font-style:normal;font-family:inherit;font-size:11px;background:var(--bad-soft);padding:1px 5px;border-radius:5px}
+.wp-d{font-family:inherit;font-size:11px;padding:1px 5px;border-radius:5px;background:var(--sunk);color:var(--muted)}
+.wp-d.on{background:var(--byte-soft);color:var(--byte-ink);font-weight:700}
+.hgrid{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:2px;max-width:420px;margin-block:8px}
+.hgrid i{display:block;aspect-ratio:1;border-radius:2px;background:var(--good-soft);border:1px solid var(--good)}
+.hgrid i.m{background:var(--bad);border-color:var(--bad)}
 </style>
 </head>
 <body>
@@ -2289,6 +2336,216 @@ TOYDEF.vaspace={title:'Try it · count the addresses',
     return chipRow('n bits','n',[4,8,12,20,30,36,45,52],n)+calcHTML(rows)+'<p class="fine">The addresses run 0, 1, 2, …, N − 1.'+(p.k?' '+UNITS2[p.k][0]+' = 2'+supNum(10*p.k)+', a power of 2, not of 10.':'')+'</p>';
   },
   act:function(st,a){st.n=+a.split(':')[1];}};
+/* ---------- v8.4: Part 11 rebuilt on the memory map ---------- */
+
+/* L83-L84: run the slides' cache from empty. 16 bytes in boxes of 2.
+   E = 1: 4 sets of 1 line (map: 2 rows x 4 columns). E = 2: 2 sets of 2 lines (map: 4 rows x 2 columns). LRU. */
+var CRUN_TRACE={1:[0,1,7,8,0],2:[0,1,7,8,0,12]};
+function crBox(b){return (2*b)+'–'+(2*b+1);}
+function crCols(S){return 'grid-template-columns:3.4em repeat('+S+',minmax(0,1fr))';}
+function crMap(S,o){
+  o=o||{}; var R=8/S, h='<div class="mm" style="'+crCols(S)+'" role="group" aria-label="Memory map: 16 bytes in boxes of 2"><span class="mm-c"></span>', c, r;
+  for(c=0;c<S;c++)h+='<span class="mm-h'+(o.hlCol===c?' on':'')+'">set '+c+'</span>';
+  for(r=0;r<R;r++){h+='<span class="mm-r'+(o.hlRow===r?' on':'')+'">tag '+r+'</span>';
+    for(c=0;c<S;c++){var b=r*S+c, inc=o.inC&&o.inC[b], cl='mm-b'+(o.sel===b?' sel':'')+(inc?' inc':'');
+      h+=o.tap?'<button class="'+cl+'" data-ta="box:'+b+'" aria-label="Box with bytes '+crBox(b)+(inc?', in the cache':'')+'">'+crBox(b)+'</button>':'<span class="'+cl+'">'+crBox(b)+'</span>';}}
+  return h+'</div>';
+}
+function crCache(st,o){
+  o=o||{}; var S=4/st.E, h='<div class="mm crc" style="'+crCols(S)+'" role="group" aria-label="The cache"><span class="mm-r crc-l">cache</span>';
+  for(var s=0;s<S;s++){h+='<span class="crs'+(o.set===s?' on':'')+'">';
+    for(var L=0;L<st.E;L++){var x=st.sets[s][L], cls='crl'+(x?' v1':' v0')+(o.set===s&&o.line===L?' hit':'')+(o.set===s&&o.bad===L?' bad':'');
+      var inner=x?'<span class="mr-top"><span class="crl-t">tag '+x.tag+'</span><span class="mr-led"></span></span><b>'+crBox(x.box)+'</b>'+(st.E>1?'<i>used: read '+x.used+'</i>':''):'<span class="mr-top"><span class="crl-t">–</span><span class="mr-led"></span></span><b class="crl-e">empty</b>';
+      h+=o.tapLine&&o.set===s?'<button class="'+cls+'" data-ta="line:'+L+'" aria-label="Line '+L+': '+(x?'box '+crBox(x.box):'empty')+'">'+inner+'</button>':'<span class="'+cls+'">'+inner+'</span>';}
+    h+='</span>';}
+  return h+'</div><p class="fine crc-n">Each set sits under its column. '+(st.E>1?'Each set has room for 2 boxes.':'Each set has room for 1 box.')+'</p>';
+}
+function crRead(st,x,line){
+  var E=st.E,S=4/E,b=x>>1,cs=b%S,ct=Math.floor(b/S),set=st.sets[cs],j=-1,q,note;
+  st.clock++;
+  for(q=0;q<E;q++)if(set[q]&&set[q].box===b)j=q;
+  if(j>=0){set[j].used=st.clock;note='<b class="ok">Hit!</b> Set '+cs+' already holds box '+crBox(b)+', so byte '+x+' comes straight from the cache.';st.last={set:cs,line:j,hit:true,note:note};}
+  else{
+    if(line==null){line=set.indexOf(null);if(line<0){line=0;for(q=1;q<E;q++)if(set[q].used<set[line].used)line=q;}}
+    var old=set[line], again=!!st.seen[b];
+    set[line]={box:b,tag:ct,used:st.clock};st.seen[b]=1;
+    note='<b class="no">Miss.</b> The cache copies the whole box '+crBox(b)+' from memory into set '+cs+(E>1?', line '+line:'')+', with tag '+ct+'.'+(old?' Box '+crBox(old.box)+' gets kicked out to make room.':'')+
+      (again?' This box was in the cache before, until a box from the same column pushed it out: a <b>conflict miss</b>.':' It\'s the first time anyone needed this box: a <b>cold miss</b>.');
+    st.last={set:cs,line:line,hit:false,note:note};
+  }
+  return st.last.hit;
+}
+TOYDEF.crun={title:'Try it · run the cache',
+  init:function(d){var E=(d&&d.E)||1,S=4/E,sets=[],i,j;for(i=0;i<S;i++){sets.push([]);for(j=0;j<E;j++)sets[i].push(null);}return {E:E,sets:sets,k:0,ph:'find',msg:'',bad:null,log:[],flog:[],seen:{},clock:0,last:null};},
+  out:function(st){
+    var E=st.E,S=4/E,s=lg2(S),TR=CRUN_TRACE[E],h='',inC={},i;
+    st.sets.forEach(function(set){set.forEach(function(L){if(L)inC[L.box]=1;});});
+    h+='<div class="cr-trace" aria-label="The reads">'+TR.map(function(v,i){var r=st.log[i],now=i===st.k&&st.ph!=='free';return '<span class="'+(now?'now':r?(r.hit?'h':'m'):'')+'">read '+v+'<i>'+(r?(r.hit?'hit':'miss'):now?'now':'·')+'</i></span>';}).join('')+'</div>';
+    if(st.ph==='free'){
+      var res=st.log.map(function(r){return r.hit?'hit':'miss';}).join(', ');
+      h+='<p class="tr-note">Your reads went: <b>'+res+'</b>. '+(E===1?'The last read of 0 missed because box 8–9 kicked box 0–1 out. They\'re in the same column, and set 0 only has room for one box.':'This time the second read of 0 hit, because set 0 had room for both box 0–1 and box 8–9. Then box 12–13 found set 0 full, so LRU kicked out box 8–9, the one used longest ago.')+'</p>';
+      if(st.last)h+='<p class="tr-note">'+st.last.note+'</p>';
+      h+='<p class="fine"><b>Keep going:</b> tap any box in memory to read it.</p>'+crMap(S,{tap:true,inC:inC,sel:st.fsel})+crCache(st,{set:st.last?st.last.set:null,line:st.last?st.last.line:null});
+      if(st.flog.length)h+='<div class="cb-log">'+st.flog.map(function(r){return '<span class="'+(r.hit?'h':'m')+'">'+crBox(r.b)+'<i>'+(r.hit?'hit':'miss')+'</i></span>';}).join('')+'</div>';
+      return h+'<div class="toy-btns"><button class="link" data-ta="restart">Start over</button></div>';
+    }
+    var x=TR[st.k], b=x>>1, cs=b%S, ct=Math.floor(b/S);
+    if(st.ph==='find'){
+      h+='<p class="tr-note"><b>Read byte '+x+'.</b> Tap the box in memory that holds it.</p>'+crMap(S,{tap:true,inC:inC})+crCache(st,{});
+    } else if(st.ph==='judge'){
+      h+=addrBits(x,4,s,1,{legend:false})+'<p class="tr-note">Byte '+x+' is in box '+crBox(b)+': tag (row) '+ct+', set (column) '+cs+'. Look at set '+cs+' in the cache, right under its column. <b>Hit or miss?</b></p>'+
+        crMap(S,{sel:b,inC:inC})+crCache(st,{set:cs})+'<div class="toy-btns"><button class="btn sm" data-ta="hit">Hit</button><button class="btn sm" data-ta="miss">Miss</button></div>';
+    } else if(st.ph==='place'){
+      h+='<p class="tr-note"><b class="no">Miss.</b> Set '+cs+' has two lines. <b>Which line should box '+crBox(b)+' go in?</b> Use an empty line if there is one. If both are full, kick out the one used longest ago.</p>'+
+        crMap(S,{sel:b,inC:inC})+crCache(st,{set:cs,tapLine:true,bad:st.bad});
+    } else {
+      h+='<p class="tr-note">'+st.last.note+'</p>'+crMap(S,{sel:b,inC:inC})+crCache(st,{set:st.last.set,line:st.last.line})+
+        '<div class="toy-btns"><button class="btn sm" data-ta="next">'+(st.k+1<TR.length?'Next read ▶':'See how it went ▶')+'</button></div>';
+    }
+    if(st.msg)h+='<p class="bc-msg" role="status">'+st.msg+'</p>';
+    return h+(st.k||st.ph!=='find'?'<div class="toy-btns"><button class="link" data-ta="restart">Start over</button></div>':'');
+  },
+  act:function(st,a){
+    var E=st.E,S=4/E,TR=CRUN_TRACE[E],p=a.split(':'),k=p[0],v=+p[1],x=st.k<TR.length?TR[st.k]:null,key;
+    st.msg='';st.bad=null;
+    if(k==='restart'){var n=TOYDEF.crun.init({E:E});for(key in n)st[key]=n[key];return;}
+    if(k==='next'&&st.ph==='show'){st.k++;st.ph=st.k<TR.length?'find':'free';st.last=st.ph==='free'?null:st.last;return;}
+    if(k==='box'){
+      if(st.ph==='find'){if(v===(x>>1))st.ph='judge';else st.msg='That box holds bytes '+(2*v)+' and '+(2*v+1)+'. Byte '+x+' is in the box '+crBox(x>>1)+'.';}
+      else if(st.ph==='free'){st.fsel=v;var hit=crRead(st,2*v,null);st.flog.push({b:v,hit:hit});if(st.flog.length>8)st.flog.shift();}
+      return;}
+    if((k==='hit'||k==='miss')&&st.ph==='judge'){
+      var b=x>>1,cs=b%S,set=st.sets[cs],isHit=set.some(function(L){return L&&L.box===b;});
+      if((k==='hit')===isHit){
+        if(isHit||E===1){st.log.push({hit:crRead(st,x,null)});st.ph='show';}
+        else st.ph='place';
+      } else st.msg=isHit?'Look again: set '+cs+' already holds box '+crBox(b)+', and byte '+x+' is in that box.':
+        (set.every(function(L){return !L;})?'Set '+cs+' is empty, so nothing can hit there yet.':'Set '+cs+' holds '+set.filter(Boolean).map(function(L){return 'box '+crBox(L.box);}).join(' and ')+', not box '+crBox(b)+'.');
+      return;}
+    if(k==='line'&&st.ph==='place'){
+      var b2=x>>1,set2=st.sets[b2%S],empty=set2.indexOf(null),want=empty,q;
+      if(want<0){want=0;for(q=1;q<E;q++)if(set2[q].used<set2[want].used)want=q;}
+      if(empty>=0?set2[v]===null:v===want){st.log.push({hit:crRead(st,x,v)});st.ph='show';}
+      else{st.bad=v;st.msg=empty>=0?'There\'s an empty line. Use it, so nothing gets kicked out.':'Both lines are full. Kick out the one used longest ago: box '+crBox(set2[want].box)+', last used at read '+set2[want].used+'.';}
+    }
+  }};
+
+/* L85: dotprod's x and y on Practice 11's cache: 8 sets of 8-byte boxes (2 floats). One map row = 64 bytes = 16 floats. */
+function arLab(n,X){if(n<16)return {t:'x'+n,c:'ax'};if(n<X)return {t:'x'+n,c:'ap'};if(n<X+16)return {t:'y'+(n-X),c:'ay'};return {t:'',c:'a0'};}
+function arRun(X,k){var slots=[null,null,null,null,null,null,null,null],res=[],i,w;
+  for(i=0;i<16;i++)for(w=0;w<2;w++){if(res.length>=k)return {slots:slots,res:res};var f=w?X+i:i,b=f>>1,s=b&7,hit=slots[s]===b,old=slots[s];slots[s]=b;res.push({w:w,i:i,f:f,b:b,s:s,hit:hit,old:old});}
+  return {slots:slots,res:res};}
+function arMap(X,o){
+  o=o||{}; var rows=Math.ceil((X+16)/16), h='<div class="mm arm" role="group" aria-label="Memory map: x then y, 2 floats per box"><span class="mm-c">set</span>', c, r;
+  for(c=0;c<8;c++)h+='<span class="mm-h'+(o.hlCol===c?' on':'')+'">'+c+'</span>';
+  for(r=0;r<rows;r++){h+='<span class="mm-r">tag '+r+'</span>';
+    for(c=0;c<8;c++){var b=r*8+c, A=arLab(2*b,X), B=arLab(2*b+1,X), cl='mm-b arb '+A.c+(o.sel===b?' sel':'')+(o.inC&&o.inC[b]?' inc':''), inner='<b>'+A.t+'</b><b>'+B.t+'</b>';
+      h+=o.tap?'<button class="'+cl+'" data-ta="box:'+b+'" aria-label="Box with '+(A.t||'nothing')+' and '+(B.t||'nothing')+'">'+inner+'</button>':'<span class="'+cl+'">'+inner+'</span>';}}
+  if(o.slots){h+='<span class="mm-r crc-l">cache</span>';for(c=0;c<8;c++){var sb=o.slots[c], L1=sb==null?null:arLab(2*sb,X), L2=sb==null?null:arLab(2*sb+1,X);
+    h+='<span class="mm-b arb arc '+(L1?L1.c:'a0')+(o.hlCol===c?' sel':'')+'">'+(L1?'<b>'+L1.t+'</b><b>'+L2.t+'</b>':'<b>–</b>')+'</span>';}}
+  return h+'</div>';
+}
+TOYDEF.arrays={title:'Try it · dotprod in Practice 11\'s cache',
+  init:function(){return {stg:1,X:16,k:0,ok:{},msg:'',sel:null};},
+  out:function(st){
+    var g=st.stg, X=st.X, run=arRun(X,st.k), last=run.res[run.res.length-1], inC={}, TT=['','Where does y start?','Run the loop','Pad x by two floats','Run it again'], h, i;
+    run.slots.forEach(function(b){if(b!=null)inC[b]=1;});
+    h=(g<5?'<div class="mm-step">Step '+g+' of 4</div><p class="mm-title">'+TT[g]+'</p>':'<p class="mm-title">Try other sizes</p>');
+    if(g===1||g===3){
+      h+=g===1?'<p>Here\'s memory with <b>float x[16]</b> at address 0 and y right after it. Each box is 8 bytes, so it holds 2 floats. x fills row 0 exactly.</p>':'<p>Now declare <b>float x[18]</b>: two dummy floats at the end of x. That pushes y 8 bytes later.</p>';
+      if(!st.ok[g])h+='<p class="tr-note"><b>Tap the box that holds y[0].</b></p>';
+      h+=arMap(X,{tap:!st.ok[g],sel:st.ok[g]?(X>>1):null,hlCol:st.ok[g]?((X>>1)&7):null});
+      if(st.msg)h+='<p class="bc-msg">'+st.msg+'</p>';
+      if(st.ok[g])h+='<p class="tr-note">'+(g===1?'y[0] is right under x[0], in <b>column 0</b>. Same column, same set. So x[0] and y[0] need the same spot in the cache.':'Now y[0] is in <b>column 1</b>, one column to the right of x[0]. x[i] and y[i] no longer share a set.')+'</p>';
+    } else {
+      var done=st.k>=32, hits=run.res.filter(function(r){return r.hit;}).length;
+      h+=g===2?'<p>The loop reads x[0], y[0], x[1], y[1], and so on. The cache row under the map shows which box each set holds.</p>':g===4?'<p>Same loop, with float x[18].</p>':'<p>Pick a size for x, then run the loop.</p>'+chipRow('Declare','X',[16,17,18,20],X,function(v){return 'x['+v+']';});
+      h+=arMap(X,{sel:last?last.b:null,hlCol:last?last.s:null,inC:inC,slots:run.slots});
+      if(last){var nm=(last.w?'y':'x')+'['+last.i+']';
+        var bl=function(bb){var P=arLab(2*bb,X),Q=arLab(2*bb+1,X);return '<code>'+P.t+(Q.t?' '+Q.t:'')+'</code>';};
+        h+='<p class="tr-note">Read '+nm+': its box, '+bl(last.b)+', is in set '+last.s+'. '+(last.hit?'Set '+last.s+' already holds it: <b class="ok">hit</b>.':last.old==null?'Set '+last.s+' is empty: <b class="no">miss</b>, so '+bl(last.b)+' moves in.':'Set '+last.s+' holds '+bl(last.old)+': <b class="no">miss</b>. '+bl(last.b)+' moves in and kicks '+bl(last.old)+' out.')+'</p>';}
+      h+='<div class="dp" aria-label="Hits and misses so far"><span class="dp-l">x[i]</span><div class="dp-row">';
+      for(i=0;i<16;i++){var rx=run.res[2*i];h+='<span class="'+(rx?(rx.hit?'h':'m'):'')+'">'+(rx?(rx.hit?'H':'M'):'·')+'</span>';}
+      h+='</div><span class="dp-l">y[i]</span><div class="dp-row">';
+      for(i=0;i<16;i++){var ry=run.res[2*i+1];h+='<span class="'+(ry?(ry.hit?'h':'m'):'')+'">'+(ry?(ry.hit?'H':'M'):'·')+'</span>';}
+      h+='</div></div>';
+      if(done)h+='<p class="tr-note"><b>'+hits+' of 32 reads hit: '+(hits===0?'0':hits===16?'1/2':hits+'/32')+'.</b> '+(hits===0?'x[i] and y[i] keep kicking each other out of the same set. That\'s called <b>thrashing</b>.':hits===16?'Each box holds 2 floats, so the first read of a box misses and brings both in, and the second read hits.':'')+'</p>';
+      h+='<div class="toy-btns">'+(done?'':'<button class="btn sm" data-ta="step">Next read ▶</button><button class="btn sm ghost" data-ta="all">Run all</button>')+'</div>';
+    }
+    var b='';
+    if(g>1&&g<5)b+='<button class="btn sm ghost" data-ta="back">◀ Back</button>';
+    if(g<4)b+='<button class="btn sm" data-ta="next"'+(st.ok[g]?'':' disabled')+'>Next step ▶</button>';
+    if(g===4&&st.ok[4])b+='<button class="btn sm" data-ta="next">Try other sizes ▶</button>';
+    return h+'<div class="toy-btns">'+b+'</div>';
+  },
+  act:function(st,a){
+    var p=a.split(':'),k=p[0],v=+p[1],g=st.stg;
+    st.msg='';
+    if(k==='next'&&(st.ok[g]||g===4)){st.stg++;st.X=st.stg>=3?18:16;st.k=0;if(st.stg===5)st.X=18;return;}
+    if(k==='back'&&g>1){st.stg--;st.X=st.stg>=3?18:16;st.k=0;return;}
+    if(k==='box'&&(g===1||g===3)&&!st.ok[g]){var want=st.X>>1;if(v===want)st.ok[g]=1;else{var A=arLab(2*v,st.X),B2=arLab(2*v+1,st.X);st.msg=(A.t?'That box holds <code>'+A.t+'</code>'+(B2.t?' and <code>'+B2.t+'</code>':'')+(A.c==='ap'?', the 2 dummy floats':'')+'. ':'That box is empty. ')+'y starts right after x ends'+(st.X>16?', after the dummy floats':'')+'. Look for y0.';}return;}
+    if(k==='step'&&st.k<32){st.k++;if(st.k>=32)st.ok[g]=1;return;}
+    if(k==='all'){st.k=32;st.ok[g]=1;return;}
+    if(k==='X'){st.X=v;st.k=0;}
+  }};
+
+/* L86: write policies. Write hit: through vs back. Write miss: allocate vs no-allocate. */
+TOYDEF.wpol={title:'Try it · what happens on a write',
+  init:function(){return {mode:'hit',t:{c:5,m:5,trips:0,inC:1},b:{c:5,m:5,trips:0,dirty:0,inC:1},al:{c:null,m:0,trips:0,inC:0},na:{c:null,m:0,trips:0,inC:0},note:''};},
+  out:function(st){
+    var h='<div class="seg" role="group" aria-label="Which kind of write"><button data-ta="mode:hit" class="'+(st.mode==='hit'?'on':'')+'" aria-pressed="'+(st.mode==='hit')+'">Write hit</button><button data-ta="mode:miss" class="'+(st.mode==='miss'?'on':'')+'" aria-pressed="'+(st.mode==='miss')+'">Write miss</button></div>';
+    var panel=function(title,z,name,dirty){
+      var stale=z.inC&&z.c!==z.m;
+      return '<div class="cbox wp"><b>'+title+'</b>'+
+        '<div class="wp-row"><span>Cache</span><span class="wp-v'+(z.inC?'':' none')+'">'+(z.inC?name+' = '+z.c:'not in the cache')+(dirty!=null&&z.inC?' <span class="wp-d'+(dirty?' on':'')+'">dirty '+dirty+'</span>':'')+'</span></div>'+
+        '<div class="wp-row"><span>Memory</span><span class="wp-v'+(stale?' old':'')+'">'+name+' = '+z.m+(stale?' <em>out of date</em>':'')+'</span></div>'+
+        '<div class="wp-row"><span>Trips to memory</span><span class="wp-v"><b>'+z.trips+'</b></span></div></div>';};
+    if(st.mode==='hit'){
+      h+='<p class="fine">x is already in the cache. Change it a few times, then evict its line.</p><div class="pair2">'+panel('Write-through',st.t,'x',null)+panel('Write-back',st.b,'x',st.b.dirty)+'</div>'+
+        '<div class="toy-btns"><button class="btn sm" data-ta="w">x = x + 1</button><button class="btn sm ghost" data-ta="e">Evict x\'s line</button></div>';
+    } else {
+      h+='<p class="fine">y is not in the cache. Write it a few times.</p><div class="pair2">'+panel('Write-allocate',st.al,'y',null)+panel('No-write-allocate',st.na,'y',null)+'</div>'+
+        '<div class="toy-btns"><button class="btn sm" data-ta="wy">y = y + 1</button></div>';
+    }
+    if(st.note)h+='<p class="tr-note">'+st.note+'</p>';
+    return h+'<div class="toy-btns"><button class="link" data-ta="reset">Start over</button></div>';
+  },
+  act:function(st,a){
+    var t=st.t,b=st.b;
+    if(a==='reset'){var n=TOYDEF.wpol.init(),mode=st.mode;for(var k in n)st[k]=n[k];st.mode=mode;return;}
+    if(a.indexOf('mode:')===0){st.mode=a.slice(5);st.note='';return;}
+    if(a==='w'){
+      if(!t.inC||!b.inC){st.note='x isn\'t in the cache anymore, so writing it now would be a write miss. Try the Write miss tab, or start over.';return;}
+      t.c++;t.m=t.c;t.trips++;b.c++;b.dirty=1;
+      st.note='<b>Write-through</b> sends the new x on to memory right away. <b>Write-back</b> only changes the cache and turns its dirty bit on: memory is now out of date.';}
+    else if(a==='e'){
+      if(!t.inC&&!b.inC){st.note='x isn\'t in the cache right now. Write to it first.';return;}
+      var wb=b.inC&&b.dirty;
+      if(wb){b.m=b.c;b.trips++;}
+      t.inC=0;b.inC=0;b.dirty=0;
+      st.note='<b>Write-through</b>: memory already has the newest x, so nothing to do. <b>Write-back</b>: '+(wb?'the line is dirty, so x is written back to memory now, one trip.':'the line isn\'t dirty, so nothing to do.');}
+    else if(a==='wy'){
+      var al=st.al,na=st.na,first=!al.inC;
+      if(!al.inC){al.inC=1;al.c=al.m;al.trips++;}
+      al.c++;
+      na.m++;na.trips++;
+      st.note=(first?'<b>Write-allocate</b> misses, so it loads y\'s box into the cache (one trip), then writes y there. ':'<b>Write-allocate</b>: y is in the cache now, so this write is a hit. No trip. ')+'<b>No-write-allocate</b> writes straight to memory every time, and y never enters the cache.';}
+  }};
+
+/* L87: count 100 reads */
+TOYDEF.hundred={title:'Try it · 100 reads',
+  init:function(){return {miss:3,ht:1,mp:100};},
+  out:function(st){
+    var m=st.miss, hits=100-m, i, grid='', pos={};
+    for(i=0;i<m;i++)pos[Math.floor((i+0.5)*100/m)]=1;
+    for(i=0;i<100;i++)grid+='<i class="'+(pos[i]?'m':'h')+'"></i>';
+    var A=hits*st.ht, B=m*st.mp, T=A+B;
+    return chipRow('Misses','miss',[1,3,5,10],m,function(v){return v+' of 100';})+chipRow('Miss penalty','mp',[50,100,200],st.mp,function(v){return v+' cycles';})+chipRow('Hit time','ht',[1,2],st.ht,function(v){return v+' cycle'+(v>1?'s':'');})+
+      '<div class="hgrid" role="img" aria-label="'+hits+' hits and '+m+' misses">'+grid+'</div>'+
+      calcHTML([{l:hits+' hits × '+st.ht,s:'',v:fmtNum(A)},{l:m+' misses × '+st.mp,s:'+',v:fmtNum(B)},{l:'Total',s:'=',v:fmtNum(T)+' cycles'},{l:'Average, ÷ 100',s:'=',v:fmtNum(+(T/100).toFixed(2))+' cycles',tot:true}])+
+      '<p class="tr-note">The '+m+' red miss'+(m>1?'es':'')+' cost '+fmtNum(B)+' cycles'+(B>A?', more than all '+hits+' green hits together ('+fmtNum(A)+').':'.')+'</p>';
+  },
+  act:function(st,a){var p=a.split(':');st[p[0]]=+p[1];}};
 
 /* ---------- levels ---------- */
 var KIND=['Immediate','Register','Memory'];
@@ -4151,114 +4408,122 @@ qs:[
 {prompt:'Two caches have the same C and B. One is direct-mapped and the other is 4-way set associative. Which has more tag bits?',code:false,options:['The 4-way one, by 2 bits','The direct-mapped one','They have the same'],answer:0,explain:'4 lines per set means 4 times fewer sets: s drops by 2, so t grows by 2.'}
 ]},
 
-{id:'dmsim',sec:'p11',name:'Run a direct-mapped cache',short:'Direct-mapped',shuffleOpts:true,
+{id:'dmsim',sec:'p11',name:'Misses fill the cache',short:'Direct-mapped',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<p>Your slides run a cache by hand on a toy machine: <b>16 bytes</b> of memory, so addresses are 4 bits. B = 2 bytes per block, S = 4 sets, E = 1 line per set.</p>
-<div class="rule-box">t = 1, s = 2, b = 1   →   address bits: x | xx | x</div>
-<ul class="facts"><li>Block number = address ÷ B, so addresses 0 and 1 are block 0, 8 and 9 are block 4.</li><li>The two middle bits pick the set. Every set holds one block at a time.</li></ul>
-<p>Run the slides' trace, 0, 1, 7, 8, 0, one read at a time:</p>`+
-toy('csim',{E:1})+
-`<div class="tip"><span class="tl">Why the last read misses</span>Address 0 and address 8 both have set bits 00. Reading 8 evicts block 0, so reading 0 again is a conflict miss.</div>`,
+recap:'A miss copies the <b>whole box</b> into its set, with the box\'s row as the tag, so the next byte in that box hits. In a direct-mapped cache each set holds one box, so boxes in the <b>same column</b> keep kicking each other out: a <b>conflict miss</b>.',
+lesson:`<p>In Part 10 the cache was already filled in. Now start with an <b>empty</b> cache and watch it fill up, one read at a time.</p>
+<p>Your slides use a tiny machine: <b>16 bytes</b> of memory in <b>boxes of 2</b>, and a cache with <b>4 sets</b> that hold <b>1 box each</b>. That's called direct-mapped. Same map as L79: tag = row, set = column.</p>
+<div class="rule-box rule-lines"><div>Hit: the box is already in its set.</div><div>Miss: copy the whole box into its set.</div><div>Its tag is the box's row.</div></div>
+<p>Do the slides' reads yourself, 0, 1, 7, 8, 0. For each one, find the byte's box, then decide: hit or miss?</p>`+
+toy('crun',{E:1})+
+`<div class="tip"><span class="tl">Remember it</span>A miss copies the whole box, so the next byte in it hits. Boxes in the same column share one set. With room for only one box, they keep kicking each other out.</div>`,
 qs:[
-{prompt:'16 bytes of memory need addresses with how many bits?',options:['4','16','8','2'],answer:0,explain:'2⁴ = 16 addresses, 0 to 15.'},
-{prompt:'B = 2, S = 4, E = 1 and 4-bit addresses. Which split is right?',options:['t = 1, s = 2, b = 1','t = 2, s = 1, b = 1','t = 1, s = 1, b = 2'],answer:0,explain:'b = log₂ 2 = 1, s = log₂ 4 = 2, t = 4 − 2 − 1 = 1.'},
-{prompt:'Address 8 = 1000. Which set does it go in, and which block is it?',options:['Set 0, block 4','Set 2, block 8','Set 0, block 8','Set 4, block 0'],answer:0,explain:'Split it 1 | 00 | 0: set 00 = 0. Block number = 8 ÷ 2 = 4.'},
-{prompt:'Run the trace 0, 1, 7, 8, 0. The cache starts empty.',board:rowBoard(['Read 0','Read 1','Read 7','Read 8','Read 0'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'}]),
- guided:[{label:'Read 0',ask:'Read 0 (0 | 00 | 0). Set 0 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Cold miss. M[0] and M[1] are copied into set 0, with tag 0.',fill:{a:'miss'}},
-  {label:'Read 1',ask:'Read 1 (0 | 00 | 1). Set 0 holds tag 0.',options:['Hit','Miss'],answer:0,keep:true,say:'Same block as address 0.',fill:{b:'hit'}},
-  {label:'Read 7',ask:'Read 7 (0 | 11 | 1). Set 3 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Cold miss. M[6] and M[7] go into set 3.',fill:{c:'miss'}},
-  {label:'Read 8',ask:'Read 8 (1 | 00 | 0). Set 0 holds tag 0, but 8 has tag 1.',options:['Miss: M[8] and M[9] replace M[0] and M[1]','Hit','Miss: M[8] goes in set 1'],answer:0,say:'Set 0 has only one line, so block 0 is evicted.',fill:{d:'miss'}},
-  {label:'Read 0',ask:'Read 0 again. Set 0 now holds tag 1.',options:['Miss','Hit'],answer:0,keep:true,say:'Block 0 was evicted by 8: a conflict miss.',fill:{e:'miss'}}],
- explain:'Miss, hit, miss, miss, miss: 4 misses in 5 reads. The last one is a conflict miss.'},
-{prompt:'Why does the second read of address 0 miss?',options:['8 needed set 0 too, and evicted it: a conflict miss','The cache was completely full','It\'s the first time 0 was read'],answer:0,explain:'Sets 1 and 2 are still empty, so it isn\'t a capacity miss.'},
-{prompt:'In this cache, which addresses use set 0?',options:['0, 1, 8 and 9','0 to 3','0, 4, 8 and 12'],answer:0,explain:'The set bits are the middle two: 0000, 0001, 1000 and 1001 all have 00 there.'},
-{prompt:'In a direct-mapped cache, a miss always evicts',options:['the one line in that set, if it\'s valid','the least recently used line in the whole cache','nothing'],answer:0,explain:'With E = 1 there\'s no choice to make.'},
-{prompt:'Type how many of the 5 reads in the trace missed.',input:true,dec:true,expect:'4',explain:'Only the read of 1 hit.'}
+{vis:crMap(4),prompt:'Which box holds byte 7?',options:['6–7','7–8','4–5','14–15'],answer:0,explain:'Boxes hold 2 bytes: 6 and 7 share a box.'},
+{vis:crMap(4),prompt:'Box 6–7 is in column 3. Which set does it go in?',options:['Set 3','Set 7','Set 0','Set 1'],answer:0,explain:'Column = set.'},
+{prompt:'The cache starts empty. Reading byte 0 is a',options:['miss: box 0–1 gets copied into set 0','hit','miss: only byte 0 gets copied in'],answer:0,explain:'An empty cache can\'t hit. And the cache always copies the whole box.'},
+{prompt:'Right after reading byte 0, you read byte 1. Hit or miss?',options:['Hit','Miss'],answer:0,keep:true,explain:'Byte 1 is in box 0–1, which the last miss already copied in.'},
+{vis:crMap(4),prompt:'Set 0 holds box 0–1. Now you read byte 8. What happens?',options:['Miss: box 8–9 replaces box 0–1 in set 0','Hit: set 0 has a box in it','Miss: box 8–9 goes in an empty set'],answer:0,explain:'Box 8–9 is in column 0 too, and set 0 only has room for one box.'},
+{prompt:'Then you read byte 0 again. Why does it miss?',options:['Box 8–9 kicked box 0–1 out of set 0: a conflict miss','The cache was completely full','It\'s the first time byte 0 was read'],answer:0,explain:'Sets 1 and 2 were still empty. The problem was two boxes needing the one spot in set 0.'},
+{vis:crMap(4),prompt:'Which bytes share set 0 in this cache?',options:['0, 1, 8 and 9','0 to 3','0, 4, 8 and 12'],answer:0,explain:'Set 0 is column 0: boxes 0–1 and 8–9.'},
+{prompt:'Run the reads 0, 1, 7, 8, 0 again, from an empty cache.',board:rowBoard(['Read 0','Read 1','Read 7','Read 8','Read 0'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'}]),
+ guided:[{label:'Read 0',ask:'Read 0: box 0–1, set 0. Set 0 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Box 0–1 is copied into set 0.',fill:{a:'miss'}},
+  {label:'Read 1',ask:'Read 1: box 0–1 again.',options:['Hit','Miss'],answer:0,keep:true,say:'It\'s already there.',fill:{b:'hit'}},
+  {label:'Read 7',ask:'Read 7: box 6–7, set 3. Set 3 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Box 6–7 is copied into set 3.',fill:{c:'miss'}},
+  {label:'Read 8',ask:'Read 8: box 8–9, set 0. Set 0 holds box 0–1.',options:['Miss','Hit'],answer:0,keep:true,say:'Box 8–9 kicks box 0–1 out.',fill:{d:'miss'}},
+  {label:'Read 0',ask:'Read 0: box 0–1, set 0. Set 0 now holds box 8–9.',options:['Miss','Hit'],answer:0,keep:true,say:'A conflict miss.',fill:{e:'miss'}}],
+ explain:'Miss, hit, miss, miss, miss.'},
+{prompt:'Type how many of those 5 reads missed.',input:true,dec:true,expect:'4',explain:'Only the read of 1 hit.'}
 ]},
 
 {id:'sasim',sec:'p11',name:'Two lines per set',short:'2-way',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<p>In an <b>E-way set associative</b> cache, every set has E lines, and a block can go in <b>any</b> line of its set. A read compares CT with every valid line in the set.</p>
-<p>Your slides run the same trace on a <b>2-way</b> cache: the same 16 bytes and B = 2, but S = 2 sets of E = 2 lines.</p>
-<div class="rule-box">t = 2, s = 1, b = 1   →   address bits: xx | x | x</div>`+
-toy('csim',{E:2})+
-`<p>When both lines of a set are full, the <b>replacement policy</b> picks the victim. The toy uses LRU, least recently used. Switch E back to 1 to compare: the 2-way cache saves the last read.</p>`,
+recap:'With <b>2 lines per set</b>, two boxes from the same column can live together, so fewer conflict misses. When a set is full, <b>LRU</b> kicks out the box used longest ago.',
+lesson:`<p>Conflict misses happen because each set has room for only one box. So give every set room for <b>two</b>.</p>
+<p>Same 16 bytes and boxes of 2, but now the cache has <b>2 sets with 2 lines each</b> (E = 2, called 2-way set associative). With only 2 columns, the map has 4 rows.</p>
+<div class="rule-box rule-lines"><div>A box can go in either line of its set.</div><div>Check both lines for it.</div><div>Set full? Kick out the one used longest ago.</div></div>
+<p>The same reads, 0, 1, 7, 8, 0, plus one more. On a miss, you also pick the line:</p>`+
+toy('crun',{E:2})+
+`<div class="tip"><span class="tl">Remember it</span>Two lines per set means two boxes from the same column can live together. When a set is full, LRU (least recently used) kicks out the box used longest ago.</div>`,
 qs:[
-{prompt:'Same 16 bytes and B = 2, but S = 2 and E = 2. What are t, s and b?',options:['t = 2, s = 1, b = 1','t = 1, s = 2, b = 1','t = 3, s = 0, b = 1'],answer:0,explain:'b = 1, s = log₂ 2 = 1, t = 4 − 1 − 1 = 2.'},
-{prompt:'In this cache, address 8 = 1000. Which set, and what tag?',code:true,options:['Set 0, tag 10','Set 1, tag 00','Set 0, tag 1'],answer:0,explain:'Split it 10 | 0 | 0.'},
-{prompt:'Run the trace 0, 1, 7, 8, 0 on the 2-way cache.',board:rowBoard(['Read 0','Read 1','Read 7','Read 8','Read 0'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'}]),
- guided:[{label:'Read 0',ask:'Read 0 (00 | 0 | 0). Set 0 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'M[0] and M[1] go into set 0, with tag 00.',fill:{a:'miss'}},
-  {label:'Read 1',ask:'Read 1 (00 | 0 | 1).',options:['Hit','Miss'],answer:0,keep:true,say:'Same block as 0.',fill:{b:'hit'}},
-  {label:'Read 7',ask:'Read 7 (01 | 1 | 1). Set 1 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'M[6] and M[7] go into set 1, with tag 01.',fill:{c:'miss'}},
-  {label:'Read 8',ask:'Read 8 (10 | 0 | 0). Set 0 has tag 00 in one line, and one empty line.',options:['Miss: M[8] and M[9] go in the empty line','Miss: they replace M[0] and M[1]','Hit'],answer:0,say:'Nothing is evicted this time.',fill:{d:'miss'}},
-  {label:'Read 0',ask:'Read 0 again. Set 0 holds tags 00 and 10.',options:['Hit','Miss'],answer:0,keep:true,say:'Block 0 is still there.',fill:{e:'hit'}}],
- explain:'Miss, hit, miss, miss, hit: one miss fewer than direct-mapped, because set 0 has room for both blocks.'},
-{prompt:'Both lines of a set are full, and a new block needs that set. What decides which line goes?',options:['The replacement policy, like LRU or random','The new block\'s tag','Nothing: the block goes into another set'],answer:0,explain:'A block can only live in its own set, so one of that set\'s lines has to go.'},
-{prompt:'Under LRU, which line is evicted?',options:['The one used longest ago','The one loaded most recently','Always line 0'],answer:0,explain:'Least recently used.'},
-{prompt:'Going from E = 1 to E = 2 with the same C usually gives',options:['fewer conflict misses, but two tags to compare on each read','more conflict misses','no tags to compare'],answer:0,explain:'More places for each block means fewer fights over a set.'},
-{prompt:'A cache whose single set holds every line (S = 1) is called',options:['fully associative','direct-mapped','2-way set associative'],answer:0,explain:'A block can go in any line.'},
-{prompt:'In the 2-way cache, which set does address 13 = 1101 use?',options:['Set 0','Set 1'],answer:0,keep:true,explain:'Split it 11 | 0 | 1: the set bit is 0.'}
+{vis:crMap(2),prompt:'With only 2 sets, which set does box 8–9 go in?',options:['Set 0','Set 1','Set 2','Set 4'],answer:0,explain:'Box 8–9 is in column 0.'},
+{vis:crMap(2),prompt:'And what is box 8–9\'s tag?',options:['2','1','4','8'],answer:0,explain:'It\'s in row 2.'},
+{prompt:'Set 0 holds box 0–1 in one line, and its other line is empty. You read byte 8. What happens?',options:['Miss: box 8–9 goes in the empty line, and nothing is kicked out','Miss: box 8–9 replaces box 0–1','Hit'],answer:0,explain:'That\'s the point of 2 lines: both boxes fit.'},
+{prompt:'Then you read byte 0 again. Hit or miss?',options:['Hit','Miss'],answer:0,keep:true,explain:'Box 0–1 is still in set 0.'},
+{prompt:'Set 0 is full: box 0–1 (last used at read 5) and box 8–9 (last used at read 4). Box 12–13 needs set 0. With LRU, which box is kicked out?',options:['Box 8–9, used longest ago','Box 0–1, used most recently','Both'],answer:0,explain:'Least recently used: read 4 was longer ago than read 5.'},
+{prompt:'Run the reads 0, 1, 7, 8, 0 on the 2-way cache.',board:rowBoard(['Read 0','Read 1','Read 7','Read 8','Read 0'],[{k:'a'},{k:'b'},{k:'c'},{k:'d'},{k:'e'}]),
+ guided:[{label:'Read 0',ask:'Read 0: box 0–1, set 0. Set 0 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Box 0–1 goes in one line of set 0.',fill:{a:'miss'}},
+  {label:'Read 1',ask:'Read 1: box 0–1.',options:['Hit','Miss'],answer:0,keep:true,say:'Already there.',fill:{b:'hit'}},
+  {label:'Read 7',ask:'Read 7: box 6–7, set 1. Set 1 is empty.',options:['Miss','Hit'],answer:0,keep:true,say:'Box 6–7 goes in set 1.',fill:{c:'miss'}},
+  {label:'Read 8',ask:'Read 8: box 8–9, set 0. Set 0 has box 0–1 and an empty line.',options:['Miss','Hit'],answer:0,keep:true,say:'Box 8–9 takes the empty line.',fill:{d:'miss'}},
+  {label:'Read 0',ask:'Read 0: box 0–1, set 0. Set 0 holds boxes 0–1 and 8–9.',options:['Hit','Miss'],answer:0,keep:true,say:'Still there.',fill:{e:'hit'}}],
+ explain:'Miss, hit, miss, miss, hit: one miss fewer than direct-mapped.'},
+{prompt:'Compared with 1 line per set, 2 lines per set (same total size) gives',options:['fewer conflict misses, but two lines to check on every read','more conflict misses','nothing to check'],answer:0,explain:'More room per set means fewer fights, but the cache has to check both lines.'},
+{prompt:'A cache with a single set, where any box can go in any line, is called',options:['fully associative','direct-mapped','2-way set associative'],answer:0,explain:'One set means one column: every box can go anywhere.'}
 ]},
 
-{id:'conflict',sec:'p11',name:'Conflict misses and padding',short:'Padding',shuffleOpts:true,
+{id:'conflict',sec:'p11',name:'When arrays collide',short:'Padding',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<p>Practice 11 uses a direct-mapped cache with <b>8 sets of 8-byte lines</b>, 64 bytes in all. Addresses a multiple of 64 apart share a set: set 3 holds 0x18–0x1F, or 0x58–0x5F, or 0x98–0x9F, and so on, but only one of them at a time.</p>
-<div class="rule-box">set = (address ÷ 8) mod 8</div>
-<p>So two arrays exactly 64 bytes apart fight over the same sets. In dotprod, x[i] and y[i] keep kicking each other out, and every read misses. That's called <b>thrashing</b>. The fix is to pad x, so y starts in a different set:</p>`+
+recap:'<b>Same column = same set = they fight.</b> If two arrays line up in the same columns, they keep kicking each other out (thrashing). Pad the first array so the second starts in a different column.',
+lesson:`<p>Practice 11 uses a bigger cache: <b>8 sets</b>, each holding one <b>8-byte box</b>. A float is 4 bytes, so each box holds <b>2 floats</b>, and one row of the map is 8 boxes, or 16 floats.</p>
+<p>dotprod reads x[0], y[0], x[1], y[1], and so on. Put y right after x, and see what happens:</p>`+
 codeBlock('float dotprod(float x[16], float y[16]) {\n    float sum = 0.0;\n    for (int i = 0; i < 16; i++)\n        sum += x[i] * y[i];\n    return sum;\n}')+
-toy('dotprod')+
-`<div class="tip"><span class="tl">Why half, not all</span>Each 8-byte line holds two floats. Reading x[0] misses and brings in x[1] too, so x[1] hits. Same for y.</div>`,
+toy('arrays')+
+`<div class="tip"><span class="tl">Remember it</span>Same column = same set = they fight. Pad the first array, and the second one shifts over to other columns.</div>`,
 qs:[
-{prompt:'A direct-mapped cache has 8 sets of 8-byte lines. Type how many bytes it holds.',input:true,dec:true,expect:'64',explain:'8 × 8 = 64.'},
-{prompt:'Same cache. Which set holds address 0x2C?',options:['5','2','4','6'],answer:0,explain:'0x2C = 44. 44 ÷ 8 = 5 (block 5), and 5 mod 8 = 5.'},
-{prompt:'Set 3 holds 0x18–0x1F, or 0x58–0x5F, or 0x98–0x9F. How far apart are those ranges?',options:['64 bytes, the size of the whole cache','8 bytes, one line','16 bytes'],answer:0,explain:'0x58 − 0x18 = 0x40 = 64.'},
-{prompt:'x[16] starts at 0 and y starts right after it, at 0x40. Which sets hold x[0] and y[0]?',options:['Both are in set 0','Set 0 and set 1','Set 0 and set 8'],answer:0,explain:'0x40 = 64 is block 8, and 8 mod 8 = 0, the same set as x[0].'},
-{prompt:'So in dotprod, which reads x[0], y[0], x[1], y[1], …, what fraction of the reads hit?',options:['0: every read misses','1/2','3/4'],answer:0,explain:'Each read of y evicts x\'s line, and the next read of x evicts y\'s. That\'s thrashing.'},
-{prompt:'Declare float x[20] instead. Where does y start now? Type it in hex.',input:true,expect:'0x50',explain:'20 floats × 4 bytes = 80 = 0x50.',traps:[{v:'0x80',msg:'80 is in decimal. In hex, it\'s 0x50.'},{v:'0x20',msg:'That\'s the number of floats. Each is 4 bytes: 80 bytes = 0x50.'}]},
-{prompt:'With y at 0x50, which set holds y[0]?',options:['2','0','10','5'],answer:0,explain:'0x50 = 80. 80 ÷ 8 = block 10, and 10 mod 8 = 2.'},
-{prompt:'Once x[i] and y[i] are in different sets, why do only half the reads hit?',options:['Each 8-byte line holds 2 floats: the first read of a line misses and the second hits','Half the cache is empty','A float is 8 bytes'],answer:0,explain:'x[0] misses and brings in x[1], so x[1] hits.'}
+{prompt:'A box in this cache is 8 bytes. How many floats does it hold?',options:['2','8','4','1'],answer:0,explain:'8 bytes ÷ 4 bytes per float = 2.'},
+{prompt:'One row of the map is 8 boxes. How many floats is that?',input:true,dec:true,expect:'16',explain:'8 boxes × 2 floats = 16 floats, or 64 bytes.'},
+{vis:arMap(16),prompt:'With float x[16], which column (set) is y[0] in?',options:['0, the same as x[0]','1','8'],answer:0,explain:'x fills row 0 exactly, so y starts back in column 0, right under x[0].'},
+{prompt:'So x[i] and y[i] are always in the same column. What happens in the loop?',options:['Every read kicks out the other array\'s box: all 32 reads miss','Half the reads hit','Every read hits'],answer:0,explain:'That\'s thrashing.'},
+{prompt:'float x[18] adds 2 dummy floats. Type the address where y starts now, in hex.',input:true,expect:'0x48',explain:'18 floats × 4 bytes = 72 bytes = 0x48.',traps:[{v:'0x72',msg:'72 is in decimal. In hex, it\'s 0x48.'},{v:'0x40',msg:'That\'s where y started with x[16]. Two more floats push it 8 bytes later.'}]},
+{vis:arMap(18),prompt:'With float x[18], which set holds y[0]?',options:['1','0','2','9'],answer:0,explain:'y[0] is now one column to the right of x[0].'},
+{prompt:'Once x[i] and y[i] are in different sets, why do only half the reads hit?',options:['Each box holds 2 floats: the first read of a box misses, the second hits','Half the cache is empty','Floats are 8 bytes'],answer:0,explain:'x[0] misses and brings x[1] in with it, so x[1] hits.'},
+{prompt:'With float x[20], which set holds y[0]?',options:['2','0','4','20'],answer:0,explain:'y starts at float 20, in box 10, and 10 % 8 = 2.'},
+{prompt:'Two addresses use the same set when they\'re how far apart?',options:['A multiple of 64 bytes, one whole row','8 bytes','16 bytes'],answer:0,explain:'Same column means a whole number of rows apart.'}
 ]},
 
 {id:'cwrite',sec:'p11',name:'What about writes?',short:'Writes',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<p>Reads are simple. Writes are harder, because copies of the same data sit in L1, L2, L3, main memory and on disk. A cache has to answer two questions:</p>`+
-cardPair('<b>On a write hit</b><p><b>Write-through</b>: write to the next lower level right away. Simple, but every write uses the bus.</p><p><b>Write-back</b>: just update the cache, and write the line out when it\'s evicted. It needs a <b>dirty bit</b> to remember the line has changed.</p>','<b>On a write miss</b><p><b>Write-allocate</b>: load the block into the cache, then update it there. Good if more writes to it follow.</p><p><b>No-write-allocate</b>: write straight to the next lower level, without loading the block.</p>')+
-`<div class="rule-box">Typical pairs: write-through + no-write-allocate, or write-back + write-allocate</div>`+
-toy('writes'),
+recap:'<b>Write-through</b>: through to memory, every time. <b>Write-back</b>: back to memory later, when the line is evicted; the <b>dirty bit</b> means memory is out of date. <b>Write-allocate</b>: on a write miss, bring the box into the cache first. Typical pairs: back + allocate, through + no-allocate.',
+lesson:`<p>Reading copies a box into the cache. But when the CPU <b>changes</b> a byte that's in the cache, memory still has the old value. So when does memory get the new one?</p>`+
+cardPair('<b>Write-through</b><p>Right away. Every write goes <b>through</b> to memory too. Simple, but every write uses the bus.</p>','<b>Write-back</b><p>Later. Only the cache changes, and a <b>dirty bit</b> remembers that memory is out of date. The value goes <b>back</b> to memory when the line is evicted.</p>')+
+`<p>And when the CPU writes something that <b>isn't</b> in the cache:</p>`+
+cardPair('<b>Write-allocate</b><p>Bring its box into the cache first, then write it there. Good if more writes to it follow.</p>','<b>No-write-allocate</b><p>Skip the cache and write straight to memory.</p>')+
+toy('wpol')+
+`<div class="rule-box">Typical pairs: write-back + write-allocate, or write-through + no-write-allocate</div>`,
 qs:[
-{prompt:'Write-through means',options:['every write hit is also written to the next lower level right away','the line is written to memory only when it\'s evicted','writes skip the cache'],answer:0,explain:'Simple, but every write uses the bus.'},
-{prompt:'Write-back means',options:['the line is written to memory only when it\'s evicted','every write goes straight to memory','the cache is never written'],answer:0,explain:'It defers the write until the line is replaced.'},
-{prompt:'What does the dirty bit say?',options:['The line has changed since it was loaded, so memory is out of date','The line is empty','The line was used recently'],answer:0,explain:'If it\'s set when the line is evicted, the line must be written back.'},
+{prompt:'Write-through means',options:['every write also goes to memory right away','memory gets the new value when the line is evicted','writes skip the cache'],answer:0,explain:'Through to memory, every time.'},
+{prompt:'Write-back means',options:['memory gets the new value later, when the line is evicted','every write goes straight to memory','the cache is never written'],answer:0,explain:'Back to memory later.'},
+{prompt:'What does the dirty bit say?',options:['The line has changed, so memory is out of date','The line is empty','The line was used recently'],answer:0,explain:'If it\'s on when the line is evicted, the line gets written back.'},
 {prompt:'Which policy needs a dirty bit?',options:['Write-back','Write-through'],answer:0,keep:true,explain:'Write-through keeps memory up to date, so there\'s nothing to remember.'},
-{prompt:'Write-allocate means that on a write miss, the cache',options:['loads the block, then updates it in the cache','writes straight to the next lower level','ignores the write'],answer:0,explain:'Good if more writes to that block follow.'},
-{prompt:'No-write-allocate means that on a write miss, the cache',options:['writes straight to the next lower level, without loading the block','loads the block first','evicts every line'],answer:0,explain:'The block stays out of the cache.'},
+{prompt:'Write-allocate means that on a write miss, the cache',options:['loads the box, then writes it in the cache','writes straight to memory','ignores the write'],answer:0,explain:'It makes room in the cache for it.'},
+{prompt:'No-write-allocate means that on a write miss, the cache',options:['writes straight to memory and leaves the cache alone','loads the box first','evicts every line'],answer:0,explain:'The box never enters the cache.'},
 {prompt:'Which of these is a typical pair?',options:['Write-back + write-allocate','Write-back + no-write-allocate','Write-through + write-allocate'],answer:0,explain:'The other typical pair is write-through + no-write-allocate.'},
 {prompt:'You write to x 10 times, then its line is evicted. With write-back, how many times is memory written? Type it.',input:true,dec:true,expect:'1',explain:'Once, at eviction. Write-through would write memory all 10 times.',traps:[{v:'10',msg:'That\'s write-through. Write-back only writes the line out when it\'s evicted.'}]},
-{prompt:'Why is write-through simple but slow?',options:['Every write uses the bus','It needs a dirty bit','It loads every block twice'],answer:0,explain:'Memory is always up to date, but the bus traffic adds up.'}
+{prompt:'Why is write-through simple but slow?',options:['Every write uses the bus','It needs a dirty bit','It loads every box twice'],answer:0,explain:'Memory is always up to date, but the trips add up.'}
 ]},
 
-{id:'cperf',sec:'p11',name:'Measuring a cache',short:'Performance',shuffleOpts:true,
+{id:'cperf',sec:'p11',name:'How fast is a cache?',short:'Speed',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<p>Three numbers describe how well a cache works:</p>
-<ul class="facts"><li><b>Miss rate</b> = misses ÷ accesses = 1 − hit rate. Typically 3–10% for L1, and it can be under 1% for L2.</li><li><b>Hit time</b>: how long a hit takes, including checking the tag. 1–2 cycles for L1, 5–20 for L2.</li><li><b>Miss penalty</b>: the extra time a miss costs. Typically 50–200 cycles for main memory, and growing.</li></ul>
-<div class="rule-box">average access time = hit rate × hit time + miss rate × miss penalty</div>
-<p>Your slide: hit time 1 cycle, miss penalty 100 cycles. With 97% hits, 0.97 × 1 + 0.03 × 100 ≈ <b>4 cycles</b>. With 99% hits, 0.99 × 1 + 0.01 × 100 ≈ <b>2 cycles</b>. So 99% hits is twice as fast as 97%, and that's why people quote the miss rate.</p>`+
-toy('amat')+
-`<h3>A real one: Intel Core i7</h3>
+recap:'Count 100 reads: hits cost the hit time, misses cost the miss penalty, and the average is the total ÷ 100. A miss costs as much as about 100 hits, so a few misses decide the speed.',
+lesson:`<p>How fast is a cache? Just count. Take <b>100 reads</b>: a hit takes about <b>1 cycle</b>, and a miss about <b>100 cycles</b>, because the box has to come from memory.</p>`+
+toy('hundred')+
+`<div class="rule-box rule-lines"><div>miss rate = misses ÷ reads</div><div>average time = hit rate × hit time</div><div>             + miss rate × miss penalty</div></div>
+<p>That's the same counting, divided by 100. 97 hits: 0.97 × 1 + 0.03 × 100 ≈ <b>4 cycles</b> a read. 99 hits: ≈ <b>2 cycles</b>. So going from 97% to 99% hits makes reads twice as fast.</p>
+<h3>A real one: Intel Core i7</h3>
 <div class="tbl-wrap"><table class="t"><thead><tr><th>Cache</th><th>Size</th><th>Ways</th><th>Access</th></tr></thead><tbody>
-<tr><td>L1 i-cache and d-cache, per core</td><td>32 KB</td><td>8-way</td><td>4 cycles</td></tr><tr><td>L2 unified, per core</td><td>256 KB</td><td>8-way</td><td>11 cycles</td></tr><tr><td>L3 unified, shared by all cores</td><td>8 MB</td><td>16-way</td><td>30–40 cycles</td></tr></tbody></table></div>
-<p class="fine">All three use 64-byte blocks.</p>
-<div class="tip"><span class="tl">Cache-friendly code</span>Focus on the inner loops. Reuse variables (temporal locality) and walk arrays with stride 1 (spatial locality).</div>`,
+<tr><td>L1, per core</td><td>32 KB</td><td>8-way</td><td>4 cycles</td></tr><tr><td>L2, per core</td><td>256 KB</td><td>8-way</td><td>11 cycles</td></tr><tr><td>L3, shared</td><td>8 MB</td><td>16-way</td><td>30–40 cycles</td></tr></tbody></table></div>
+<p class="fine">All three use 64-byte blocks. L1 is split into an i-cache for instructions and a d-cache for data.</p>
+<div class="tip"><span class="tl">Cache-friendly code</span>Focus on the inner loops. Reuse variables (temporal locality), and walk arrays with stride 1 (spatial locality).</div>`,
 qs:[
-{prompt:'Miss rate =',options:['misses ÷ accesses','hits ÷ misses','misses × miss penalty'],answer:0,explain:'It also equals 1 − hit rate.'},
+{prompt:'Miss rate =',options:['misses ÷ reads','hits ÷ misses','misses × miss penalty'],answer:0,explain:'It also equals 1 − hit rate.'},
 {prompt:'1,000 reads, and 30 of them miss. Type the miss rate, as a percent.',input:true,dec:true,expect:'3',explain:'30 ÷ 1,000 = 0.03 = 3%.'},
-{prompt:'The hit rate is 97%. What\'s the miss rate?',options:['3%','97%','0.97%'],answer:0,explain:'1 − 0.97 = 0.03.'},
-{prompt:'The miss penalty is',options:['the extra time a miss costs','the number of misses','the time a hit takes'],answer:0,explain:'Typically 50–200 cycles to get to main memory.'},
-{prompt:'Hit time 1 cycle, miss penalty 100 cycles, 99% hits. About how long is the average access?',options:['2 cycles','1 cycle','4 cycles','100 cycles'],answer:0,explain:'0.99 × 1 + 0.01 × 100 = 1.99, about 2 cycles.'},
-{prompt:'Hit time 2 cycles, miss penalty 50 cycles, 90% hits. Type the average access time in cycles.',input:true,num:true,expect:6.8,tol:0.01,show:'6.8 cycles',unit:'cycles',explain:'0.9 × 2 + 0.1 × 50 = 1.8 + 5 = 6.8 cycles.'},
-{prompt:'Why do people quote the miss rate, not the hit rate?',options:['Small changes in it change the speed a lot: going from 97% to 99% hits halves the time','The hit rate is always 100%','The miss rate is easier to measure'],answer:0,explain:'The slide\'s point: 99% hits is twice as good as 97%.'},
-{prompt:'On the Core i7, which cache is shared by all the cores?',options:['L3','L1','L2'],answer:0,explain:'L1 and L2 belong to each core.'},
-{prompt:'Writing cache-friendly code mostly means',options:['in inner loops, reuse variables and use stride-1 access','using bigger arrays','writing to memory less often by hand'],answer:0,explain:'Temporal locality plus spatial locality, where it counts.'}
+{prompt:'The hit rate is 97%. What\'s the miss rate?',options:['3%','97%','0.97%'],answer:0,explain:'100% − 97% = 3%.'},
+{prompt:'100 reads: 97 hits at 1 cycle, and 3 misses at 100 cycles. How many cycles in total?',options:['397','103','300','10,000'],answer:0,explain:'97 × 1 + 3 × 100 = 97 + 300 = 397.'},
+{prompt:'So the average read takes about',options:['4 cycles','1 cycle','100 cycles','397 cycles'],answer:0,explain:'397 ÷ 100 = 3.97, about 4.'},
+{prompt:'Hit time 1 cycle, miss penalty 100 cycles, 99% hits. About how long is the average read?',options:['2 cycles','1 cycle','4 cycles','100 cycles'],answer:0,explain:'99 + 100 = 199 cycles per 100 reads, about 2 each.'},
+{prompt:'Hit time 2 cycles, miss penalty 50 cycles, 90% hits. Type the average read time in cycles.',input:true,num:true,expect:6.8,tol:0.01,show:'6.8 cycles',unit:'cycles',hint:'Per 100 reads: 90 × 2 + 10 × 50.',explain:'90 × 2 + 10 × 50 = 680 cycles per 100 reads: 6.8 each.'},
+{prompt:'On the Core i7, which cache is shared by all the cores?',options:['L3','L1','L2'],answer:0,explain:'Each core has its own L1 and L2.'},
+{prompt:'Writing cache-friendly code mostly means',options:['in inner loops, reuse variables and use stride-1 access','using bigger arrays','avoiding loops'],answer:0,explain:'Temporal locality plus spatial locality, where it counts.'}
 ]},
 
 {id:'cls11',sec:'p11',name:'Class Practice 11',short:'Class P11',shuffleOpts:true,
@@ -4570,15 +4835,15 @@ var SECTIONS=[
    '<h3>Hits and misses</h3><ul class="facts"><li>Data moves in whole blocks. Hit: the block is in the cache. Miss: copy it in, evicting a victim if needed (LRU, FIFO or random).</li><li><b>Cold</b>: the first use. <b>Conflict</b>: blocks fight over one set (0, 8, 0, 8, …). <b>Capacity</b>: the working set is bigger than the cache.</li></ul>'+
    '<h3>Reading a byte (Practice 11, Q1–Q2)</h3><p>Read an address like the memory map: <b>tag = row, set = column, offset = place in the box</b>. Then <b>go, check, grab</b>:</p><ol class="steps"><li>Write the address in binary. CO = the low b bits, CI = the next s bits, CT = the rest.</li><li>Go to set CI.</li><li>Hit only if a line there has valid = 1 and tag = CT.</li><li>On a hit, return the byte at offset CO. On a miss, the answer is ---.</li></ol>'},
   {id:'p11',part:'Part 11',name:'Cache Misses',src:'L07 parts 2–3 · In-Class Practice 11',next:'p12',
-   intro:'Part 11 runs a cache for real. Step through the slides\' direct-mapped and 2-way simulations, watch conflict misses happen and padding fix them, then see what writes do and how to measure a cache. Then all five Practice 11 questions, step by step.',
+   intro:'Part 11 puts the cache to work, on the same memory map as Part 10. Start with an empty cache and watch misses fill it, give each set room for two boxes, untangle two arrays that collide, then see what writes do and how fast a cache is. Then all five Practice 11 questions, step by step.',
    after:'or move on to Part 12.',
-   path:[['dmsim','sasim','Run a cache','The slides\' direct-mapped and 2-way simulations, one read at a time.'],['conflict','cperf','Misses and speed','Conflict misses and padding, writes, and average access time.'],['cls11','cls11','Class questions','All five Practice 11 questions: the 0x0E34 lookup, then the direct-mapped cache.'],['ex11','ex11','Exam-style practice','New traces, miss rates and write policies.']],
-   sheet:'<h3>Running a cache</h3><p>The slides\' machine: 4-bit addresses, B = 2. Direct-mapped (S = 4): t = 1, s = 2, b = 1, and reads 0, 1, 7, 8, 0 go miss, hit, miss, miss, miss. 2-way (S = 2, E = 2): t = 2, s = 1, b = 1, and the same reads go miss, hit, miss, miss, hit.</p>'+
-   '<h3>Conflict misses (Practice 11, Q5)</h3><p>set = (address ÷ B) mod S. Addresses a whole cache size apart share a set, so arrays that line up thrash. Padding the first array shifts the second into other sets.</p>'+
+   path:[['dmsim','sasim','Run a cache','Start empty: you decide hit or miss for each read. One box per set, then two.'],['conflict','cperf','Misses and speed','Arrays that collide, what writes do, and counting how fast a cache is.'],['cls11','cls11','Class questions','All five Practice 11 questions: the 0x0E34 lookup, then the direct-mapped cache.'],['ex11','ex11','Exam-style practice','New traces, miss rates and write policies.']],
+   sheet:'<h3>Running a cache</h3><p>A miss copies the <b>whole box</b> into its set (tag = its row), so the next byte in that box hits. Direct-mapped: one box per set, so boxes in the same column fight (<b>conflict misses</b>). 2-way: two boxes per set, and when it\'s full, <b>LRU</b> evicts the one used longest ago.</p><p>The slides\' machine: 16 bytes, boxes of 2. Direct-mapped (S = 4): t = 1, s = 2, b = 1, and reads 0, 1, 7, 8, 0 go miss, hit, miss, miss, miss. 2-way (S = 2, E = 2): t = 2, s = 1, b = 1, and the same reads go miss, hit, miss, miss, hit.</p>'+
+   '<h3>Conflict misses (Practice 11, Q5)</h3><p><b>Same column = same set = they fight.</b> set = (address ÷ B) mod S, so addresses a whole row (the cache size) apart share a set. Arrays that line up thrash. Padding the first array shifts the second into other columns.</p>'+
    T_([['Write-through','on a write hit, write the next level now','simple, but bus traffic on every write'],['Write-back','write the line out when it\'s evicted','needs a dirty bit'],['Write-allocate','on a write miss, load the block, then update it','good if more writes follow'],['No-write-allocate','on a write miss, write straight down','the block isn\'t loaded']],['Policy','What it does','Note'])+
-   '<p>Typical pairs: write-through + no-write-allocate, or write-back + write-allocate.</p>'+
+   '<p>Through = through to memory every time. Back = back to memory later; dirty = memory is out of date. Typical pairs: write-through + no-write-allocate, or write-back + write-allocate.</p>'+
    '<div class="rule-box">miss rate = misses ÷ accesses = 1 − hit rate<br>average access time = hit rate × hit time + miss rate × miss penalty</div>'+
-   '<p>Hit time 1, miss penalty 100: 97% hits ≈ 4 cycles, 99% ≈ 2 cycles. Core i7: L1 32 KB 8-way (4 cycles), L2 256 KB 8-way (11), L3 8 MB 16-way and shared (30–40), all with 64-byte blocks.</p>'},
+   '<p>Count 100 reads: 97 hits × 1 + 3 misses × 100 = 397 cycles, about 4 a read. 99% hits ≈ 2 cycles. Core i7: L1 32 KB 8-way (4 cycles), L2 256 KB 8-way (11), L3 8 MB 16-way and shared (30–40), all with 64-byte blocks.</p>'},
   {id:'p12',part:'Part 12',name:'Virtual Memory',src:'L08 part 1 · In-Class Practice 12',next:'rev',
    intro:'Part 12 starts virtual memory: the addresses a program uses aren\'t the real ones. See what the MMU does, then count address spaces: n bits give N = 2ⁿ addresses. Then Practice 12\'s table, one row at a time.',
    after:'or try the Parts 10–12 mix.',
