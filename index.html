@@ -867,6 +867,39 @@ button.crl{cursor:pointer;border:1.5px dashed var(--accent)}
 .hgrid{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:2px;max-width:420px;margin-block:8px}
 .hgrid i{display:block;aspect-ratio:1;border-radius:2px;background:var(--good-soft);border:1px solid var(--good)}
 .hgrid i.m{background:var(--bad);border-color:var(--bad)}
+/* v8.5: step-by-step walkthroughs */
+.chips.ask{margin-top:4px}
+.chip.good{background:var(--good-soft);border-color:var(--good);color:var(--good);font-weight:700}
+.chip.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.chip:disabled{cursor:default}
+.ask-q{margin-bottom:2px}
+.vm-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-block:6px}
+.vm-mmu{border:1.5px solid var(--accent);border-radius:10px;background:var(--accent-soft);padding:6px 10px;margin-block:6px;font-family:var(--font-code);font-size:13px;display:grid;gap:2px;min-width:0}
+.vm-mmu-h{font-family:inherit;font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.vm-row{display:grid;grid-template-columns:auto auto auto;justify-content:start;gap:8px;padding:2px 4px;border-radius:5px}
+.vm-row.on{background:var(--panel);outline:2px solid var(--accent)}
+.vmem{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;max-width:420px;margin-block:4px 8px}
+.vm-c{font:inherit;font-family:var(--font-code);font-size:13px;min-height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink)}
+button.vm-c{cursor:pointer}
+button.vm-c:hover{border-color:var(--accent)}
+.vm-c.on{background:var(--src-soft);border-color:var(--src);font-weight:700;outline:2px solid var(--src);outline-offset:-1px}
+.vm-c.mk{background:var(--sunk);color:var(--muted)}
+.bl-list{display:flex;flex-wrap:wrap;gap:4px;margin-block:4px 8px}
+.bl-list span{font-family:var(--font-code);font-size:13.5px;padding:4px 7px;border-radius:6px;background:var(--src-soft);border:1px solid var(--src)}
+.ladder{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;max-width:440px;margin-block:8px}
+.ld{display:grid;justify-items:center;gap:2px;padding:8px 2px;border-radius:9px;border:1.5px dashed var(--line);background:var(--sunk);font-family:var(--font-code)}
+.ld b{font-size:14px}
+.ld span{font-size:13px;color:var(--muted)}
+.ld.on{border:1.5px solid var(--accent);background:var(--accent-soft)}
+.ld.on span{color:var(--accent);font-weight:700}
+.bl-build{font-family:var(--font-code);font-size:18px}
+.lad2{display:grid;gap:6px;margin-block:8px;max-width:460px}
+.l2r{display:grid;grid-template-columns:4.6em 4.2em minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13.5px}
+.l2r b{font-family:var(--font-code)}
+.l2s{color:var(--muted);font-size:12.5px}
+.l2b{display:block;height:12px;border-radius:6px;background:var(--sunk);overflow:hidden}
+.l2b i{display:block;height:100%;background:var(--accent);border-radius:6px}
+.l2c{font-family:var(--font-code);font-size:12.5px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -2445,93 +2478,6 @@ function arMap(X,o){
     h+='<span class="mm-b arb arc '+(L1?L1.c:'a0')+(o.hlCol===c?' sel':'')+'">'+(L1?'<b>'+L1.t+'</b><b>'+L2.t+'</b>':'<b>–</b>')+'</span>';}}
   return h+'</div>';
 }
-TOYDEF.arrays={title:'Try it · dotprod in Practice 11\'s cache',
-  init:function(){return {stg:1,X:16,k:0,ok:{},msg:'',sel:null};},
-  out:function(st){
-    var g=st.stg, X=st.X, run=arRun(X,st.k), last=run.res[run.res.length-1], inC={}, TT=['','Where does y start?','Run the loop','Pad x by two floats','Run it again'], h, i;
-    run.slots.forEach(function(b){if(b!=null)inC[b]=1;});
-    h=(g<5?'<div class="mm-step">Step '+g+' of 4</div><p class="mm-title">'+TT[g]+'</p>':'<p class="mm-title">Try other sizes</p>');
-    if(g===1||g===3){
-      h+=g===1?'<p>Here\'s memory with <b>float x[16]</b> at address 0 and y right after it. Each box is 8 bytes, so it holds 2 floats. x fills row 0 exactly.</p>':'<p>Now declare <b>float x[18]</b>: two dummy floats at the end of x. That pushes y 8 bytes later.</p>';
-      if(!st.ok[g])h+='<p class="tr-note"><b>Tap the box that holds y[0].</b></p>';
-      h+=arMap(X,{tap:!st.ok[g],sel:st.ok[g]?(X>>1):null,hlCol:st.ok[g]?((X>>1)&7):null});
-      if(st.msg)h+='<p class="bc-msg">'+st.msg+'</p>';
-      if(st.ok[g])h+='<p class="tr-note">'+(g===1?'y[0] is right under x[0], in <b>column 0</b>. Same column, same set. So x[0] and y[0] need the same spot in the cache.':'Now y[0] is in <b>column 1</b>, one column to the right of x[0]. x[i] and y[i] no longer share a set.')+'</p>';
-    } else {
-      var done=st.k>=32, hits=run.res.filter(function(r){return r.hit;}).length;
-      h+=g===2?'<p>The loop reads x[0], y[0], x[1], y[1], and so on. The cache row under the map shows which box each set holds.</p>':g===4?'<p>Same loop, with float x[18].</p>':'<p>Pick a size for x, then run the loop.</p>'+chipRow('Declare','X',[16,17,18,20],X,function(v){return 'x['+v+']';});
-      h+=arMap(X,{sel:last?last.b:null,hlCol:last?last.s:null,inC:inC,slots:run.slots});
-      if(last){var nm=(last.w?'y':'x')+'['+last.i+']';
-        var bl=function(bb){var P=arLab(2*bb,X),Q=arLab(2*bb+1,X);return '<code>'+P.t+(Q.t?' '+Q.t:'')+'</code>';};
-        h+='<p class="tr-note">Read '+nm+': its box, '+bl(last.b)+', is in set '+last.s+'. '+(last.hit?'Set '+last.s+' already holds it: <b class="ok">hit</b>.':last.old==null?'Set '+last.s+' is empty: <b class="no">miss</b>, so '+bl(last.b)+' moves in.':'Set '+last.s+' holds '+bl(last.old)+': <b class="no">miss</b>. '+bl(last.b)+' moves in and kicks '+bl(last.old)+' out.')+'</p>';}
-      h+='<div class="dp" aria-label="Hits and misses so far"><span class="dp-l">x[i]</span><div class="dp-row">';
-      for(i=0;i<16;i++){var rx=run.res[2*i];h+='<span class="'+(rx?(rx.hit?'h':'m'):'')+'">'+(rx?(rx.hit?'H':'M'):'·')+'</span>';}
-      h+='</div><span class="dp-l">y[i]</span><div class="dp-row">';
-      for(i=0;i<16;i++){var ry=run.res[2*i+1];h+='<span class="'+(ry?(ry.hit?'h':'m'):'')+'">'+(ry?(ry.hit?'H':'M'):'·')+'</span>';}
-      h+='</div></div>';
-      if(done)h+='<p class="tr-note"><b>'+hits+' of 32 reads hit: '+(hits===0?'0':hits===16?'1/2':hits+'/32')+'.</b> '+(hits===0?'x[i] and y[i] keep kicking each other out of the same set. That\'s called <b>thrashing</b>.':hits===16?'Each box holds 2 floats, so the first read of a box misses and brings both in, and the second read hits.':'')+'</p>';
-      h+='<div class="toy-btns">'+(done?'':'<button class="btn sm" data-ta="step">Next read ▶</button><button class="btn sm ghost" data-ta="all">Run all</button>')+'</div>';
-    }
-    var b='';
-    if(g>1&&g<5)b+='<button class="btn sm ghost" data-ta="back">◀ Back</button>';
-    if(g<4)b+='<button class="btn sm" data-ta="next"'+(st.ok[g]?'':' disabled')+'>Next step ▶</button>';
-    if(g===4&&st.ok[4])b+='<button class="btn sm" data-ta="next">Try other sizes ▶</button>';
-    return h+'<div class="toy-btns">'+b+'</div>';
-  },
-  act:function(st,a){
-    var p=a.split(':'),k=p[0],v=+p[1],g=st.stg;
-    st.msg='';
-    if(k==='next'&&(st.ok[g]||g===4)){st.stg++;st.X=st.stg>=3?18:16;st.k=0;if(st.stg===5)st.X=18;return;}
-    if(k==='back'&&g>1){st.stg--;st.X=st.stg>=3?18:16;st.k=0;return;}
-    if(k==='box'&&(g===1||g===3)&&!st.ok[g]){var want=st.X>>1;if(v===want)st.ok[g]=1;else{var A=arLab(2*v,st.X),B2=arLab(2*v+1,st.X);st.msg=(A.t?'That box holds <code>'+A.t+'</code>'+(B2.t?' and <code>'+B2.t+'</code>':'')+(A.c==='ap'?', the 2 dummy floats':'')+'. ':'That box is empty. ')+'y starts right after x ends'+(st.X>16?', after the dummy floats':'')+'. Look for y0.';}return;}
-    if(k==='step'&&st.k<32){st.k++;if(st.k>=32)st.ok[g]=1;return;}
-    if(k==='all'){st.k=32;st.ok[g]=1;return;}
-    if(k==='X'){st.X=v;st.k=0;}
-  }};
-
-/* L86: write policies. Write hit: through vs back. Write miss: allocate vs no-allocate. */
-TOYDEF.wpol={title:'Try it · what happens on a write',
-  init:function(){return {mode:'hit',t:{c:5,m:5,trips:0,inC:1},b:{c:5,m:5,trips:0,dirty:0,inC:1},al:{c:null,m:0,trips:0,inC:0},na:{c:null,m:0,trips:0,inC:0},note:''};},
-  out:function(st){
-    var h='<div class="seg" role="group" aria-label="Which kind of write"><button data-ta="mode:hit" class="'+(st.mode==='hit'?'on':'')+'" aria-pressed="'+(st.mode==='hit')+'">Write hit</button><button data-ta="mode:miss" class="'+(st.mode==='miss'?'on':'')+'" aria-pressed="'+(st.mode==='miss')+'">Write miss</button></div>';
-    var panel=function(title,z,name,dirty){
-      var stale=z.inC&&z.c!==z.m;
-      return '<div class="cbox wp"><b>'+title+'</b>'+
-        '<div class="wp-row"><span>Cache</span><span class="wp-v'+(z.inC?'':' none')+'">'+(z.inC?name+' = '+z.c:'not in the cache')+(dirty!=null&&z.inC?' <span class="wp-d'+(dirty?' on':'')+'">dirty '+dirty+'</span>':'')+'</span></div>'+
-        '<div class="wp-row"><span>Memory</span><span class="wp-v'+(stale?' old':'')+'">'+name+' = '+z.m+(stale?' <em>out of date</em>':'')+'</span></div>'+
-        '<div class="wp-row"><span>Trips to memory</span><span class="wp-v"><b>'+z.trips+'</b></span></div></div>';};
-    if(st.mode==='hit'){
-      h+='<p class="fine">x is already in the cache. Change it a few times, then evict its line.</p><div class="pair2">'+panel('Write-through',st.t,'x',null)+panel('Write-back',st.b,'x',st.b.dirty)+'</div>'+
-        '<div class="toy-btns"><button class="btn sm" data-ta="w">x = x + 1</button><button class="btn sm ghost" data-ta="e">Evict x\'s line</button></div>';
-    } else {
-      h+='<p class="fine">y is not in the cache. Write it a few times.</p><div class="pair2">'+panel('Write-allocate',st.al,'y',null)+panel('No-write-allocate',st.na,'y',null)+'</div>'+
-        '<div class="toy-btns"><button class="btn sm" data-ta="wy">y = y + 1</button></div>';
-    }
-    if(st.note)h+='<p class="tr-note">'+st.note+'</p>';
-    return h+'<div class="toy-btns"><button class="link" data-ta="reset">Start over</button></div>';
-  },
-  act:function(st,a){
-    var t=st.t,b=st.b;
-    if(a==='reset'){var n=TOYDEF.wpol.init(),mode=st.mode;for(var k in n)st[k]=n[k];st.mode=mode;return;}
-    if(a.indexOf('mode:')===0){st.mode=a.slice(5);st.note='';return;}
-    if(a==='w'){
-      if(!t.inC||!b.inC){st.note='x isn\'t in the cache anymore, so writing it now would be a write miss. Try the Write miss tab, or start over.';return;}
-      t.c++;t.m=t.c;t.trips++;b.c++;b.dirty=1;
-      st.note='<b>Write-through</b> sends the new x on to memory right away. <b>Write-back</b> only changes the cache and turns its dirty bit on: memory is now out of date.';}
-    else if(a==='e'){
-      if(!t.inC&&!b.inC){st.note='x isn\'t in the cache right now. Write to it first.';return;}
-      var wb=b.inC&&b.dirty;
-      if(wb){b.m=b.c;b.trips++;}
-      t.inC=0;b.inC=0;b.dirty=0;
-      st.note='<b>Write-through</b>: memory already has the newest x, so nothing to do. <b>Write-back</b>: '+(wb?'the line is dirty, so x is written back to memory now, one trip.':'the line isn\'t dirty, so nothing to do.');}
-    else if(a==='wy'){
-      var al=st.al,na=st.na,first=!al.inC;
-      if(!al.inC){al.inC=1;al.c=al.m;al.trips++;}
-      al.c++;
-      na.m++;na.trips++;
-      st.note=(first?'<b>Write-allocate</b> misses, so it loads y\'s box into the cache (one trip), then writes y there. ':'<b>Write-allocate</b>: y is in the cache now, so this write is a hit. No trip. ')+'<b>No-write-allocate</b> writes straight to memory every time, and y never enters the cache.';}
-  }};
-
 /* L87: count 100 reads */
 TOYDEF.hundred={title:'Try it · 100 reads',
   init:function(){return {miss:3,ht:1,mp:100};},
@@ -2546,6 +2492,294 @@ TOYDEF.hundred={title:'Try it · 100 reads',
       '<p class="tr-note">The '+m+' red miss'+(m>1?'es':'')+' cost '+fmtNum(B)+' cycles'+(B>A?', more than all '+hits+' green hits together ('+fmtNum(A)+').':'.')+'</p>';
   },
   act:function(st,a){var p=a.split(':');st[p[0]]=+p[1];}};
+/* ---------- v8.5: L85-L87 and L90-L91 as step-by-step walkthroughs ---------- */
+function stepHead(g,n,title){return '<div class="mm-step">Step '+g+' of '+n+'</div><p class="mm-title">'+title+'</p>';}
+function stepNav(st,n,canNext,extra){var b='';if(st.stg>1)b+='<button class="btn sm ghost" data-ta="back">◀ Back</button>';if(st.stg<n)b+='<button class="btn sm" data-ta="next"'+(canNext?'':' disabled')+'>Next step ▶</button>';return '<div class="toy-btns">'+b+(extra||'')+'</div>';}
+/* a multiple-choice question inside a toy: key:i buttons; picked = index tapped last, right = correct index */
+function chipAsk(q,opts,key,picked,right){
+  return '<p class="tr-note ask-q"><b>'+q+'</b></p><div class="chips ask">'+opts.map(function(o,i){var c='chip'+(picked===i?(i===right?' good':' wrong'):'');return '<button class="'+c+'" data-ta="'+key+':'+i+'"'+(picked===right?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>';
+}
+function msgP(st){return st.msg?'<p class="bc-msg" role="status">'+st.msg+'</p>':'';}
+
+/* ===== L85: dotprod, step by step, with predictions ===== */
+function arBl(X,bb){var P=arLab(2*bb,X),Q=arLab(2*bb+1,X);return '<code>'+P.t+(Q.t?' '+Q.t:'')+'</code>';}
+function arWhy(X,k){
+  var r=arRun(X,k+1).res[k], nm=(r.w?'y':'x')+'['+r.i+']';
+  if(r.hit)return 'Read '+nm+': its box, '+arBl(X,r.b)+', is in set '+r.s+', and set '+r.s+' still holds it. <b class="ok">Hit.</b>';
+  if(r.old==null)return 'Read '+nm+': its box, '+arBl(X,r.b)+', goes in set '+r.s+'. Set '+r.s+' is empty: <b class="no">miss</b>. '+arBl(X,r.b)+' moves in.';
+  return 'Read '+nm+': its box, '+arBl(X,r.b)+', goes in set '+r.s+'. But set '+r.s+' holds '+arBl(X,r.old)+': <b class="no">miss</b>. '+arBl(X,r.b)+' moves in and kicks '+arBl(X,r.old)+' out.';
+}
+function arStrip(run){
+  var h='<div class="dp" aria-label="Hits and misses so far"><span class="dp-l">x[i]</span><div class="dp-row">',i;
+  for(i=0;i<16;i++){var rx=run.res[2*i];h+='<span class="'+(rx?(rx.hit?'h':'m'):'')+'">'+(rx?(rx.hit?'H':'M'):'·')+'</span>';}
+  h+='</div><span class="dp-l">y[i]</span><div class="dp-row">';
+  for(i=0;i<16;i++){var ry=run.res[2*i+1];h+='<span class="'+(ry?(ry.hit?'h':'m'):'')+'">'+(ry?(ry.hit?'H':'M'):'·')+'</span>';}
+  return h+'</div></div>';
+}
+TOYDEF.arrays={title:'Try it · dotprod in Practice 11\'s cache',
+  init:function(){return {stg:1,X:16,k:0,ok:{},msg:'',note:'',fx:18};},
+  out:function(st){
+    var g=st.stg,X=st.X,N=6,TT=['','Floats come in pairs','Where does y start?','Predict the loop','Pad x with two floats','Predict again','Your Practice 11 answers'],h=stepHead(g,N,TT[g]);
+    var run=arRun(X,st.k),inC={},last=run.res[run.res.length-1];
+    run.slots.forEach(function(b){if(b!=null)inC[b]=1;});
+    if(g===1){
+      h+='<p>Each box is 8 bytes and a float is 4 bytes, so <b>each box holds 2 floats</b>. Here\'s float x[16] starting at address 0, with y right after it.</p>';
+      if(!st.ok[1])h+='<p class="tr-note"><b>Tap the box that holds x[5].</b></p>';
+      h+=arMap(X,{tap:!st.ok[1],sel:st.ok[1]?2:null})+msgP(st);
+      if(st.ok[1])h+='<p class="tr-note">Right: x[4] and x[5] share a box. Floats come in pairs, x[0] and x[1], x[2] and x[3], and so on. One row of 8 boxes holds 16 floats.</p>';
+    } else if(g===2||g===4){
+      h+=g===2?'<p>x has 16 floats, so it fills row 0 exactly. y starts right after x ends.</p>':'<p>Now declare <b>float x[18]</b>: 2 dummy floats at the end of x (the gray boxes). That pushes y 8 bytes later.</p>';
+      if(!st.ok[g])h+='<p class="tr-note"><b>Tap the box that holds y[0].</b></p>';
+      h+=arMap(X,{tap:!st.ok[g],sel:st.ok[g]?(X>>1):null,hlCol:st.ok[g]?((X>>1)&7):null})+msgP(st);
+      if(st.ok[g])h+='<p class="tr-note">'+(g===2?'y[0] is right under x[0], in <b>column 0</b>. Same column means same set, so x[i] and y[i] need the same spot in the cache.':'Now y[0] is in <b>column 1</b>, one column to the right of x[0]. x[i] and y[i] are in different sets.')+'</p>';
+    } else if(g===3||g===5){
+      h+=g===3?'<p>The loop reads x[0], y[0], x[1], y[1], and so on. The <b>cache</b> row under the map shows which box each set holds. <b>Predict the first 4 reads.</b></p>':'<p>Same loop, now with float x[18]. <b>Predict the first 4 reads again.</b></p>';
+      h+=arMap(X,{sel:last?last.b:null,hlCol:last?last.s:null,inC:inC,slots:run.slots});
+      if(st.note)h+='<p class="tr-note">'+st.note+'</p>';
+      if(st.k<4){var nx=arRun(X,st.k+1).res[st.k];h+='<p class="tr-note ask-q"><b>Read '+(nx.w?'y':'x')+'['+nx.i+']: hit or miss?</b></p><div class="toy-btns"><button class="btn sm" data-ta="p:hit">Hit</button><button class="btn sm" data-ta="p:miss">Miss</button></div>'+msgP(st);}
+      else if(st.k<32)h+='<p class="tr-note">'+(g===3?'See the pattern? Every read kicks the other array\'s box out, so even x[1] misses.':'See the pattern? Miss, miss, hit, hit, over and over.')+'</p><div class="toy-btns"><button class="btn sm" data-ta="all">Run the other 28 reads ▶</button></div>';
+      else{var hits=run.res.filter(function(r){return r.hit;}).length;h+='<p class="tr-note"><b>'+hits+' of 32 reads hit: '+(hits===0?'0':'1/2')+'.</b> '+(hits===0?'x[i] and y[i] keep kicking each other out of the same set. That\'s called <b>thrashing</b>.':'Each box holds 2 floats: the first read of a box misses and brings both in, so the second read hits.')+'</p>';}
+      h+=arStrip(run);
+    } else {
+      h+='<p>Practice 11 Q5 uses float x[18]. You just worked out both answers:</p><ul class="facts"><li>y starts at 18 × 4 = 72 = 0x48, in box 9. 9 mod 8 = 1, so <b>y starts in set 1</b>.</li><li>Every box misses once, then hits once, so <b>1/2</b> of the reads hit.</li></ul><p class="fine">Try other sizes for x:</p>'+
+        chipRow('Declare','fx',[16,17,18,20],st.fx,function(v){return 'float x['+v+']';});
+      var fr=arRun(st.fx,32),fh=fr.res.filter(function(r){return r.hit;}).length,inF={};fr.slots.forEach(function(b){if(b!=null)inF[b]=1;});
+      h+=arMap(st.fx,{slots:fr.slots,inC:inF})+arStrip(fr)+'<p class="tr-note">With float x['+st.fx+'], y starts in set '+((st.fx>>1)&7)+', and '+fh+' of 32 reads hit'+(fh===0?': thrashing.':fh===16?': 1/2.':'.')+'</p>';
+    }
+    return h+stepNav(st,N,!!st.ok[g]);
+  },
+  act:function(st,a){
+    var p=a.split(':'),k=p[0],v=+p[1],g=st.stg;
+    st.msg='';
+    if(k==='next'&&st.ok[g]&&g<6){st.stg++;st.X=st.stg>=4?18:16;st.k=0;st.note='';return;}
+    if(k==='back'&&g>1){st.stg--;st.X=st.stg>=4?18:16;st.k=0;st.note='';return;}
+    if(k==='box'){
+      if(g===1&&!st.ok[1]){if(v===2)st.ok[1]=1;else{var A=arLab(2*v,st.X),B=arLab(2*v+1,st.X);st.msg='That box holds <code>'+A.t+'</code>'+(B.t?' and <code>'+B.t+'</code>':'')+'. x[5] is in the box with x[4].';}}
+      else if((g===2||g===4)&&!st.ok[g]){if(v===(st.X>>1))st.ok[g]=1;else{var C=arLab(2*v,st.X),D=arLab(2*v+1,st.X);st.msg=(C.t?'That box holds <code>'+C.t+'</code>'+(D.t?' and <code>'+D.t+'</code>':'')+(C.c==='ap'?', the dummy floats':'')+'. ':'That box is empty. ')+'y starts right after x ends'+(st.X>16?', after the dummy floats':'')+'. Look for y0.';}}
+      return;}
+    if(k==='p'&&(g===3||g===5)&&st.k<4){var r=arRun(st.X,st.k+1).res[st.k],why=arWhy(st.X,st.k);
+      if(p[1]===(r.hit?'hit':'miss')){st.k++;st.note=why;}else st.msg='Not quite. '+why;return;}
+    if(k==='all'&&(g===3||g===5)){st.k=32;st.ok[g]=1;st.note='';return;}
+    if(k==='fx'){st.fx=v;}
+  }};
+
+/* ===== L86: writes, predict then see ===== */
+TOYDEF.wsteps={title:'Try it · what happens on a write',
+  init:function(){return {stg:1,ok:{},msg:'',n:0,c:5,m:5,dirty:0,trips:0,inC:1,ev:0,q:0,pk:null};},
+  out:function(st){
+    var g=st.stg,N=5,TT=['','Write-through','Write-back','Writing something not in the cache: write-allocate','Writing something not in the cache: no-write-allocate','Which go together?'],h=stepHead(g,N,TT[g]), nm=g>=3?'y':'x';
+    var panel=function(){var stale=st.inC&&st.c!==st.m;
+      return '<div class="cbox wp">'+
+        '<div class="wp-row"><span>Cache</span><span class="wp-v'+(st.inC?'':' none')+'">'+(st.inC?nm+' = '+st.c:'not in the cache')+(g===2&&st.inC?' <span class="wp-d'+(st.dirty?' on':'')+'">dirty '+st.dirty+'</span>':'')+'</span></div>'+
+        '<div class="wp-row"><span>Memory</span><span class="wp-v'+(stale?' old':'')+'">'+nm+' = '+st.m+(stale?' <em>out of date</em>':'')+'</span></div>'+
+        '<div class="wp-row"><span>Trips to memory</span><span class="wp-v"><b>'+st.trips+'</b></span></div></div>';};
+    var wbtn=function(max){return st.n<max?'<div class="toy-btns"><button class="btn sm" data-ta="w">'+nm+' = '+nm+' + 1</button></div><p class="fine">Writes so far: '+st.n+' of '+max+'</p>':'';};
+    if(g===1){
+      h+='<p>x is in the cache. With <b>write-through</b>, every write goes <b>through</b> to memory too. <b>Write to x 3 times.</b></p>'+panel()+wbtn(3);
+      if(st.n>=3)h+=chipAsk('How many trips to memory did those 3 writes take?',['0','1','3'],'a',st.pk,2);
+      if(st.ok[1])h+='<p class="tr-note">3. Every write was also sent to memory, so memory always matches the cache. Simple, but it uses the bus every time.</p>';
+    } else if(g===2){
+      h+='<p>Same x, now with <b>write-back</b>: only the cache changes, and a <b>dirty bit</b> turns on, like the dot on a file tab with unsaved changes. <b>Write to x 3 times.</b></p>'+panel()+wbtn(3);
+      if(st.n>=3&&st.q===0)h+=chipAsk('How many trips to memory so far?',['0','1','3'],'a',st.pk,0);
+      if(st.q>=1)h+='<p class="tr-note">0. Memory still says x = 5. It\'s out of date, and the dirty bit remembers that.</p>'+(st.ev?'':'<div class="toy-btns"><button class="btn sm" data-ta="ev">Evict x\'s line</button></div>');
+      if(st.ev&&st.q===1)h+=chipAsk('How many trips did the eviction take?',['0','1','3'],'a',st.pk,1);
+      if(st.ok[2])h+='<p class="tr-note">1. The newest x went <b>back</b> to memory once, when the line left the cache. 3 writes, but only 1 trip.</p>';
+    } else if(g===3){
+      h+='<p>Now write to y, which <b>isn\'t</b> in the cache. With <b>write-allocate</b>, a write miss first loads y\'s box into the cache, then writes it there. <b>Write to y twice.</b></p>'+panel()+wbtn(2);
+      if(st.n>=2)h+=chipAsk('How many trips to memory did the 2 writes take?',['2','1','0'],'a',st.pk,1);
+      if(st.ok[3])h+='<p class="tr-note">1: loading y\'s box on the first write. After that, y is in the cache, so the second write is a hit.</p>';
+    } else if(g===4){
+      h+='<p>Same y, not in the cache. With <b>no-write-allocate</b>, a write miss skips the cache and writes straight to memory. <b>Write to y twice.</b></p>'+panel()+wbtn(2);
+      if(st.n>=2)h+=chipAsk('Is y in the cache now?',['Yes','No'],'a',st.pk,1);
+      if(st.ok[4])h+='<p class="tr-note">No. Both writes went straight to memory, 2 trips, and y never entered the cache.</p>';
+    } else {
+      h+='<p>The policies come in two typical pairs. One does its work in the cache and updates memory later. The other keeps memory up to date all the time.</p>';
+      h+=chipAsk('Write-back usually pairs with',['no-write-allocate','write-allocate'],'a',st.pk,1);
+      if(st.ok[5])h+='<p class="tr-note"><b>Write-back + write-allocate</b>: load it, change it in the cache, save it later. <b>Write-through + no-write-allocate</b>: memory always has the newest value.</p>';
+    }
+    return h+msgP(st)+stepNav(st,N,!!st.ok[g]);
+  },
+  act:function(st,a){
+    var p=a.split(':'),k=p[0],v=+p[1],g=st.stg;
+    function reset(){st.n=0;st.trips=0;st.ev=0;st.q=0;st.pk=null;st.dirty=0;if(g>=3){st.inC=0;st.c=0;st.m=0;}else{st.inC=1;st.c=5;st.m=5;}}
+    st.msg='';
+    if(k==='next'&&st.ok[g]&&g<5){st.stg++;g=st.stg;reset();return;}
+    if(k==='back'&&g>1){st.stg--;g=st.stg;reset();st.ok[g]=0;return;}
+    if(k==='w'){var max=g<=2?3:2;if(st.n>=max)return;st.n++;
+      if(g===1){st.c++;st.m=st.c;st.trips++;}
+      else if(g===2){st.c++;st.dirty=1;}
+      else if(g===3){if(!st.inC){st.inC=1;st.c=st.m;st.trips++;}st.c++;}
+      else if(g===4){st.m++;st.trips++;}
+      return;}
+    if(k==='ev'&&g===2&&st.q>=1&&!st.ev){st.ev=1;if(st.dirty){st.m=st.c;st.trips++;st.dirty=0;}st.inC=0;st.pk=null;return;}
+    if(k==='a'){st.pk=v;var right={1:2,3:1,4:1,5:1}[g];
+      if(g===2){right=st.q===0?0:1;}
+      if(v!==right){var M={1:'Count them: every write under write-through also goes to memory.',3:'The first write was a miss, so y\'s box was loaded once. Was the second write a miss too?',4:'No-write-allocate never loads the box.',5:'Write-back already waits to update memory. Which miss policy also puts the work in the cache?'};
+        st.msg=g===2?(st.q===0?'Look at the counter: write-back only changed the cache.':'The line was dirty, so x was written back once.'):M[g];return;}
+      if(g===2&&st.q===0){st.q=1;st.pk=null;return;}
+      st.ok[g]=1;}
+  }};
+
+/* ===== L87: how fast is a cache, by counting ===== */
+var SPEED_Q1=[['The 97 hits take 1 cycle each. How many cycles is that?',['970','97','1'],1,'97 cycles.'],
+  ['The 3 misses take 100 cycles each. How many cycles?',['3','103','300'],2,'300 cycles: the 3 misses cost more than all 97 hits together.'],
+  ['So all 100 reads take',['397 cycles','400 cycles','300 cycles'],0,'97 + 300 = 397 cycles.'],
+  ['So one read takes about',['1 cycle','40 cycles','4 cycles'],2,'397 ÷ 100 ≈ 4 cycles a read. A 97% hit rate gives about 4 cycles.']];
+TOYDEF.speed={title:'Try it · count 100 reads',
+  init:function(){return {stg:1,q:0,pk:null,ok:{},msg:'',sb:{miss:3,ht:1,mp:100}};},
+  out:function(st){
+    var g=st.stg,N=4,TT=['','Count 100 reads','Two fewer misses','What helps more?','The formula'],h=stepHead(g,N,TT[g]);
+    var grid=function(m){var i,pos={},s='';for(i=0;i<m;i++)pos[Math.floor((i+0.5)*100/m)]=1;for(i=0;i<100;i++)s+='<i class="'+(pos[i]?'m':'h')+'"></i>';return '<div class="hgrid" role="img" aria-label="'+(100-m)+' hits and '+m+' misses">'+s+'</div>';};
+    var Q1=SPEED_Q1;
+    if(g===1){
+      h+='<p>A hit takes <b>1 cycle</b>. A miss takes <b>100 cycles</b>, because the box has to come from memory. Here are 100 reads: <b>97 hits</b> (green) and <b>3 misses</b> (red).</p>'+grid(3);
+      for(var i=0;i<Math.min(st.q,4);i++)h+='<p class="tr-note">'+Q1[i][3]+'</p>';
+      if(st.q<4)h+=chipAsk(Q1[st.q][0],Q1[st.q][1],'a',st.pk,Q1[st.q][2]);
+    } else if(g===2){
+      h+='<p>Now only <b>1 miss</b> in 100 reads: 99% hits.</p>'+grid(1);
+      h+=chipAsk('How long does one read take now, on average?',['About 4 cycles','About 2 cycles','About 1 cycle'],'a',st.pk,1);
+      if(st.ok[2])h+='<p class="tr-note">99 × 1 + 1 × 100 = 199 cycles, so about 2 a read. Two fewer misses made reads <b>twice as fast</b>. That\'s why people quote the miss rate.</p>';
+    } else if(g===3){
+      h+='<p>Back to 97 hits and 3 misses, about 4 cycles a read. You can make one change:</p><ul class="facts"><li><b>A</b>: make every hit twice as fast, 0.5 cycles.</li><li><b>B</b>: cut the misses from 3 to 1.</li></ul>';
+      h+=chipAsk('Which makes reads faster?',['A: faster hits','B: fewer misses'],'a',st.pk,1);
+      if(st.ok[3])h+='<p class="tr-note">B. A gives 97 × 0.5 + 3 × 100 = 348.5 cycles, about 3.5 a read. B gives 99 + 100 = 199, about 2 a read. <b>The misses decide the speed.</b></p>';
+    } else {
+      h+='<p>Your slides write the same counting as one formula, divided by 100:</p><div class="rule-box rule-lines"><div>average = hit rate × hit time</div><div>        + miss rate × miss penalty</div></div><p>0.97 × 1 + 0.03 × 100 = 3.97, about 4 cycles. <b>Miss rate</b> = misses ÷ reads, here 3%. Try other numbers:</p>'+TOYDEF.hundred.out(st.sb);
+    }
+    return h+msgP(st)+stepNav(st,N,g===4||!!st.ok[g]);
+  },
+  act:function(st,a){
+    var p=a.split(':'),k=p[0],v=+p[1],g=st.stg;
+    st.msg='';
+    if(k==='next'&&(st.ok[g])&&g<4){st.stg++;st.q=0;st.pk=null;return;}
+    if(k==='back'&&g>1){st.stg--;st.q=g===2?4:0;st.pk=null;return;}
+    if(k==='miss'||k==='mp'||k==='ht'){TOYDEF.hundred.act(st.sb,a);return;}
+    if(k==='a'){
+      if(g===1){var R=SPEED_Q1[st.q][2],H=['Each hit is 1 cycle: 97 × 1.','Each miss is 100 cycles: 3 × 100.','Add the two: 97 + 300.','Divide the total by the 100 reads.'];
+        if(v===R){st.q++;st.pk=null;if(st.q>=4)st.ok[1]=1;}else{st.pk=v;st.msg=H[st.q];}return;}
+      st.pk=v;
+      if(v===1)st.ok[g]=1;else st.msg=g===2?'Count it: 99 hits × 1 + 1 miss × 100 = 199 cycles for 100 reads.':'Work out both: A is 97 × 0.5 + 3 × 100. B is 99 × 1 + 1 × 100.';
+    }
+  }};
+
+/* ===== L90: be the MMU ===== */
+var MMU_T={A:[[4100,4],[4101,5],[8000,12]],B:[[4100,9],[8000,12]]};
+function mmuMem(o){
+  o=o||{}; var h='<div class="cb-lab">Main memory: physical addresses 0 to 15</div><div class="vmem">';
+  for(var i=0;i<16;i++){var cl='vm-c'+(o.hl===i?' on':'')+(o.mark&&o.mark[i]?' mk':'');
+    h+=o.tap?'<button class="'+cl+'" data-ta="pa:'+i+'">'+i+'</button>':'<span class="'+cl+'">'+i+'</span>';}
+  return h+'</div>';
+}
+function mmuTable(prog,hlVa){
+  return '<div class="vm-mmu"><div class="vm-mmu-h">MMU · program '+prog+'\'s table</div>'+MMU_T[prog].map(function(r){return '<div class="vm-row'+(r[0]===hlVa?' on':'')+'"><span>VA '+r[0]+'</span><span>→</span><span>PA '+r[1]+'</span></div>';}).join('')+'</div>';
+}
+TOYDEF.mmu={title:'Try it · be the MMU',
+  init:function(){return {stg:1,ok:{},msg:'',sub:0};},
+  out:function(st){
+    var g=st.stg,N=4,TT=['','Physical addressing','Virtual addressing','Two programs, same address','One byte, two virtual addresses'],h=stepHead(g,N,TT[g]);
+    var cpu=function(prog,va){return '<div class="vm-flow"><span class="vmf-box">CPU'+(prog?' · program '+prog:'')+'</span><span class="vmf-ar">'+(va?'VA '+va:'PA 4')+' →</span>'+(va?'<span class="vmf-box mmu">MMU</span><span class="vmf-ar">→ ?</span>':'')+'</div>';};
+    if(g===1){
+      h+='<p>Simple devices, like the controllers in cars, elevators and picture frames, use <b>physical addressing</b>: the CPU sends the real address straight to memory.</p>'+cpu(null,null);
+      if(!st.ok[1])h+='<p class="tr-note"><b>The CPU reads address 4. Tap the memory cell it reads.</b></p>';
+      h+=mmuMem({tap:!st.ok[1],hl:st.ok[1]?4:null});
+      if(st.ok[1])h+='<p class="tr-note">No translation: the address the program uses <b>is</b> the memory address.</p>';
+    } else if(g===2){
+      h+='<p>Laptops, desktops and servers use <b>virtual addressing</b>. Programs use <b>virtual addresses (VA)</b>, and the <b>MMU</b> (memory management unit), on the CPU chip, looks each one up and turns it into a <b>physical address (PA)</b>.</p>'+cpu('A',4100)+mmuTable('A',st.ok[2]?4100:null);
+      if(!st.ok[2])h+='<p class="tr-note"><b>Program A reads VA 4100. Find it in the MMU\'s table, then tap the memory cell it really reads.</b></p>';
+      h+=mmuMem({tap:!st.ok[2],hl:st.ok[2]?4:null});
+      if(st.ok[2])h+='<p class="tr-note">VA 4100 → PA 4. The program asked for 4100 and never sees the 4.</p>';
+    } else if(g===3){
+      h+='<p>Program B is running too. It has <b>its own</b> table.</p>'+cpu('B',4100)+mmuTable('B',st.ok[3]?4100:null);
+      if(!st.ok[3])h+='<p class="tr-note"><b>Program B also reads VA 4100. Tap the cell it really reads.</b></p>';
+      h+=mmuMem({tap:!st.ok[3],hl:st.ok[3]?9:null,mark:{4:1}});
+      if(st.ok[3])h+='<p class="tr-note">PA 9, not 4. Same virtual address, different byte. Each program gets its own <b>address space</b>, so they can\'t trample each other\'s data.</p>';
+    } else {
+      h+='<p>Sometimes two programs <b>share</b> a byte, like the code of a library both use. Each one\'s table points its VA 8000 at the same physical byte.</p><div class="pair2">'+mmuTable('A',st.sub>=1?8000:null)+mmuTable('B',st.sub>=2?8000:null)+'</div>';
+      if(!st.ok[4])h+='<p class="tr-note"><b>'+(st.sub===0?'Tap where program A\'s VA 8000 goes.':'Now tap where program B\'s VA 8000 goes.')+'</b></p>';
+      h+=mmuMem({tap:!st.ok[4],hl:st.sub>=1?12:null});
+      if(st.ok[4])h+='<p class="tr-note">Both land on PA 12. <b>Every byte has exactly one physical address, and one or more virtual addresses.</b></p>';
+    }
+    return h+msgP(st)+stepNav(st,N,!!st.ok[g]);
+  },
+  act:function(st,a){
+    var p=a.split(':'),k=p[0],v=+p[1],g=st.stg;
+    st.msg='';
+    if(k==='next'&&st.ok[g]&&g<4){st.stg++;st.sub=0;return;}
+    if(k==='back'&&g>1){st.stg--;return;}
+    if(k!=='pa')return;
+    if(g===1){if(v===4)st.ok[1]=1;else st.msg='With physical addressing there\'s no lookup: address 4 means cell 4.';}
+    else if(g===2){if(v===4)st.ok[2]=1;else st.msg=v===0?'Look in the table: the row for VA 4100 says which PA to use.':'That\'s PA '+v+'. The table row for VA 4100 says PA 4.';}
+    else if(g===3){if(v===9)st.ok[3]=1;else st.msg=v===4?'That\'s where program A\'s 4100 went. Program B has its own table: look at its row for VA 4100.':'Look at program B\'s table: VA 4100 → PA 9.';}
+    else{if(v===12){st.sub++;if(st.sub>=2)st.ok[4]=1;}else st.msg='Find the VA 8000 row in '+(st.sub===0?'program A':'program B')+'\'s table.';}
+  }};
+
+/* ===== L91: counting addresses ===== */
+var BITS_TASKS=[[12,1,4],[36,3,64],[45,4,32]];
+var BITS_Q4=[['n = 16. What\'s the largest address, in hex?',['0x10000','0xFFFF','0xFFF'],'16 bits of 1s is four hex Fs: 0xFFFF.',1],
+  ['n = 12. What\'s the largest address, using units?',['4K','12K − 1','4K − 1'],'N = 2¹² = 4K addresses, so the largest is 4K − 1.',2]];
+TOYDEF.bits={title:'Try it · count the addresses',
+  init:function(){return {stg:1,n:1,q:0,pk:null,ok:{},msg:'',u:0,t:0,unit:null,num:null,sb:{n:12}};},
+  out:function(st){
+    var g=st.stg,N=5,TT=['','Each bit doubles the count','Every 10 bits is a new unit','Split n into tens plus the rest','The largest address','Try any n'],h=stepHead(g,N,TT[g]),i;
+    var U=['','K','M','G','T','P'];
+    if(g===1){
+      h+='<p>With n address bits, how many different addresses are there? Start with 1 bit, then add bits.</p>';
+      var list='';for(i=0;i<Math.pow(2,st.n);i++)list+='<span>'+binw(i,st.n)+'</span>';
+      h+='<p class="tr-note"><b>n = '+st.n+'</b>: '+Math.pow(2,st.n)+' addresses</p><div class="bl-list">'+list+'</div>';
+      if(st.n<4)h+='<div class="toy-btns"><button class="btn sm" data-ta="addbit">+ 1 bit</button></div>';
+      if(st.n===1)h+='<p class="fine">Each new bit can be 0 or 1 in front of every address you already have, so the list doubles.</p>';
+      if(st.n>=3&&st.q===0)h+=chipAsk('How many addresses do 3 bits give?',['6','8','3'],'a',st.pk,1);
+      if(st.q>=1)h+='<p class="tr-note">8 = 2³. In general, <b>N = 2ⁿ</b>.</p>';
+      if(st.q===1)h+=chipAsk('What\'s the largest 3-bit address?',['8 (1000)','7 (111)','3'],'a',st.pk,1);
+      if(st.q>=2)h+='<p class="tr-note">7: all three bits are 1. The addresses start at 0, so the largest is <b>N − 1</b>.</p>';
+    } else if(g===2){
+      h+='<p>2¹⁰ = 1,024, which is called <b>1K</b>. Every 10 more bits multiplies by 1,024 again and gets a new name. Climb the ladder:</p><div class="ladder">';
+      for(i=1;i<=5;i++)h+='<div class="ld'+(st.u>=i?' on':'')+'"><b>2'+supNum(10*i)+'</b><span>'+(st.u>=i?'= 1'+U[i]:'?')+'</span></div>';
+      h+='</div>'+(st.u<5?'<div class="toy-btns"><button class="btn sm" data-ta="climb">+ 10 bits</button></div>':'');
+      if(st.u>=5)h+=chipAsk('So 2⁴⁰ is',['1G','40K','1T'],'a',st.pk,2);
+      if(st.ok[2])h+='<p class="tr-note">1T. K, M, G, T, P are 2¹⁰, 2²⁰, 2³⁰, 2⁴⁰ and 2⁵⁰. Here they\'re powers of 2, not the powers of 10 from disk sizes in Part 7.</p>';
+    } else if(g===3){
+      if(st.t<3){var T=BITS_TASKS[st.t];
+        h+='<p>For any n, split it into tens plus what\'s left. The tens give the unit, and 2 to the leftover is the number in front. Example: 2²³ = 2³ × 2²⁰ = 8M.</p><p class="tr-note"><b>Build 2'+supNum(T[0])+'</b> ('+(st.t+1)+' of 3)</p>'+
+          chipRow('Unit','unit',[1,2,3,4,5],st.unit,function(v){return U[v]+' = 2'+supNum(10*v);})+chipRow('Number in front','num',[2,4,8,16,32,64,128],st.num)+
+          '<p class="tr-note bl-build">2'+supNum(T[0])+' = '+(st.num?st.num:'?')+(st.unit?U[st.unit]:'?')+'</p>';
+      } else {
+        h+='<p class="tr-note">You built 4K, 64G and 32T. Now go the other way.</p>'+chipAsk('128G = 2 to the',['38','36','37','30'],'a',st.pk,2);
+        if(st.ok[3])h+='<p class="tr-note">128 = 2⁷ and G = 2³⁰, so 128G = 2⁷⁺³⁰ = 2³⁷.</p>';
+      }
+    } else if(g===4){
+      var Q=BITS_Q4;
+      h+='<p>The largest address is N − 1, which is all n bits set to 1. In hex, every 4 bits of 1s is one F.</p>';
+      for(i=0;i<Math.min(st.q,2);i++)h+='<p class="tr-note">'+Q[i][2]+'</p>';
+      if(st.q<2)h+=chipAsk(Q[st.q][0],Q[st.q][1],'a',st.pk,Q[st.q][3]);
+    } else {
+      h+='<p>Pick any n and check the rules: N = 2ⁿ, and the largest address is N − 1.</p>'+TOYDEF.vaspace.out(st.sb);
+    }
+    return h+msgP(st)+stepNav(st,N,g===5||!!st.ok[g]);
+  },
+  act:function(st,a){
+    var p=a.split(':'),k=p[0],v=+p[1],g=st.stg;
+    st.msg='';
+    if(k==='next'&&st.ok[g]&&g<5){st.stg++;st.q=0;st.pk=null;return;}
+    if(k==='back'&&g>1){st.stg--;st.q=0;st.pk=null;st.ok[st.stg]=0;if(st.stg===1)st.n=1;if(st.stg===2)st.u=0;if(st.stg===3){st.t=0;st.unit=null;st.num=null;}return;}
+    if(g===5&&k==='n'){TOYDEF.vaspace.act(st.sb,a);return;}
+    if(k==='addbit'&&g===1&&st.n<4){st.n++;return;}
+    if(k==='climb'&&g===2&&st.u<5){st.u++;return;}
+    if((k==='unit'||k==='num')&&g===3&&st.t<3){st[k]=v;var T=BITS_TASKS[st.t];
+      if(st.unit&&st.num){if(st.unit===T[1]&&st.num===T[2]){st.t++;st.unit=null;st.num=null;}
+        else st.msg='Not quite. '+T[0]+' = '+(10*T[1])+' + '+(T[0]-10*T[1])+': the unit is 2'+supNum(10*T[1])+' and the number in front is 2'+supNum(T[0]-10*T[1])+'.';}
+      return;}
+    if(k==='a'){
+      if(g===1){if(v===1){st.q++;st.pk=null;if(st.q>=2)st.ok[1]=1;}else{st.pk=v;st.msg=st.q===0?'Count the list: each extra bit doubles it. 2, 4, 8, …':'The addresses are 000 to 111. 111 is 7.';}return;}
+      if(g===2){st.pk=v;if(v===2)st.ok[2]=1;else st.msg='Count the rungs: 2¹⁰ is K, 2²⁰ is M, 2³⁰ is G, 2⁴⁰ is …';return;}
+      if(g===3){st.pk=v;if(v===2)st.ok[3]=1;else st.msg='Split it: 128 = 2⁷ and G = 2³⁰. Add the powers.';return;}
+      if(g===4){if(v===BITS_Q4[st.q][3]){st.q++;st.pk=null;if(st.q>=2)st.ok[4]=1;}else{st.pk=v;st.msg=st.q===0?'0x10000 is 2¹⁶ itself. The largest is one less: all 1s.':'There are 4K addresses, starting at 0.';}return;}
+    }
+  }};
+
+/* L87: the cache ladder from the slides, as bars */
+function cacheLadder(){var R=[['L1','32 KB','4 cycles',4],['L2','256 KB','11 cycles',11],['L3','8 MB','30–40 cycles',35],['Memory','GBs','50–200 cycles',125]];
+  return '<div class="lad2" role="img" aria-label="L1 4 cycles, L2 11 cycles, L3 30 to 40 cycles, memory 50 to 200 cycles">'+R.map(function(r){return '<div class="l2r"><b>'+r[0]+'</b><span class="l2s">'+r[1]+'</span><span class="l2b"><i style="width:'+Math.max(4,Math.round(r[3]/125*100))+'%"></i></span><span class="l2c">'+r[2]+'</span></div>';}).join('')+'</div>';}
 
 /* ---------- levels ---------- */
 var KIND=['Immediate','Register','Memory'];
@@ -4464,8 +4698,7 @@ qs:[
 {id:'conflict',sec:'p11',name:'When arrays collide',short:'Padding',shuffleOpts:true,
 defaults:{m:null,code:false},
 recap:'<b>Same column = same set = they fight.</b> If two arrays line up in the same columns, they keep kicking each other out (thrashing). Pad the first array so the second starts in a different column.',
-lesson:`<p>Practice 11 uses a bigger cache: <b>8 sets</b>, each holding one <b>8-byte box</b>. A float is 4 bytes, so each box holds <b>2 floats</b>, and one row of the map is 8 boxes, or 16 floats.</p>
-<p>dotprod reads x[0], y[0], x[1], y[1], and so on. Put y right after x, and see what happens:</p>`+
+lesson:`<p>Practice 11 Q5 is about two arrays fighting over the cache. Its cache has <b>8 sets</b>, each holding one <b>8-byte box</b>. Same map as before: set = column.</p>`+
 codeBlock('float dotprod(float x[16], float y[16]) {\n    float sum = 0.0;\n    for (int i = 0; i < 16; i++)\n        sum += x[i] * y[i];\n    return sum;\n}')+
 toy('arrays')+
 `<div class="tip"><span class="tl">Remember it</span>Same column = same set = they fight. Pad the first array, and the second one shifts over to other columns.</div>`,
@@ -4484,12 +4717,9 @@ qs:[
 {id:'cwrite',sec:'p11',name:'What about writes?',short:'Writes',shuffleOpts:true,
 defaults:{m:null,code:false},
 recap:'<b>Write-through</b>: through to memory, every time. <b>Write-back</b>: back to memory later, when the line is evicted; the <b>dirty bit</b> means memory is out of date. <b>Write-allocate</b>: on a write miss, bring the box into the cache first. Typical pairs: back + allocate, through + no-allocate.',
-lesson:`<p>Reading copies a box into the cache. But when the CPU <b>changes</b> a byte that's in the cache, memory still has the old value. So when does memory get the new one?</p>`+
-cardPair('<b>Write-through</b><p>Right away. Every write goes <b>through</b> to memory too. Simple, but every write uses the bus.</p>','<b>Write-back</b><p>Later. Only the cache changes, and a <b>dirty bit</b> remembers that memory is out of date. The value goes <b>back</b> to memory when the line is evicted.</p>')+
-`<p>And when the CPU writes something that <b>isn't</b> in the cache:</p>`+
-cardPair('<b>Write-allocate</b><p>Bring its box into the cache first, then write it there. Good if more writes to it follow.</p>','<b>No-write-allocate</b><p>Skip the cache and write straight to memory.</p>')+
-toy('wpol')+
-`<div class="rule-box">Typical pairs: write-back + write-allocate, or write-through + no-write-allocate</div>`,
+lesson:`<p>So far the CPU only read. When it <b>writes</b> to x, the new value goes into the cache, and memory still has the old one. A cache has to decide two things: <b>when</b> memory gets the new value, and what to do when the thing it's writing <b>isn't in the cache</b> yet. Try each policy:</p>`+
+toy('wsteps')+
+`<div class="tip"><span class="tl">Remember it</span>Through: through to memory, every time. Back: back to memory later, when the line is evicted. The dirty bit is the unsaved-changes dot. Allocate: make room in the cache first.</div>`,
 qs:[
 {prompt:'Write-through means',options:['every write also goes to memory right away','memory gets the new value when the line is evicted','writes skip the cache'],answer:0,explain:'Through to memory, every time.'},
 {prompt:'Write-back means',options:['memory gets the new value later, when the line is evicted','every write goes straight to memory','the cache is never written'],answer:0,explain:'Back to memory later.'},
@@ -4505,14 +4735,10 @@ qs:[
 {id:'cperf',sec:'p11',name:'How fast is a cache?',short:'Speed',shuffleOpts:true,
 defaults:{m:null,code:false},
 recap:'Count 100 reads: hits cost the hit time, misses cost the miss penalty, and the average is the total ÷ 100. A miss costs as much as about 100 hits, so a few misses decide the speed.',
-lesson:`<p>How fast is a cache? Just count. Take <b>100 reads</b>: a hit takes about <b>1 cycle</b>, and a miss about <b>100 cycles</b>, because the box has to come from memory.</p>`+
-toy('hundred')+
-`<div class="rule-box rule-lines"><div>miss rate = misses ÷ reads</div><div>average time = hit rate × hit time</div><div>             + miss rate × miss penalty</div></div>
-<p>That's the same counting, divided by 100. 97 hits: 0.97 × 1 + 0.03 × 100 ≈ <b>4 cycles</b> a read. 99 hits: ≈ <b>2 cycles</b>. So going from 97% to 99% hits makes reads twice as fast.</p>
-<h3>A real one: Intel Core i7</h3>
-<div class="tbl-wrap"><table class="t"><thead><tr><th>Cache</th><th>Size</th><th>Ways</th><th>Access</th></tr></thead><tbody>
-<tr><td>L1, per core</td><td>32 KB</td><td>8-way</td><td>4 cycles</td></tr><tr><td>L2, per core</td><td>256 KB</td><td>8-way</td><td>11 cycles</td></tr><tr><td>L3, shared</td><td>8 MB</td><td>16-way</td><td>30–40 cycles</td></tr></tbody></table></div>
-<p class="fine">All three use 64-byte blocks. L1 is split into an i-cache for instructions and a d-cache for data.</p>
+lesson:`<p>How fast is a cache? You don't need a formula to start. Just count.</p>`+
+toy('speed')+
+`<h3>Real caches: bigger means slower</h3>`+cacheLadder()+
+`<p class="fine">Core i7 numbers from your slides. L1 and L2 belong to each core, L3 is shared by all of them, and all three use 64-byte blocks.</p>
 <div class="tip"><span class="tl">Cache-friendly code</span>Focus on the inner loops. Reuse variables (temporal locality), and walk arrays with stride 1 (spatial locality).</div>`,
 qs:[
 {prompt:'Miss rate =',options:['misses ÷ reads','hits ÷ misses','misses × miss penalty'],answer:0,explain:'It also equals 1 − hit rate.'},
@@ -4605,11 +4831,11 @@ qs:[
 
 {id:'vmidea',sec:'p12',name:'Physical vs virtual addresses',short:'Virtual memory',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<p>Up to now, the CPU's addresses went straight to memory. Your L08 slides compare two ways of doing that:</p>`+
-vmFlow()+
-`<ul class="facts"><li><b>Physical addressing</b>: the CPU sends the real address, the <b>physical address (PA)</b>, straight to memory. Simple systems do this, like the microcontrollers in cars, elevators and digital picture frames.</li><li><b>Virtual addressing</b>: the CPU makes a <b>virtual address (VA)</b>, and the <b>MMU</b> (memory management unit), on the CPU chip, translates it into a physical address. Every modern server, desktop and laptop works this way.</li></ul>
-<h3>Address spaces</h3>
-<ul class="facts"><li>A <b>virtual address space</b> with n-bit addresses has <b>N = 2ⁿ</b> addresses: 0, 1, 2, …, N − 1.</li><li>A <b>physical address space</b> with m-bit addresses has <b>M = 2ᵐ</b> addresses: 0, 1, 2, …, M − 1.</li><li>Every byte of main memory has <b>one physical address</b> and <b>one or more virtual addresses</b>.</li></ul>`,
+recap:'Programs use <b>virtual</b> addresses, memory uses <b>physical</b> ones, and the <b>MMU</b> on the CPU chip translates. Each program gets its own address space, and every byte has one physical address and one or more virtual ones.',
+lesson:`<p>Up to now, every address went straight to memory. Your L08 slides show a second way, used by every laptop, desktop and server. Try both:</p>`+
+toy('mmu')+
+`<h3>Address spaces</h3>
+<ul class="facts"><li>A <b>virtual address space</b> with n-bit addresses has <b>N = 2ⁿ</b> addresses: 0 to N − 1.</li><li>A <b>physical address space</b> with m-bit addresses has <b>M = 2ᵐ</b> addresses: 0 to M − 1.</li><li>Every byte of main memory has <b>one physical address</b>, and <b>one or more virtual addresses</b>.</li></ul>`,
 qs:[
 {prompt:'Which kind of system uses physical addressing?',options:['A simple embedded system, like the controller in an elevator','A laptop','A web server'],answer:0,explain:'Your slide: cars, elevators and digital picture frames.'},
 {prompt:'What translates a virtual address into a physical address?',options:['The MMU, on the CPU chip','Main memory','The disk controller'],answer:0,explain:'MMU stands for memory management unit.'},
@@ -4624,12 +4850,10 @@ qs:[
 
 {id:'vspace',sec:'p12',name:'How many addresses?',short:'Counting addresses',shuffleOpts:true,
 defaults:{m:null,code:false},
-lesson:`<div class="rule-box">N = 2ⁿ addresses   ·   largest address = N − 1</div>
-<p>Big powers of 2 get short names. Careful: here they're powers of <b>2</b>, not the powers of 10 from disk sizes in Part 7.</p>`+
-unitStrip()+
-`<div class="tip"><span class="tl">The trick</span>Split n into tens plus what's left. 2¹² = 2² × 2¹⁰ = 4K. 2³⁶ = 2⁶ × 2³⁰ = 64G. Going the other way, 32T = 2⁵ × 2⁴⁰ = 2⁴⁵.</div>`+
-toy('vaspace')+
-`<p>The largest address has all n bits set to 1. For n = 4 that's 1111 = 0xF = 15 = 2⁴ − 1.</p>`,
+recap:'Each bit doubles the count: <b>N = 2ⁿ</b>, and the largest address is <b>N − 1</b>, all 1s. Every 10 bits is a new unit: K, M, G, T, P. Split n into tens plus the rest: 2³⁶ = 2⁶ × 2³⁰ = 64G.',
+lesson:`<p>Practice 12 is all about counting addresses. Build it up in a few small steps:</p>`+
+toy('bits')+
+`<div class="tip"><span class="tl">Remember it</span>Each bit doubles the count: N = 2ⁿ, and the largest address is N − 1, all 1s. Every 10 bits is a new unit: K, M, G, T, P. Split n into tens plus the rest: 2³⁶ = 2⁶ × 2³⁰ = 64G.</div>`,
 qs:[
 {prompt:'n = 4 bits. Type how many addresses there are.',input:true,dec:true,expect:'16',explain:'2⁴ = 16: addresses 0 to 15.'},
 {prompt:'n = 4 bits. Type the largest address, in decimal.',input:true,dec:true,expect:'15',explain:'N − 1 = 16 − 1 = 15, which is 1111 in binary.',traps:[{v:'16',msg:'That\'s how many addresses there are. They start at 0, so the largest is 16 − 1.'}]},
