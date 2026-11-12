@@ -949,6 +949,60 @@ button.vm-c:hover{border-color:var(--accent)}
 .srt-note{margin:0}
 .ref>*{min-width:0}
 .ref::details-content{min-width:0}
+
+/* ===== v10: Parts 13-15 (page tables, translation, TLB) ===== */
+.ptf{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-start;min-width:0}
+.ptf>div{min-width:0}
+.ptf-rows{display:grid;gap:2px}
+.ptf-r{display:grid;grid-template-columns:3.7em 1.2em 4.4em;gap:5px;align-items:center;font-family:var(--font-code);font-size:11.5px;line-height:1.3;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+.ptf-r i{font-style:normal;color:var(--muted)}
+.ptf-r b{font-weight:600;text-align:center}
+.ptf-r em{font-style:normal}
+.ptf-r.hd{border-color:transparent;background:none;padding-block:0;font-size:10.5px;color:var(--muted)}
+.ptf-r.hd b{font-weight:400}
+.ptf-r.v1 b{color:var(--good)}
+.ptf-r.dk em,.ptf-r.nu em{color:var(--muted)}
+.ptf-r.pp{grid-template-columns:2.6em 3.3em}
+.ptf-r.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
+.tl15{display:grid;gap:4px;max-width:340px}
+.tl-row{display:grid;grid-template-columns:3em repeat(4,minmax(0,1fr));gap:4px;align-items:center;padding:3px;border-radius:8px;border:1px solid transparent}
+.tl-row.on{border-color:var(--src);background:var(--src-soft)}
+.tl-s{font-family:var(--font-code);font-size:11px;color:var(--muted)}
+.tl-e{display:grid;justify-items:center;font-family:var(--font-code);line-height:1.25;padding:3px 2px;border:1px solid var(--line);border-radius:6px;background:var(--panel);min-width:0}
+.tl-e b{font-size:13px;font-weight:600}
+.tl-e i{font-style:normal;font-size:11.5px}
+.tl-e em{font-style:normal;font-size:10.5px;color:var(--muted)}
+.tl-e.v0 i,.tl-e.v0 b{color:var(--muted)}
+.tl-e.v1 em{color:var(--good);font-weight:600}
+.tl-e.hit{border-color:var(--good);background:var(--good-soft)}
+.pt15{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px;max-width:300px}
+.pt15-r,.c15-r{display:grid;gap:4px;align-items:center;font-family:var(--font-code);font-size:12px;line-height:1.3;padding:2px 6px;border:1px solid var(--line);border-radius:5px;background:var(--panel);text-align:center}
+.pt15-r{grid-template-columns:2.4em 2.4em 2.6em}
+.pt15-r i,.c15-r i{font-style:normal;color:var(--muted)}
+.pt15-r b,.c15-r b{font-weight:600}
+.pt15-r em,.c15-r em{font-style:normal}
+.pt15-r.hd,.c15-r.hd{border-color:transparent;background:none;font-size:10.5px;color:var(--muted);padding-block:0}
+.pt15-r.hd b,.c15-r.hd b{font-weight:400}
+.pt15-r.v0 b,.c15-r.v0 b,.c15-r.v0 u{color:var(--muted)}
+.pt15-r.on,.c15-r.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
+.c15{display:grid;gap:2px;max-width:280px}
+.c15-r{grid-template-columns:2em 2.2em 1.4em repeat(4,minmax(0,1fr))}
+.c15-r u{text-decoration:none}
+.c15-r u.pick{background:var(--byte-soft);outline:1.5px solid var(--byte);border-radius:3px;font-weight:600}
+.ch-done{display:flex;flex-wrap:wrap;gap:4px 6px;font-family:var(--font-code);font-size:12px}
+.ch-done span{padding:2px 8px;border-radius:999px;background:var(--good-soft);color:var(--good);border:1px solid var(--good)}
+.vps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-width:400px}
+.vp{display:grid;justify-items:center;padding:5px 2px;border-radius:7px;border:1px solid var(--line);font-size:12px;line-height:1.3;min-width:0}
+.vp b{font-family:var(--font-code);font-weight:600}
+.vp i{font-style:normal;font-size:11px}
+.vp.c{background:var(--good-soft);border-color:var(--good)}
+.vp.u{background:var(--byte-soft);border-color:var(--byte)}
+.vp.n{border-style:dashed;color:var(--muted)}
+.pgs{display:flex;flex-wrap:wrap;gap:6px}
+.pg{display:grid;gap:2px;justify-items:center;padding:4px;border:1.5px solid var(--accent);border-radius:8px;background:var(--accent-soft)}
+.pg i{font-style:normal;font-size:11px;color:var(--accent)}
+.pg span{display:flex;gap:2px}
+.pg b{font-family:var(--font-code);font-weight:500;font-size:12px;min-width:20px;text-align:center;padding:3px 0;border-radius:4px;background:var(--panel);border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -958,7 +1012,7 @@ button.vm-c:hover{border-color:var(--accent)}
   <header class="top">
     <div>
       <h1><button class="brand" data-go="home">Will It Assemble<span class="qm">?</span></button></h1>
-      <div class="tagline">x86 assembly · memory · caches · parts 1–12</div>
+      <div class="tagline">x86 assembly · memory · caches · virtual memory · parts 1–15</div>
     </div>
     <div class="stats" id="stats"></div>
   </header>
@@ -3348,6 +3402,399 @@ SORTS.loc={cols:['Temporal','Spatial'],hint:'Temporal = time: the same thing aga
  {t:'Instructions run in sequence, one after the next',s:'instructions in sequence',c:1,why:'Each instruction sits right after the last one in memory.'},
  {t:'The counter <code>i</code> is checked on every pass',s:'i, every pass',c:0,why:'The same variable, over and over.'}]};
 
+/* ===================== v10: Parts 13-15, page tables, address translation, the TLB ===================== */
+function hxN(n,w){var s=n.toString(16).toUpperCase();while(s.length<(w||1))s='0'+s;return '0x'+s;}
+function tblS(head,rows,hl){return '<div class="tbl-wrap"><table class="t"><thead><tr>'+head.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r,i){return '<tr'+(hl===i?' class="hs"':'')+'>'+r.map(function(c,j){return '<td'+(j?' class="c"':'')+'>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';}
+/* a bit strip with any fields: F = [[bits, colour class, label, 'd' for decimal]], left to right */
+function bitsF(a,m,F,o){
+  o=o||{};var h='<div class="abits" style="--m:'+m+'" role="img" aria-label="'+m+'-bit address">',i=m-1,L=[],pos=m;
+  F.forEach(function(f){var n=f[0],v=Math.floor(a/Math.pow(2,pos-n))%Math.pow(2,n);pos-=n;
+    for(var k=0;k<n;k++,i--)h+='<span class="ab '+(f[1]||'')+'"><b>'+(o.blank?'&nbsp;':((a>>>i)&1))+'</b><i>'+i+'</i></span>';
+    if(f[2])L.push('<span class="'+f[1]+'">'+f[2]+': '+n+' bit'+(n===1?'':'s')+(o.blank?'':' = <b>'+(f[3]==='d'?v:hxN(v))+'</b>')+'</span>');});
+  return h+'</div>'+(o.legend===false?'':'<div class="ab-leg">'+L.join('')+'</div>');
+}
+function optSet(right,others,fmt){
+  var o=[right];others.forEach(function(v){if(o.indexOf(v)<0&&o.length<4)o.push(v);});
+  var k=(right+o.length-1)%o.length;o=o.slice(k).concat(o.slice(0,k));
+  return {o:o.map(fmt||String),r:o.indexOf(right)};
+}
+
+/* ---- Practice 14's memory: 16 virtual pages, 8 physical pages. Each PTE: a PP number, 'd' (on disk) or null ---- */
+var PT14=[2,4,0,null,1,5,6,null,'d',null,'d',3,7,'d',null,'d'];
+var PT14B=[2,4,0,null,1,5,'d',null,'d',6,'d',3,7,'d',null,'d'];   /* after VP 9 is loaded into PP 6 */
+var PT8=[null,0,1,'d',3,null,'d',2], PT8B=[null,0,1,3,'d',null,'d',2];  /* the slides' small page table, before and after the fault on VP 3 */
+function ptFig(T,nPP,o){
+  o=o||{};var pp=[],h;T.forEach(function(x,v){if(typeof x==='number')pp[x]=v;});
+  h='<div class="ptf"><div><div class="cb-lab">Page table</div><div class="ptf-rows"><span class="ptf-r hd"><i></i><b>v</b><em></em></span>';
+  T.forEach(function(x,v){var is=typeof x==='number';
+    h+='<span class="ptf-r'+(o.hl===v?' on':'')+(is?' v1':x==='d'?' dk':' nu')+'"><i>PTE '+v+'</i><b>'+(is?1:0)+'</b><em>'+(is?'→ PP '+x:x==='d'?'on disk':'null')+'</em></span>';});
+  h+='</div></div><div><div class="cb-lab">Physical pages</div><div class="ptf-rows">';
+  for(var k=0;k<nPP;k++)h+='<span class="ptf-r pp'+(o.hlPP===k?' on':'')+'"><i>PP '+k+'</i><em>'+(pp[k]!=null?'VP '+pp[k]:'empty')+'</em></span>';
+  return h+'</div></div></div>'+(o.key===false?'':'<p class="fine">v is the valid bit. 1: the page is in DRAM. "on disk": the page exists, but isn\'t in DRAM. "null": the page was never allocated.</p>');
+}
+
+/* ---- Practice 15's demo system (slides 9-12): 14-bit VA, 12-bit PA, 64-byte pages ---- */
+var TLB15=[[[0x03,null,0],[0x09,0x0D,1],[0x00,null,0],[0x07,0x02,1]],
+           [[0x03,0x2D,1],[0x02,null,0],[0x04,null,0],[0x0A,null,0]],
+           [[0x02,null,0],[0x08,null,0],[0x06,null,0],[0x03,null,0]],
+           [[0x07,null,0],[0x03,0x0D,1],[0x0A,0x34,1],[0x02,null,0]]];
+var PT15=[0x28,null,0x33,0x02,null,0x16,null,null,0x13,0x17,0x09,null,null,0x2D,0x11,0x0D];
+var C15=[[0x19,1,[0x99,0x11,0x23,0x11]],[0x15,0],[0x1B,1,[0x00,0x02,0x04,0x08]],[0x36,0],[0x32,1,[0x43,0x6D,0x8F,0x09]],[0x0D,1,[0x36,0x72,0xF0,0x1D]],[0x31,0],[0x16,1,[0x11,0xC2,0xDF,0x03]],
+         [0x24,1,[0x3A,0x00,0x51,0x89]],[0x2D,0],[0x2D,1,[0x93,0x15,0xDA,0x3B]],[0x0B,0],[0x12,0],[0x16,1,[0x04,0x96,0x34,0x15]],[0x13,1,[0x83,0x77,0x1B,0xD3]],[0x14,0]];
+function trip15(va){
+  var vpn=va>>6,vpo=va&63,ti=vpn&3,tt=vpn>>2,way=-1,ppn=null,fault=false,inv=false;
+  TLB15[ti].forEach(function(e,w){if(e[0]===tt){if(e[2])way=w;else inv=true;}});
+  if(way>=0)ppn=TLB15[ti][way][1];else if(vpn<16&&PT15[vpn]!=null)ppn=PT15[vpn];else fault=true;
+  var r={va:va,vpn:vpn,vpo:vpo,ti:ti,tt:tt,way:way,tlbInv:inv,fault:fault,ppn:ppn};
+  if(!fault){var pa=ppn*64+vpo,L;r.pa=pa;r.co=pa&3;r.ci=(pa>>2)&15;r.ct=pa>>6;L=C15[r.ci];r.chit=!!(L[1]&&L[0]===r.ct);r.cInv=!L[1]&&L[0]===r.ct;r.byte=r.chit?L[2][r.co]:null;}
+  return r;
+}
+function tlb15Tbl(o){
+  o=o||{};
+  return '<div class="cb-lab">TLB: 4 sets, 4 entries in each</div><div class="tl15">'+TLB15.map(function(S,si){
+    if(o.only!=null&&o.only!==si)return '';
+    return '<div class="tl-row'+(o.set===si?' on':'')+'"><span class="tl-s">Set '+si+'</span>'+S.map(function(e,w){
+      return '<span class="tl-e v'+e[2]+(o.set===si&&o.way===w?' hit':'')+'"><b>'+hx2(e[0])+'</b><i>'+(e[1]==null?'–':hx2(e[1]))+'</i><em>'+e[2]+'</em></span>';}).join('')+'</div>';}).join('')+
+    '</div><p class="fine">Each entry, top to bottom: <b>tag</b>, PPN, valid bit.</p>';
+}
+function pt15Tbl(o){
+  o=o||{};var h='<div class="cb-lab">Page table: the first 16 entries</div><div class="pt15"><span class="pt15-r hd"><i>VPN</i><b>PPN</b><em>valid</em></span><span class="pt15-r hd"><i>VPN</i><b>PPN</b><em>valid</em></span>';
+  for(var r=0;r<8;r++)[r,r+8].forEach(function(v){var p=PT15[v];h+='<span class="pt15-r'+(o.hl===v?' on':'')+(p==null?' v0':'')+'"><i>'+hx2(v)+'</i><b>'+(p==null?'–':hx2(p))+'</b><em>'+(p==null?0:1)+'</em></span>';});
+  return h+'</div>';
+}
+function c15Tbl(o){
+  o=o||{};var h='<div class="cb-lab">Cache: 16 sets, 1 line in each, 4-byte blocks</div><div class="c15"><span class="c15-r hd"><i>Idx</i><b>Tag</b><em>V</em><u>B0</u><u>B1</u><u>B2</u><u>B3</u></span>';
+  C15.forEach(function(L,i){if(o.only!=null&&o.only!==i)return;
+    h+='<span class="c15-r'+(o.hl===i?' on':'')+(L[1]?'':' v0')+'"><i>'+i.toString(16).toUpperCase()+'</i><b>'+hx2(L[0])+'</b><em>'+L[1]+'</em>'+[0,1,2,3].map(function(k){return '<u'+(o.hl===i&&o.byte===k?' class="pick"':'')+'>'+(L[1]?hx2(L[2][k]):'–')+'</u>';}).join('')+'</span>';});
+  return h+'</div>';
+}
+var VA15=[[6,'ct','TLBT'],[2,'ci','TLBI'],[6,'co','VPO']], VA15B=[[8,'ct','VPN'],[6,'co','VPO']], PA15=[[6,'ct','CT'],[4,'ci','CI'],[2,'co','CO']], PA15B=[[6,'ct','PPN'],[6,'co','PPO']];
+var VA14=[[4,'ct','VPN','d'],[6,'co','VPO']], PA14=[[3,'ci','PPN','d'],[6,'co','PPO']];
+function yn(b){return b?'Y':'N';}
+
+/* ===== a chain game: one address (or page) at a time, answered in a few taps. CHAINS[name] = {pool, head(x,k), asks(x), end(x)} ===== */
+var CHAINS={};
+TOYDEF.chain={title:'Play',
+  init:function(){return {i:0,k:0,pk:null,msg:'',slip:false,rounds:0,clean:0};},
+  out:function(st,d){
+    var C=CHAINS[d.c],x=C.pool[st.i%C.pool.length],A=C.asks(x),h=C.head(x,st.k),j,done='';
+    for(j=0;j<st.k&&j<A.length;j++)if(A[j].done)done+='<span>'+A[j].done+'</span>';
+    if(done)h+='<div class="ch-done" aria-label="Found so far">'+done+'</div>';
+    if(st.k<A.length){var a=A[st.k];h+=(a.vis||'')+chipAsk((st.k+1)+'. '+a.q,a.o,'a',st.pk,a.r)+msgP(st);}
+    else h+=C.end(x)+'<div class="toy-btns"><button class="btn sm" data-ta="next">Next one ▶</button></div>';
+    return h+'<p class="fine">Rounds played: '+st.rounds+' · with no slips: '+st.clean+'</p>';
+  },
+  act:function(st,a,el,d){
+    var C=CHAINS[d.c],x=C.pool[st.i%C.pool.length],A=C.asks(x),p=a.split(':');
+    st.msg='';
+    if(a==='next'&&st.k>=A.length){st.i++;st.k=0;st.pk=null;st.slip=false;return;}
+    if(p[0]==='a'&&st.k<A.length){var q=A[st.k],v=+p[1];
+      if(v===q.r){st.k++;st.pk=null;if(st.k>=A.length){st.rounds++;if(!st.slip)st.clean++;}}
+      else{st.pk=v;st.slip=true;st.msg=(q.w&&q.w[v])||q.h||'Not quite. Try another one.';}
+    }
+  }};
+
+/* L96: where is this virtual page? (Practice 14's page table) */
+CHAINS.ptstate={pool:[11,8,3,4,13,14,0,10],
+  head:function(vp,k){return '<p class="odo-big">Where is <b>VP '+vp+'</b> right now?</p>'+ptFig(PT14,8,{hl:k>=1?vp:null,hlPP:k>=2&&typeof PT14[vp]==='number'?PT14[vp]:null});},
+  asks:function(vp){
+    var x=PT14[vp],is=typeof x==='number',s=is?0:x==='d'?1:2,o1=optSet(vp,[(vp+1)%16,(vp+15)%16,is?x:(vp+8)%16],function(v){return 'PTE '+v;});
+    return [{q:'The page table has one PTE for every virtual page, in order. Which one do you read for VP '+vp+'?',o:o1.o,r:o1.r,h:'No searching needed: VP '+vp+' always uses PTE '+vp+'.',done:'PTE '+vp},
+      {q:'PTE '+vp+' has valid = '+(is?1:0)+' and says "'+(is?'→ PP '+x:x==='d'?'on disk':'null')+'". So VP '+vp+' is',o:['in DRAM (cached)','on disk, not in DRAM (uncached)','not allocated at all'],r:s,
+       w:is?{1:'valid = 1 means it\'s in DRAM right now.',2:'valid = 1 means it\'s in DRAM right now.'}:x==='d'?{0:'valid = 0, so it isn\'t in DRAM.',2:'The PTE holds a disk address, so the page does exist.'}:{0:'valid = 0, so it isn\'t in DRAM.',1:'A null PTE has no disk address: the page was never created.'},
+       done:is?'in DRAM, in PP '+x:x==='d'?'on disk only':'not allocated'}];
+  },
+  end:function(vp){var x=PT14[vp],is=typeof x==='number';return '<p class="tr-note">'+(is?'<b class="ok">Cached.</b> VP '+vp+' is in DRAM, in physical page '+x+'. Reading it is fast.':x==='d'?'<b>Uncached.</b> VP '+vp+' exists, but only on disk. Using it means a slow trip to disk first: a page fault (Part 14).':'<b>Unallocated.</b> VP '+vp+' has never been created, so it takes up no space in DRAM or on disk.')+'</p>';}};
+
+/* L101: translate a virtual address with Practice 14's page table */
+CHAINS.xlate={pool:[0x0B0,0x312,0x20A,0x021,0x13F,0x0E0,0x04F],
+  head:function(va,k){var vpn=va>>6,x=PT14[vpn];
+    return '<p class="odo-big">Translate virtual address <b>'+hxN(va,3)+'</b></p>'+bitsF(va,10,VA14,{legend:false})+(k>=1?ptFig(PT14,8,{hl:vpn,hlPP:k>=3&&typeof x==='number'?x:null,key:false}):'');},
+  asks:function(va){
+    var vpn=va>>6,vpo=va&63,x=PT14[vpn],hit=typeof x==='number',A=[],pa=hit?x*64+vpo:0;
+    var o1=optSet(vpn,[(vpn+1)%16,(va>>4)&15,vpo&15],function(v){return 'VP '+v;});
+    A.push({q:'Pages are 64 = 2⁶ bytes, so the low 6 bits (amber) are the offset. The other 4 bits (purple) are the VPN: '+binw(vpn,4)+'. Which page is that?',o:o1.o,r:o1.r,h:'The four purple bits are worth 8, 4, 2 and 1.',done:'VPN = '+vpn});
+    A.push({q:'Read PTE '+vpn+'. Is VP '+vpn+' in DRAM?',o:['Page hit: valid = 1','Page fault: valid = 0'],r:hit?0:1,h:'Find the highlighted row and read its valid bit.',done:hit?'page hit':'page fault'});
+    if(hit){
+      var o3=optSet(x,[vpn%8,(x+1)%8,(x+7)%8],function(v){return 'PP '+v;});
+      A.push({q:'Which physical page number (PPN) takes the VPN\'s place?',o:o3.o,r:o3.r,h:'PTE '+vpn+' points to it.',done:'PPN = '+x+' = '+binw(x,3)});
+      var o4=optSet(pa,[va&0x1FF,vpo,(x*16+(vpo&15))&0x1FF,(pa+64)%512],function(v){return hxN(v,3);});
+      A.push({vis:'<p class="fine">PPN, then the same six offset bits:</p>'+bitsF(pa,9,PA14,{legend:false}),q:'Read those 9 bits as hex. The physical address is',o:o4.o,r:o4.r,h:'Group the bits in fours from the right: '+binw(pa>>8,1)+' '+binw((pa>>4)&15,4)+' '+binw(pa&15,4)+'.',done:'PA = '+hxN(pa,3)});
+    }
+    return A;
+  },
+  end:function(va){var vpn=va>>6,vpo=va&63,x=PT14[vpn],hit=typeof x==='number';
+    return hit?'<p class="tr-note"><b class="ok">Translated.</b> '+hxN(va,3)+' → <b>'+hxN(x*64+vpo,3)+'</b>. The page number changed from '+vpn+' to '+x+'. The offset, '+hxN(vpo,2)+', stayed the same.</p>'
+      :'<p class="tr-note"><b class="no">Page fault.</b> PTE '+vpn+' has valid = 0, so VP '+vpn+' isn\'t in DRAM and there is no physical address yet. The operating system has to load the page first. That\'s the next level.</p>';}};
+
+/* L107: the first half of Practice 15: virtual address -> TLB -> page table -> PPN */
+function tlbAsks(va,from){
+  var r=trip15(va),A=[],set=TLB15[r.ti];
+  var o1=optSet(r.vpn,[va>>8,(va>>4)&0xFF,r.vpo],function(v){return hxN(v,2);});
+  A.push({q:'The top 8 bits (purple and teal together) are the VPN: '+binw(r.vpn>>4,4)+' '+binw(r.vpn&15,4)+'. In hex, that\'s',o:o1.o,r:o1.r,h:'Each group of four bits is one hex digit.',done:'VPN = '+hxN(r.vpn,2)});
+  A.push({q:'TLBI is the low 2 bits of the VPN (teal): '+binw(r.ti,2)+'. Which TLB set is that?',o:['Set 0','Set 1','Set 2','Set 3'],r:r.ti,h:'Two bits, worth 2 and 1.',done:'TLBI = '+hxN(r.ti)});
+  var o3=optSet(r.tt,[r.vpn,(r.tt+1)%64,r.vpn&15,r.ti],function(v){return hxN(v,2);});
+  A.push({q:'TLBT is the rest of the VPN (purple): '+binw(r.tt>>4,2)+' '+binw(r.tt&15,4)+'. In hex, that\'s',o:o3.o,r:o3.r,h:'Six bits: the first two make one hex digit, the last four make the other.',done:'TLBT = '+hxN(r.tt,2)});
+  A.push({vis:tlb15Tbl({set:r.ti}),q:'Look along set '+r.ti+' for tag '+hx2(r.tt)+' with valid = 1.',o:['TLB hit','TLB miss'],r:r.way>=0?0:1,
+    h:r.way>=0?'Check each of the four entries in set '+r.ti+': one has tag '+hx2(r.tt)+' and valid = 1.':r.tlbInv?'Tag '+hx2(r.tt)+' is there, but its valid bit is 0. That entry doesn\'t count.':'None of the four tags in set '+r.ti+' is '+hx2(r.tt)+'.',
+    done:r.way>=0?'TLB hit: PPN = '+hxN(r.ppn,2):'TLB miss'});
+  if(r.way<0){
+    var cand=[],opts,want='PPN '+hxN(r.ppn==null?0:r.ppn,2);
+    [1,15,2,14,3,13].forEach(function(d){var p=PT15[(r.vpn+d)%16];if(p!=null&&p!==r.ppn&&cand.indexOf(p)<0)cand.push(p);});
+    opts=r.fault?['PPN '+hxN(cand[0],2),'Page fault: valid = 0','PPN '+hxN(cand[1],2)]:['PPN '+hxN(cand[0],2),want,'Page fault: valid = 0'];
+    if(!r.fault&&r.vpn%2)opts=[opts[1],opts[2],opts[0]];
+    A.push({vis:pt15Tbl({hl:r.vpn}),q:'TLB miss, so the MMU reads the page table in memory instead. What does the row for VPN '+hx2(r.vpn)+' say?',o:opts,r:r.fault?1:opts.indexOf(want),h:'Find the highlighted row. Is its valid bit 1?',done:r.fault?'page fault':'page table: PPN = '+hxN(r.ppn,2)});
+  }
+  return A;
+}
+CHAINS.tlb={pool:[0x03D4,0x0020,0x0369,0x01A3,0x023A,0x015D],
+  head:function(va){return '<p class="odo-big">Virtual address <b>'+hxN(va,4)+'</b></p>'+bitsF(va,14,VA15,{legend:false});},
+  asks:function(va){return tlbAsks(va);},
+  end:function(va){var r=trip15(va);
+    return '<p class="tr-note">'+(r.way>=0?'<b class="ok">TLB hit.</b> The PPN, '+hxN(r.ppn,2)+', came straight from the TLB, with no trip to the page table.':r.fault?'<b class="no">Page fault.</b> Not in the TLB, and the page table says valid = 0. There is no PPN, so the worksheet answer is "---".':'<b>TLB miss, no page fault.</b> The TLB didn\'t have it, but the page table did: PPN '+hxN(r.ppn,2)+'. A TLB miss only costs one extra memory read.')+'</p>'+
+      rowBoard(['VPN','TLB index','TLB tag','TLB hit? (Y/N)','Page fault? (Y/N)','PPN'],[hxN(r.vpn),hxN(r.ti),hxN(r.tt),yn(r.way>=0),yn(r.fault),r.fault?'---':hxN(r.ppn)])({});}};
+
+/* L108: the second half of Practice 15: PPN + offset -> physical address -> cache */
+function cacheAsks(va){
+  var r=trip15(va),A=[],L=C15[r.ci];
+  var o1=optSet(r.pa,[va&0xFFF,(r.ppn*16+(r.vpo&15))&0xFFF,(r.pa+64)%4096],function(v){return hxN(v,3);});
+  A.push({q:'Put the PPN ('+binw(r.ppn,6)+') in front of the same six offset bits ('+binw(r.vpo,6)+'). In hex, the physical address is',o:o1.o,r:o1.r,h:'Group the 12 bits in fours: '+binw(r.pa>>8,4)+' '+binw((r.pa>>4)&15,4)+' '+binw(r.pa&15,4)+'.',done:'PA = '+hxN(r.pa,3)});
+  A.push({q:'Now it\'s a Part 10 cache lookup. CO is the low 2 bits (amber): '+binw(r.co,2)+' =',o:['0x0','0x1','0x2','0x3'],r:r.co,h:'Two bits, worth 2 and 1.',done:'CO = '+hxN(r.co)});
+  var o3=optSet(r.ci,[(r.ci+1)%16,r.pa&15,(r.pa>>4)&15,(r.ci+8)%16],function(v){return hxN(v);});
+  A.push({q:'CI is the next 4 bits (teal): '+binw(r.ci,4)+'. Which cache set?',o:o3.o,r:o3.r,h:'Four bits, worth 8, 4, 2 and 1. Don\'t use the bottom two bits: those are CO.',done:'CI = '+hxN(r.ci)});
+  var o4=optSet(r.ct,[(r.pa>>4)&0xFF,(r.ct+1)%64,r.vpn],function(v){return hxN(v,2);});
+  A.push({q:'CT is the top 6 bits (purple): '+binw(r.ct>>4,2)+' '+binw(r.ct&15,4)+' =',o:o4.o,r:o4.r,h:'They are the same six bits as the PPN.',done:'CT = '+hxN(r.ct,2)+', the same bits as the PPN'});
+  A.push({vis:c15Tbl({hl:r.ci}),q:'Look at set '+hxN(r.ci)+'. Does it hold tag '+hx2(r.ct)+' with valid = 1?',o:['Cache hit','Cache miss'],r:r.chit?0:1,
+    h:r.chit?'The highlighted row has tag '+hx2(r.ct)+' and V = 1.':r.cInv?'The tag matches, but V = 0, so the line holds nothing real.':'That set holds tag '+hx2(L[0])+', not '+hx2(r.ct)+'.',done:r.chit?'cache hit':'cache miss'});
+  if(r.chit)A.push({vis:c15Tbl({only:r.ci,hl:r.ci}),q:'CO = '+r.co+'. Which byte comes back?',o:L[2].map(function(b,k){return 'B'+k+': '+hxN(b,2);}),r:r.co,h:'CO = '+r.co+' means byte B'+r.co+'.',done:'byte = '+hxN(r.byte,2)});
+  return A;
+}
+CHAINS.cache15={pool:[0x03D4,0x0020,0x0369,0x023A,0x015D,0x034E],
+  head:function(va,k){var r=trip15(va);return '<p class="odo-big">VA <b>'+hxN(va,4)+'</b> → PPN <b>'+hxN(r.ppn,2)+'</b></p><p class="fine">The MMU found the PPN. The offset, '+hxN(r.vpo,2)+', never changes.</p>'+bitsF(r.pa,12,k>=1?PA15:PA15B,{legend:false});},
+  asks:function(va){return cacheAsks(va);},
+  end:function(va){var r=trip15(va);
+    return '<p class="tr-note">'+(r.chit?'<b class="ok">Cache hit.</b> The byte <b>'+hxN(r.byte,2)+'</b> goes back to the CPU.':'<b class="no">Cache miss.</b> The byte isn\'t in the cache, so it has to come from memory. On the worksheet, "Cache byte returned" is "---".')+'</p>'+
+      rowBoard(['Byte offset (CO)','Cache index (CI)','Cache tag (CT)','Cache hit? (Y/N)','Cache byte returned'],[hxN(r.co),hxN(r.ci),hxN(r.ct),yn(r.chit),r.chit?hxN(r.byte):'---'])({});}};
+
+/* ---- guided steps and boards for the demo system, built from trip15 so every answer is computed ---- */
+function ops15(right,others,fmt){var o=[right];others.forEach(function(v){if(v!=null&&o.indexOf(v)<0&&o.length<4)o.push(v);});return o.map(fmt||function(v){return hxN(v);});}
+function g15tr(va){
+  var r=trip15(va),set=TLB15[r.ti],S=[];
+  S.push({label:'VPN',ask:'The VPN is the top 8 bits: '+binw(r.vpn>>4,4)+' '+binw(r.vpn&15,4)+' =',options:ops15(r.vpn,[(va>>4)&0xFF,va>>8,r.vpo]),answer:0,hint:'Each group of four bits is one hex digit.',say:'VPN = '+hxN(r.vpn)+'.',fill:{vpn:hxN(r.vpn)}});
+  S.push({label:'TLB index',ask:'TLBI is the low 2 bits of the VPN: '+binw(r.ti,2)+' =',options:['0x0','0x1','0x2','0x3'],answer:r.ti,keep:true,hint:'Two bits, worth 2 and 1.',say:'TLB set '+r.ti+'.',fill:{ti:hxN(r.ti)}});
+  S.push({label:'TLB tag',ask:'TLBT is the other 6 bits of the VPN: '+binw(r.tt>>4,2)+' '+binw(r.tt&15,4)+' =',options:ops15(r.tt,[r.vpn,(r.tt+1)%64,r.vpn&15,r.tt+4]),answer:0,hint:'The first two bits make one hex digit, and the last four make the other.',say:'TLBT = '+hxN(r.tt)+'.',fill:{tt:hxN(r.tt)}});
+  S.push({label:'TLB hit?',ask:'Set '+r.ti+' holds tags '+set.map(function(e){return hx2(e[0]);}).join(', ')+'. '+(r.way>=0?'Tag '+hx2(r.tt)+' is there, with valid = 1.':r.tlbInv?'Tag '+hx2(r.tt)+' is there, but its valid bit is 0.':'Tag '+hx2(r.tt)+' isn\'t one of them.')+' TLB hit?',options:['Y','N'],answer:r.way>=0?0:1,keep:true,
+    say:r.way>=0?'A valid entry with the right tag: a hit. It gives PPN '+hxN(r.ppn)+'.':r.tlbInv?'An entry with valid = 0 never counts. That\'s a miss.':'No matching tag. That\'s a miss.',fill:{th:yn(r.way>=0)}});
+  S.push({label:'Page fault?',ask:(r.way>=0?'A TLB hit means the page is in memory.':'TLB miss, so read the page table. The row for VPN '+hx2(r.vpn)+' has '+(r.fault?'valid = 0.':'PPN '+hx2(r.ppn)+' and valid = 1.'))+' Page fault?',options:['Y','N'],answer:r.fault?0:1,keep:true,
+    say:r.fault?'valid = 0: the page isn\'t in DRAM. Page fault.':'The page is in DRAM. No page fault.',fill:{pf:yn(r.fault)}});
+  S.push({label:'PPN',ask:r.fault?'With a page fault, what do you write for the PPN?':'So the PPN is',options:r.fault?['---','0x0',hxN(r.vpn)]:ops15(r.ppn,[r.vpn,0x13,0x2D,0x11]).slice(0,3).concat(['---']),answer:0,
+    say:r.fault?'There is no physical page yet, so the answer is "---".':'PPN = '+hxN(r.ppn)+(r.way>=0?', from the TLB.':', from the page table.'),fill:{ppn:r.fault?'---':hxN(r.ppn)}});
+  return S;
+}
+function b15tr(va){var r=trip15(va);return function(f){
+  return bitsF(va,14,VA15,{legend:false})+(f.ti!=null&&(f.th==null||(r.way>=0&&f.ppn==null))?tlb15Tbl({set:r.ti,way:f.th!=null?r.way:null}):'')+(f.th!=null&&r.way<0&&f.ppn==null?pt15Tbl({hl:r.vpn}):'')+
+    rowBoard(['VPN','TLB index','TLB tag','TLB hit? (Y/N)','Page fault? (Y/N)','PPN'],[{k:'vpn'},{k:'ti'},{k:'tt'},{k:'th'},{k:'pf'},{k:'ppn'}])(f);};}
+function g15pa(va){
+  var r=trip15(va);
+  return [{label:'PPN',ask:'PPN '+hxN(r.ppn)+' as 6 bits is',options:[binw(r.ppn,6),binw((r.ppn*2)%64,6),binw(r.ppn^3,6)],answer:0,hint:'Two bits for the first hex digit, four for the second.',say:binw(r.ppn,6)+'.'},
+    {label:'Offset',ask:'The offset is the low 6 bits of the virtual address, unchanged:',options:[binw(r.vpo,6),binw(r.vpn&63,6),binw((r.vpo>>1)|32,6)].filter(function(v,i,a){return a.indexOf(v)===i;}),answer:0,hint:'Read the last six bits of '+hxN(va,4)+'.',say:'PPO = VPO = '+binw(r.vpo,6)+'.',fill:{bits:'1'}},
+    {label:'Hex',ask:'Group the 12 bits in fours: '+binw(r.pa>>8,4)+' '+binw((r.pa>>4)&15,4)+' '+binw(r.pa&15,4)+'. In hex, the physical address is',options:ops15(r.pa,[va&0xFFF,(r.ppn*16+(r.vpo&15))&0xFFF,(r.pa+64)%4096],function(v){return hxN(v,3);}),answer:0,say:'Physical address = '+hxN(r.pa,3)+'.',fill:{pa:hxN(r.pa,3)}}];
+}
+function b15pa(va){var r=trip15(va);return function(f){return bitsF(r.pa,12,PA15B,{legend:false,blank:f.bits==null})+rowBoard(['Physical address'],[{k:'pa'}])(f);};}
+function g15ca(va){
+  var r=trip15(va),L=C15[r.ci];
+  return [{label:'Byte offset',ask:'CO is the low 2 bits of the physical address: '+binw(r.co,2)+' =',options:['0x0','0x1','0x2','0x3'],answer:r.co,keep:true,hint:'Two bits, worth 2 and 1.',say:'CO = '+hxN(r.co)+'.',fill:{co:hxN(r.co)}},
+    {label:'Cache index',ask:'CI is the next 4 bits: '+binw(r.ci,4)+' =',options:ops15(r.ci,[(r.ci+15)%16,(r.pa>>4)&15,r.pa&15,(r.ci+8)%16]),answer:0,hint:'Four bits, worth 8, 4, 2 and 1.',say:'Cache set '+hxN(r.ci)+'.',fill:{ci:hxN(r.ci)}},
+    {label:'Cache tag',ask:'CT is the top 6 bits: '+binw(r.ct>>4,2)+' '+binw(r.ct&15,4)+' =',options:ops15(r.ct,[(r.pa>>4)&0xFF,(r.ct+1)%64,r.pa&63]),answer:0,hint:'They are the same six bits as the PPN.',say:'CT = '+hxN(r.ct)+', the same bits as the PPN.',fill:{ct:hxN(r.ct)}},
+    {label:'Cache hit?',ask:'Set '+hxN(r.ci)+' holds tag '+hx2(L[0])+' with valid = '+L[1]+'. You want tag '+hx2(r.ct)+'. Cache hit?',options:['Y','N'],answer:r.chit?0:1,keep:true,say:r.chit?'The tag matches and the line is valid: a hit.':r.cInv?'The tag matches, but valid = 0. That\'s a miss.':'The tags are different. That\'s a miss.',fill:{ch:yn(r.chit)}},
+    {label:'Byte',ask:r.chit?'CO = '+r.co+', so the cache returns':'On a cache miss, what goes in "Cache byte returned"?',options:r.chit?L[2].map(function(b,k){return 'B'+k+': '+hxN(b,2);}):['---','0x0','0x3A'],answer:r.chit?r.co:0,keep:r.chit,say:r.chit?'Byte '+hxN(r.byte,2)+'.':'Nothing comes back from the cache, so write "---".',fill:{by:r.chit?hxN(r.byte):'---'}}];
+}
+function b15ca(va){var r=trip15(va);return function(f){
+  return bitsF(r.pa,12,PA15,{legend:false})+(f.co!=null&&f.by==null?c15Tbl({hl:f.ci!=null?r.ci:null}):'')+
+    rowBoard(['Byte offset (CO)','Cache index (CI)','Cache tag (CT)','Cache hit? (Y/N)','Cache byte returned'],[{k:'co'},{k:'ci'},{k:'ct'},{k:'ch'},{k:'by'}])(f);};}
+/* guided steps and board for a Practice 14 translation (T = the page table to use) */
+function g14(va,o){
+  o=o||{};var vpn=va>>6,vpo=va&63,x=PT14[vpn],hit=typeof x==='number',S=[],pp=hit?x:o.load,pa=pp*64+vpo;
+  S.push({label:'Binary',ask:'Write '+hxN(va,3)+' as 10 bits:',options:[va,va^0x100,((va&15)<<4)|((va>>4)&15)|(va&0x300),va^0x48,va^0x211].filter(function(v,i,a){return a.indexOf(v)===i;}).slice(0,3).map(function(v){return binw(v>>8,2)+' '+binw((v>>4)&15,4)+' '+binw(v&15,4);}),answer:0,hint:'The first hex digit only needs two bits here, because the address is 10 bits.',say:'Ten bits.',fill:{bits:'1'}});
+  S.push({label:'VPN',ask:'P = 64 = 2⁶, so the low 6 bits are the offset. The top 4 bits are '+binw(vpn,4)+'. Which page is that?',options:o.vps||ops15(vpn,[(vpn+1)%16,(va>>4)&15,vpo&15],function(v){return 'VP '+v;}),answer:0,hint:'The four bits are worth 8, 4, 2 and 1.',say:'VPN = '+vpn+'.',fill:{vpn:'VP '+vpn}});
+  S.push({label:'Hit?',ask:'PTE '+vpn+' has valid = '+(hit?'1, and points to PP '+x:'0')+'. So this is a',options:['page hit','page fault'],answer:hit?0:1,keep:true,say:hit?'The page is in DRAM.':'The page isn\'t in DRAM, so it has to be loaded before the address can be translated.',fill:hit?{}:{pf:'1'}});
+  if(!hit)S.push({label:'Load',ask:'The handler loads VP '+vpn+' into PP '+o.load+', replacing the page that was there. Which page leaves?',options:ops15(PT14.indexOf(o.load),[vpn,o.load,(PT14.indexOf(o.load)+1)%16],function(v){return 'VP '+v;}),answer:0,hint:'Look at what PP '+o.load+' holds in the physical memory list.',say:'VP '+PT14.indexOf(o.load)+' goes back to disk, and VP '+vpn+' takes its place in PP '+o.load+'.',fill:{ld:'1'}});
+  S.push({label:'PPN',ask:'PP '+pp+' as 3 bits is',options:[binw(pp,3),binw((pp+1)%8,3),binw((pp+4)%8,3)],answer:0,hint:'Three bits, worth 4, 2 and 1.',say:'PPN = '+binw(pp,3)+'.'});
+  S.push({label:'Address',ask:'PPN '+binw(pp,3)+', then the same offset '+binw(vpo,6)+': '+binw(pa>>8,1)+' '+binw((pa>>4)&15,4)+' '+binw(pa&15,4)+'. In hex:',options:o.pas||ops15(pa,[va&0x1FF,(pa+64)%512,vpo],function(v){return hxN(v,3);}),answer:0,hint:'Group the 9 bits in fours from the right.',say:'Physical address = '+(o.pas?hxN(pa):hxN(pa,3))+'.',fill:{pa:o.pas?hxN(pa):hxN(pa,3)}});
+  return S;
+}
+function b14(va,o){
+  o=o||{};var vpn=va>>6,x=PT14[vpn],hit=typeof x==='number',T2=null;
+  if(!hit){T2=PT14.slice();T2[PT14.indexOf(o.load)]='d';T2[vpn]=o.load;}
+  return function(f){var T=(!hit&&f.ld)?T2:PT14,pp=hit?x:o.load;
+    return bitsF(va,10,VA14,{legend:false,blank:f.bits==null})+ptFig(T,8,{hl:f.vpn!=null?vpn:null,hlPP:f.pa!=null||(!hit&&f.ld)?pp:null,key:false})+rowBoard(['Which VPN?','Physical address'],[{k:'vpn'},{k:'pa'}])(f);};
+}
+
+/* ===================== v10 walkthroughs for Parts 13-15 ===================== */
+function vpStates(){var S=[['n','unallocated'],['c','cached'],['u','uncached'],['n','unallocated'],['c','cached'],['u','uncached'],['c','cached'],['u','uncached']];
+  return '<div class="vps" role="img" aria-label="Eight virtual pages and their states">'+S.map(function(s,i){return '<span class="vp '+s[0]+'"><b>VP '+i+'</b><i>'+s[1]+'</i></span>';}).join('')+'</div>';}
+function pgStrip(){var h='<div class="pgs" role="img" aria-label="16 addresses cut into 4 pages of 4 bytes">';for(var p=0;p<4;p++){h+='<span class="pg"><i>page '+p+'</i><span>';for(var k=0;k<4;k++)h+='<b>'+(p*4+k)+'</b>';h+='</span></span>';}return h+'</div>';}
+
+WALKS.vmuses={steps:[
+ {t:'Job 1: every program gets its own memory',
+  intro:`<p>In Part 12, programs used virtual addresses and the MMU translated them. Why go to the trouble? Virtual memory does three jobs. The first is <b>memory management</b>.</p><p>Each running program (a <b>process</b>) gets its own private address space, cut into <b>virtual pages</b> (VPs). Real memory is cut into <b>physical pages</b> (PPs), and any VP can be put in any PP:</p>`,
+  vis:function(){return tblS(['','its VP 1 is in','its VP 2 is in'],[['Process 1','PP 2','PP 6'],['Process 2','PP 8','PP 6']]);},
+  asks:[{q:'Both processes use a page called VP 1. Do they get in each other\'s way?',o:['Yes: the same VP means the same memory','No: each VP 1 is in a different physical page'],r:1,h:'Look at where each process\'s VP 1 really lives.',
+    say:'Process 1\'s VP 1 is in PP 2, and process 2\'s is in PP 8. Each process sees one simple, private stretch of memory, and the mapping keeps them apart.'}]},
+ {t:'Sharing on purpose',
+  intro:`<p>Two virtual pages can also be mapped to the <b>same</b> physical page:</p>`,
+  vis:function(){return tblS(['','its VP 1 is in','its VP 2 is in'],[['Process 1','PP 2','PP 6'],['Process 2','PP 8','PP 6']]);},
+  asks:[{q:'Which physical page do both processes share?',o:['PP 2','PP 6','PP 8'],r:1,h:'Find the PP that shows up in both rows.',
+    say:'Both VP 2s live in <b>PP 6</b>. That\'s how one copy of read-only library code can be shared by every program that uses it.'},
+   {q:'Every program\'s code starts at the same virtual address, 0x400000. Is that a problem?',o:['No: each process has its own address space','Yes: they would overwrite each other'],r:0,h:'The same virtual address in two processes can map to two different physical pages.',
+    say:'It makes <b>linking and loading</b> simpler: every program can be laid out the same way.'}]},
+ {t:'Job 2: protection',
+  intro:`<p>Each page table entry also carries <b>permission bits</b>. Here is process i from your slide. <b>SUP = Yes</b> means only the kernel (supervisor mode) may touch that page.</p>`,
+  vis:function(){return tblS(['','SUP','READ','WRITE','Address'],[['VP 0','No','Yes','No','PP 6'],['VP 1','No','Yes','Yes','PP 4'],['VP 2','Yes','Yes','Yes','PP 2']]);},
+  asks:[{q:'A user program tries to write to VP 0.',o:['Allowed','Segmentation fault'],r:1,h:'Read VP 0\'s WRITE column.',say:'WRITE is No for VP 0. The process is sent <b>SIGSEGV</b>: a segmentation fault.'},
+   {q:'A user program reads VP 1.',o:['Allowed','Segmentation fault'],r:0,h:'VP 1: SUP is No and READ is Yes.',say:'READ is Yes, and it doesn\'t need supervisor mode. Allowed.'},
+   {q:'A user program reads VP 2.',o:['Allowed','Segmentation fault'],r:1,h:'Read VP 2\'s SUP column.',say:'SUP is Yes: only the kernel may use VP 2. A user program gets a segmentation fault.'}]},
+ {t:'Job 3: caching',
+  intro:`<p>The third job is the big one: virtual memory uses <b>DRAM as a cache for the disk</b>. A program's pages live on disk, and the ones in use are kept in DRAM.</p>`,
+  asks:[{q:'In Part 6\'s pyramid, main memory is the cache for',o:['the CPU registers','the local disk','the L1 cache'],r:1,h:'Each level caches the slower level just below it.',
+    say:'Main memory (DRAM) sits just above the disk. The rest of this part is about how that cache is built.'}],
+  end:'<ul class="facts"><li><b>Memory management</b>: each process has its own address space.</li><li><b>Protection</b>: permission bits on every page.</li><li><b>Caching</b>: DRAM holds the pages in use; the rest stay on disk.</li></ul>'}
+]};
+
+WALKS.pages={steps:[
+ {t:'Memory is cut into pages',
+  intro:`<p>Picture a program's virtual memory as an array of N bytes stored on disk. It's cut into blocks called <b>pages</b>, and each page is <b>P = 2ᵖ</b> bytes. DRAM is cut into pages of the same size.</p>`,
+  asks:[{q:'A typical page is 4 KB = 4,096 bytes. So p =',o:['10','12','4'],r:1,h:'4K = 2² × 2¹⁰.',say:'P = 2¹², so <b>p = 12</b>. Pages are the "cache blocks" of virtual memory.'}]},
+ {t:'Three kinds of virtual page',
+  intro:`<p>At any moment, every virtual page is in one of three states:</p>`,
+  vis:function(){return vpStates();},
+  asks:[{q:'A page that has been created and is sitting in DRAM right now is',o:['cached','uncached','unallocated'],r:0,h:'It\'s in the DRAM cache.',say:'<b>Cached</b>: in DRAM, fast to use.'},
+   {q:'A page that exists on disk, but isn\'t in DRAM, is',o:['cached','uncached','unallocated'],r:1,h:'It exists, but it isn\'t in the cache.',say:'<b>Uncached</b>: using it means fetching it from disk first.'},
+   {q:'A page the program hasn\'t created yet takes up no space anywhere. It is',o:['cached','uncached','unallocated'],r:2,h:'Nothing has been set aside for it.',say:'<b>Unallocated</b>.'}]},
+ {t:'A miss here is a disaster',
+  intro:`<p>When a CPU cache misses, it goes to DRAM, which is about 10× slower than SRAM. When the DRAM cache misses, it goes to <b>disk</b>, which is about <b>10,000×</b> slower than DRAM.</p>`,
+  asks:[{q:'So the DRAM cache is designed to',o:['be as simple and cheap as possible','avoid misses at almost any cost'],r:1,h:'One miss costs as much as about 10,000 hits.',say:'Everything about it follows from that huge miss penalty.'}]},
+ {t:'Three design choices',
+  intro:`<p>Make the same three choices the designers did:</p>`,
+  asks:[{q:'How big should a page be?',o:['Small, like a 64-byte cache block','Big: 4 to 8 KB'],r:1,h:'One slow trip to disk should bring back a lot.',say:'<b>Large pages</b>: typically 4 to 8 KB, sometimes 4 MB.'},
+   {q:'Where may a virtual page go in DRAM?',o:['In just one place, like a direct-mapped cache','In any physical page'],r:1,h:'A fixed place would cause conflict misses, and every miss is a disaster.',say:'<b>Fully associative</b>: any VP can go in any PP, so there are no conflict misses. Something has to remember where each page went. That\'s the page table, next level.'},
+   {q:'A page in DRAM gets changed. When is it written to disk?',o:['Right away: write-through','Only when it has to leave DRAM: write-back'],r:1,h:'Disk writes are slow, so put them off.',say:'<b>Write-back</b>, like Part 11\'s dirty bit.'}],
+  end:'<p class="fine">And the page to evict is chosen by the operating system, in software, with smarter replacement algorithms than a CPU cache has time for.</p>'}
+]};
+
+WALKS.ptecount={steps:[
+ {t:'One PTE for every virtual page',
+  intro:`<p>The page table has one entry (a <b>PTE</b>) for <b>every</b> virtual page, whether the page is in DRAM or not. So counting PTEs is just counting pages.</p>`,
+  vis:function(){return pgStrip();},
+  asks:[{q:'A tiny system has 16 addresses and 4-byte pages. How many pages is that?',o:['4','12','64'],r:0,h:'How many groups of 4 fit in 16?',say:'16 ÷ 4 = <b>4 pages</b>, so the page table has 4 PTEs.'}]},
+ {t:'Dividing subtracts the exponents',
+  intro:`<p>With n address bits there are 2ⁿ addresses, and each page holds P = 2ᵖ of them:</p><div class="rule-box">PTEs = 2ⁿ ÷ 2ᵖ = 2ⁿ⁻ᵖ</div><p>The tiny system: 2⁴ ÷ 2² = 2² = 4.</p>`,
+  asks:[{q:'n = 10 and P = 64 = 2⁶. How many PTEs?',o:['2¹⁶','2⁴ = 16','2⁶⁰'],r:1,w:{0:'That adds the exponents. Dividing subtracts them: 10 − 6.',2:'Subtract the exponents, don\'t multiply them: 10 − 6.'},say:'2¹⁰ ÷ 2⁶ = 2⁴ = <b>16</b> PTEs. That\'s the system in Practice 14.'}]},
+ {t:'Page sizes as powers of 2',
+  intro:`<p>Practice 13 writes its page sizes with a K, and K is 2¹⁰:</p>`,
+  asks:[{q:'4K = 2² × 2¹⁰ = 2 to the',o:['12','40','14'],r:0,h:'Multiplying adds the exponents: 2 + 10.',say:'For 4K pages, <b>p = 12</b>.'},
+   {q:'8K = 2³ × 2¹⁰ = 2 to the',o:['11','30','13'],r:2,h:'Multiplying adds the exponents: 3 + 10.',say:'For 8K pages, <b>p = 13</b>.'}]},
+ {t:'A bigger one',
+  intro:`<p>Try n = 24 with 4K pages: PTEs = 2²⁴ ÷ 2¹² = 2¹².</p>`,
+  asks:[{q:'Written with a unit, 2¹² is',o:['4K','12K','4M'],r:0,h:'2¹² = 2² × 2¹⁰, and 2¹⁰ is K.',say:'2¹² = <b>4K</b> page table entries. When an answer box ends in K or M, split the power the way you did in Part 12.'}],
+  end:'<div class="rule-box rule-lines sm"><div>1. Write the page size as 2ᵖ</div><div>2. PTEs = 2ⁿ⁻ᵖ</div><div>3. Split that power into a number and a unit</div></div>'}
+]};
+
+WALKS.mlevel={steps:[
+ {t:'One big table is too big',
+  intro:`<p>A real machine: <b>48-bit</b> addresses, <b>4 KB</b> pages, and each PTE takes <b>8 bytes</b>.</p>`,
+  asks:[{q:'Number of PTEs = 2⁴⁸ ÷ 2¹² = 2 to the',o:['36','60','4'],r:0,h:'Dividing subtracts the exponents: 48 − 12.',say:'2³⁶ page table entries.'},
+   {q:'Each PTE is 8 = 2³ bytes, so the table takes 2³⁶ × 2³ = 2³⁹ bytes. That is',o:['512 MB','512 GB','39 GB'],r:1,h:'2³⁹ = 2⁹ × 2³⁰. 2⁹ = 512, and 2³⁰ is G.',say:'<b>512 GB</b> of DRAM for one page table. Far too much.'}]},
+ {t:'Most of it would be empty',
+  intro:`<p>A program only uses a few small regions of its huge address space: code and data near the bottom, a stack near the top, and a giant unused gap in between.</p>`,
+  asks:[{q:'So what would most of that 512 GB table hold?',o:['PTEs for pages that are in DRAM','null PTEs for pages that were never allocated'],r:1,h:'Most of the address space is the unused gap.',say:'Almost all of it would be null. That\'s the waste to get rid of.'}]},
+ {t:'Two levels',
+  intro:`<p>Split the table in two levels. A small <b>level 1</b> table is always in memory, and each of its PTEs points to one <b>level 2</b> table. Each level 2 PTE points to a page. If a whole region is unallocated, its level 1 PTE is just <b>null</b>, and its level 2 table never exists.</p><p>Your slide's example: 32-bit addresses, 4 KB pages, 4-byte PTEs. Every table has 1,024 PTEs.</p>`,
+  asks:[{q:'One level 2 table has 1,024 PTEs, and each maps one 4 KB page. How much virtual memory does one level 1 PTE cover?',o:['4 KB','4 MB','4 GB'],r:1,h:'1,024 × 4 KB. And 1,024 K is 1 M.',say:'1,024 × 4 KB = <b>4 MB</b> for each level 1 PTE.'}]},
+ {t:'Count the saving',
+  intro:`<p>The program on your slide has 2K pages of code and data (2 level 2 tables), then a big unallocated gap, then its stack (1 more level 2 table).</p>`,
+  asks:[{q:'Counting the level 1 table too, how many tables have to be in memory?',o:['4','1,024','1,025'],r:0,h:'1 level 1 table + 2 for code and data + 1 for the stack.',say:'<b>4 tables</b>. Each is 1,024 × 4 bytes = 4 KB, so 16 KB in all. One flat table would need 2²⁰ PTEs × 4 bytes = 4 MB.'}],
+  end:'<ul class="facts"><li>Level 1: always in memory. Each PTE points to a level 2 table, or is null.</li><li>Level 2: each PTE points to a page. These tables can be paged in and out like any other data.</li></ul>'}
+]};
+
+WALKS.vasplit={steps:[
+ {t:'Which page, and where in it',
+  intro:`<p>A virtual address says two things: <b>which page</b> (the virtual page number, <b>VPN</b>) and <b>where inside that page</b> (the virtual page offset, <b>VPO</b>). Start with plain numbers.</p>`,
+  asks:[{q:'Pages hold 64 bytes: page 0 has bytes 0 to 63, page 1 has 64 to 127, and so on. Which page is byte 200 in?',o:['Page 2','Page 3','Page 4'],r:1,h:'3 × 64 = 192, and 4 × 64 = 256.',say:'200 = 3 × 64 + 8. So it\'s in page 3, and 8 bytes into it: <b>VPN = 3, VPO = 8</b>.'}]},
+ {t:'In binary, it\'s just a cut',
+  intro:`<p>64 = 2⁶, so the low <b>6 bits</b> of the address are the offset and the bits above them are the page number. No dividing needed. Here is 200 as a 10-bit address:</p>`,
+  vis:function(){return bitsF(200,10,[[4,'ct','VPN','d'],[6,'co','VPO','d']]);},
+  asks:[{q:'The page size is P = 2ᵖ. How many bits is the offset?',o:['p bits','n bits','n − p bits'],r:0,h:'It takes p bits to count the 2ᵖ bytes inside one page.',say:'The <b>VPO is the low p bits</b>.'},
+   {q:'An address has n bits in all. So the VPN gets',o:['p bits','n − p bits','n + p bits'],r:1,h:'Whatever the offset doesn\'t use.',say:'The <b>VPN is the top n − p bits</b>. Here: 10 − 6 = 4 bits.'}]},
+ {t:'Swap the page number, keep the offset',
+  intro:`<p>Translating means looking up the VPN in the page table to get a <b>physical page number</b> (PPN). The offset doesn't change, because the byte sits at the same spot inside the page: <b>PPO = VPO</b>.</p><p>Say VP 3 is stored in PP 5. The virtual address is <b>0011</b> 001000.</p>`,
+  asks:[{q:'The physical address is',o:['101 001000','011 001000','101 000000'],r:0,w:{1:'That keeps the virtual page number. Swap it for PP 5 = 101.',2:'Right page, but the offset got lost. Keep the same six offset bits.'},say:'PPN 5 = <b>101</b>, then the same six offset bits. The physical address can be shorter than the virtual one: here 9 bits.'}]},
+ {t:'Back to hex',
+  intro:`<p>Addresses come in hex, so the whole trip is: hex → binary → cut → swap → hex.</p>`,
+  vis:function(){return bitsF(0x148,9,[[3,'ci','PPN','d'],[6,'co','PPO','d']]);},
+  asks:[{q:'Group 101001000 in fours from the right: 1 0100 1000. In hex that\'s',o:['0x148','0x548','0xA40'],r:0,h:'1 = 1, 0100 = 4, 1000 = 8.',say:'Virtual 0x0C8 became physical <b>0x148</b>.'}],
+  end:'<div class="rule-box rule-lines sm"><div>VPO = the low p bits</div><div>VPN = the top n − p bits</div><div>PPO = VPO</div><div>physical address = PPN, then PPO</div></div>'}
+]};
+
+WALKS.pfault={steps:[
+ {t:'Page hit',
+  intro:`<p>The CPU reads a byte in <b>VP 2</b>. The MMU looks at PTE 2:</p>`,
+  vis:function(){return ptFig(PT8,4,{hl:2,key:false});},
+  asks:[{q:'PTE 2 has valid = 1. What happens?',o:['A page fault','A page hit: the MMU builds the physical address'],r:1,h:'valid = 1 means the page is in DRAM.',
+    say:'A <b>page hit</b>. VP 2 is in PP 1, so the MMU sends the physical address to memory and the data comes back. Nothing else is needed.'}]},
+ {t:'Page fault',
+  intro:`<p>Now the CPU reads a byte in <b>VP 3</b>:</p>`,
+  vis:function(){return ptFig(PT8,4,{hl:3,key:false});},
+  asks:[{q:'PTE 3 has valid = 0, and the page is on disk. What happens?',o:['A page hit','A page fault'],r:1,h:'valid = 0: the page isn\'t in DRAM.',
+    say:'A <b>page fault</b>: a miss in the DRAM cache. The MMU raises an exception, and the operating system\'s <b>page fault handler</b> takes over.'}]},
+ {t:'Pick a victim',
+  intro:`<p>DRAM is full, so a page has to leave to make room. The handler picks a <b>victim</b>: on your slide, VP 4 in PP 3.</p>`,
+  vis:function(){return ptFig(PT8,4,{hl:4,hlPP:3,key:false});},
+  asks:[{q:'VP 4 was changed while it was in DRAM, so it\'s "dirty". Before evicting it, the handler has to',o:['write it back to disk','do nothing special'],r:0,h:'Otherwise the changes would be lost.',
+    say:'A dirty page is paged <b>out</b> to disk first. A clean page can just be dropped, because the disk already has a good copy.'}]},
+ {t:'Page in, and update the table',
+  intro:`<p>The handler copies VP 3 from disk into PP 3, and fixes the page table:</p>`,
+  vis:function(){return ptFig(PT8B,4,{hl:3,hlPP:3,key:false});},
+  asks:[{q:'Which PTEs changed?',o:['PTE 3 became valid, and PTE 4 became invalid','Only PTE 3','PTE 0 and PTE 7'],r:0,h:'One page came in, and one page left.',say:'PTE 3 now says valid = 1, → PP 3. PTE 4 says valid = 0, on disk.'}]},
+ {t:'Try again',
+  intro:`<p>The handler is done and returns to the program.</p>`,
+  asks:[{q:'The instruction that caused the fault is',o:['skipped','restarted, and this time it\'s a page hit'],r:1,h:'The program still needs that byte.',say:'It runs again from the start, finds valid = 1, and carries on as if nothing happened.'}],
+  end:'<ol class="steps"><li>The CPU sends the virtual address to the MMU.</li><li>The MMU fetches the PTE from the page table.</li><li>valid = 0, so the MMU triggers a page fault.</li><li>The handler picks a victim (and writes it to disk if it\'s dirty).</li><li>The handler pages in the new page and updates the PTEs.</li><li>The faulting instruction is restarted.</li></ol>'}
+]};
+
+WALKS.wset={steps:[
+ {t:'Locality, one more time',
+  intro:`<p>A page fault costs a trip to disk, about 10,000× slower than DRAM. Virtual memory only works because faults are rare, and they're rare because of Part 9's <b>locality</b>. At any moment a program keeps using a small group of pages, called its <b>working set</b>.</p>`,
+  asks:[{q:'A program with better temporal locality has a',o:['smaller working set','bigger working set'],r:0,h:'Better locality means it keeps reusing the same few pages.',say:'It reuses the same few pages, so its working set is <b>smaller</b>.'}]},
+ {t:'Fits, or doesn\'t',
+  intro:`<p>Everything depends on whether the working sets fit in main memory.</p>`,
+  asks:[{q:'The working set is smaller than main memory. After the first few faults bring its pages in, the program',o:['runs fast, with almost no faults','faults on nearly every access'],r:0,h:'Everything it needs is already in DRAM.',say:'Good performance, after those first compulsory misses.'},
+   {q:'Several programs run at once, and their working sets <b>added together</b> are bigger than main memory. Now pages are',o:['all sitting in DRAM','swapped in and out continuously'],r:1,h:'There isn\'t room for every page that\'s in use.',say:'That meltdown is called <b>thrashing</b>: the machine spends its time moving pages instead of running programs.'}]},
+ {t:'Two ways to see virtual memory',
+  intro:`<p>To finish, the two views from your slides.</p>`,
+  asks:[{q:'To the programmer, each process has',o:['its own private, linear address space','the machine\'s real physical addresses'],r:0,h:'That was job 1: memory management.',say:'A private address space that other processes can\'t corrupt.'},
+   {q:'To the system, virtual memory uses DRAM efficiently by',o:['keeping every page in DRAM','caching only the pages in use'],r:1,h:'That was job 3: caching.',say:'It caches pages, and that\'s only efficient because of locality.'}],
+  end:'<ul class="facts"><li><b>Working set</b>: the pages a program is actively using.</li><li>Working set &lt; main memory: fast.</li><li>Sum of working sets &gt; main memory: <b>thrashing</b>.</li></ul>'}
+]};
+
+WALKS.tlbidea={steps:[
+ {t:'Translating costs a memory read',
+  intro:`<p>Every memory access needs its PTE first, and the page table lives in memory. So without help, every access costs an <b>extra</b> memory read, just to translate the address.</p>`,
+  asks:[{q:'The fix for "this lookup is slow, and we do it all the time" is always the same. Add a',o:['bigger disk','cache','second page table'],r:1,h:'It\'s what Parts 10 to 14 have all been about.',say:'A cache, this time for page table entries.'}]},
+ {t:'The TLB',
+  intro:`<p>The <b>translation lookaside buffer</b> (TLB) is a small cache inside the MMU. It maps virtual page numbers straight to physical page numbers: each entry holds a whole PTE.</p>`,
+  asks:[{q:'On a <b>TLB hit</b>, how many memory reads does the translation take?',o:['None: the PPN comes straight from the TLB','One','Two'],r:0,h:'The TLB is inside the MMU, not in memory.',say:'A TLB hit <b>eliminates a memory access</b>.'},
+   {q:'On a <b>TLB miss</b>, the MMU has to',o:['stop with a page fault','fetch the PTE from the page table in memory'],r:1,h:'The page table still has every PTE.',say:'One extra memory read to get the PTE. The translation still works.'}]},
+ {t:'A TLB miss is not a page fault',
+  intro:`<p>Practice 15 asks about these separately, so keep them apart. The <b>TLB</b> answers "is this PTE cached in the MMU?" The <b>valid bit</b> in the PTE answers "is the page in DRAM?"</p>`,
+  asks:[{q:'TLB miss. The MMU reads the PTE from memory, and it says valid = 1.',o:['Page fault','No page fault'],r:1,h:'valid = 1 means the page is in DRAM.',say:'TLB hit? <b>N</b>. Page fault? <b>N</b>. The page was in DRAM all along. The TLB just hadn\'t cached its PTE.'},
+   {q:'TLB miss. The MMU reads the PTE from memory, and it says valid = 0.',o:['Page fault','No page fault'],r:0,h:'valid = 0 means the page isn\'t in DRAM.',say:'TLB hit? <b>N</b>. Page fault? <b>Y</b>. Now the page really is missing.'}]},
+ {t:'Why TLB misses are rare',
+  intro:`<p>A TLB is small, yet it almost always hits.</p>`,
+  asks:[{q:'A page is thousands of bytes, and programs have good locality. So thousands of accesses in a row need',o:['a new TLB entry every time','the same few TLB entries'],r:1,h:'They all land on the same few pages.',say:'One TLB entry covers a whole page, so a few entries cover nearly everything a program is doing.'}],
+  end:'<ul class="facts"><li>Temporal and spatial locality.</li><li>Large page sizes: one entry covers a lot of memory.</li><li>Smart TLB management, and multi-level TLBs.</li></ul>'}
+]};
+
 var LEVELS=[
 /* ===== Part 1 · Moving Data ===== */
 {id:'dir',sec:'p1',name:'Which way does it go?',short:'Which way',
@@ -5569,6 +6016,330 @@ qs:[
 {vis:flowRow(['CPU','VA 4100','MMU','PA 4','main memory']),prompt:'In this picture, which address does the program use?',options:['4100, the virtual address','4, the physical address'],answer:0,keep:true,explain:'Programs see virtual addresses. Only the MMU and memory deal with the physical one.'}
 ]},
 
+/* ===================== Part 13: page tables ===================== */
+{id:'vmuses',sec:'p13',name:'Three jobs of virtual memory',short:'Three jobs',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"Virtual memory does three jobs: <b>memory management</b> (every process gets its own address space), <b>protection</b> (permission bits on every page) and <b>caching</b> (DRAM holds the pages in use).",
+lesson:`<p>Part 12 showed <b>what</b> virtual addresses are. This part shows what they're <b>for</b>, in 4 small steps:</p>`+
+toy('walk',{w:'vmuses',title:'Try it · what virtual memory is for'}),
+qs:[
+{prompt:'Virtual memory does three jobs. Which of these is <b>not</b> one of them?',options:['Making the disk spin faster','Memory management','Memory protection','Caching'],answer:0,explain:'The three are memory management, protection and caching.'},
+{prompt:'Each process gets its own',options:['virtual address space','DRAM chip','disk'],answer:0,explain:'Every process sees its own private, linear address space.'},
+{prompt:'A virtual page can be mapped to',options:['any physical page','only the physical page with the same number','only physical page 0'],answer:0,explain:'Any VP can go in any PP, and it can be in different PPs at different times.'},
+{prompt:'Two processes can share one copy of library code because',options:['each maps one of its virtual pages to the same physical page','the code is copied into both address spaces','the code is kept in the TLB'],answer:0,explain:'On your slide, both processes map a page to PP 6.'},
+{prompt:'Every program\'s code can start at the same virtual address, 0x400000, because',options:['each process has its own address space','only one program runs at a time','0x400000 is on the disk'],answer:0,explain:'That uniform layout is what makes linking and loading simpler.'},
+{vis:tblS(['Process i','SUP','READ','WRITE','Address'],[['VP 0','No','Yes','No','PP 6'],['VP 1','No','Yes','Yes','PP 4'],['VP 2','Yes','Yes','Yes','PP 2']]),prompt:'A user program in process i writes to VP 1.',options:['Allowed','Segmentation fault'],answer:0,keep:true,explain:'VP 1 has WRITE = Yes and SUP = No, so a user program may write to it.'},
+{vis:tblS(['Process i','SUP','READ','WRITE','Address'],[['VP 0','No','Yes','No','PP 6'],['VP 1','No','Yes','Yes','PP 4'],['VP 2','Yes','Yes','Yes','PP 2']]),prompt:'A user program in process i writes to VP 0.',options:['Allowed','Segmentation fault'],answer:1,keep:true,explain:'VP 0 has WRITE = No. The process gets SIGSEGV.'},
+{vis:tblS(['Process i','SUP','READ','WRITE','Address'],[['VP 0','No','Yes','No','PP 6'],['VP 1','No','Yes','Yes','PP 4'],['VP 2','Yes','Yes','Yes','PP 2']]),prompt:'A user program in process i reads VP 2.',options:['Allowed','Segmentation fault'],answer:1,keep:true,explain:'VP 2 has SUP = Yes, so only the kernel may touch it.'},
+{prompt:'SUP = Yes on a page means',options:['the process must be running in kernel (supervisor) mode to access it','any program may write to it','the page is stored on disk'],answer:0,explain:'SUP is the supervisor bit.'},
+{prompt:'When a program breaks a page\'s permissions, the process is sent',options:['SIGSEGV: a segmentation fault','a page hit','a TLB miss'],answer:0,explain:'A violated permission bit ends in a segmentation fault.'}
+]},
+{id:'vpages',sec:'p13',name:'Pages: DRAM as a cache for disk',short:'Pages',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"Virtual memory is cut into <b>pages</b> of P = 2ᵖ bytes. A page is cached (in DRAM), uncached (on disk only) or unallocated. A miss costs a trip to disk, so pages are big, can go anywhere in DRAM, and are written back late.",
+lesson:`<p>DRAM is a cache for pages that live on disk. See how that cache is built, and why:</p>`+
+toy('walk',{w:'pages',title:'Try it · the DRAM cache'}),
+qs:[
+{prompt:'In virtual memory, the "cache blocks" are called',options:['pages','lines','sectors'],answer:0,explain:'Virtual pages on disk are cached in physical pages in DRAM.'},
+{prompt:'P = 2ᵖ is',options:['the page size, in bytes','the number of pages','the number of processes'],answer:0,explain:'Each page is P = 2ᵖ bytes.'},
+{prompt:'A page is 8 KB. Type p.',input:true,dec:true,expect:'13',explain:'8K = 2³ × 2¹⁰ = 2¹³, so p = 13.'},
+{prompt:'A virtual page that is allocated and sitting in DRAM is',options:['cached','uncached','unallocated'],answer:0,keep:true,explain:'Cached: it\'s in the DRAM cache.'},
+{prompt:'A virtual page that is allocated, but only on disk, is',options:['cached','uncached','unallocated'],answer:1,keep:true,explain:'Uncached: it exists, but it isn\'t in DRAM.'},
+{prompt:'About how much slower is disk than DRAM?',options:['10,000×','10×','2×'],answer:0,explain:'DRAM is about 10× slower than SRAM, and disk is about 10,000× slower than DRAM.'},
+{prompt:'Because a miss is so expensive, pages are',options:['large: typically 4 to 8 KB','small: 64 bytes','exactly 1 byte'],answer:0,explain:'One slow trip to disk should bring in a lot.'},
+{prompt:'The DRAM cache is fully associative. That means',options:['any virtual page can go in any physical page','each virtual page has only one physical page it can use','pages are never evicted'],answer:0,explain:'No set indexing, so no conflict misses.'},
+{prompt:'Which write policy does the DRAM cache use?',options:['Write-back','Write-through'],answer:0,explain:'A changed page is only written to disk when it has to leave DRAM.'},
+{prompt:'Who chooses which page to evict?',options:['The operating system, in software','A simple hardware circuit','The programmer'],answer:0,explain:'The replacement algorithms are too complicated and open-ended for hardware.'}
+]},
+{id:'ptable',sec:'p13',name:'The page table: where is each page?',short:'Page table',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"The page table has <b>one PTE for every virtual page</b>, in order, so there's nothing to search. valid = 1: the page is in DRAM, and the PTE gives its PP. valid = 0: it's on disk, or was never allocated.",
+lesson:`<p>Any page can go anywhere in DRAM, so something has to remember where each one went. That's the <b>page table</b>: an array of <b>page table entries</b> (PTEs), one for every virtual page. Each PTE has a <b>valid bit</b>, plus a physical page number or a disk address.</p>
+<p>This is the page table from Practice 14. Your worksheet draws the "→ PP" entries as arrows. Find a few pages:</p>`+
+toy('chain',{c:'ptstate',title:'Play · where is this page?'})+
+`<div class="tip"><span class="tl">Remember it</span>VP 9 uses PTE 9. No tags and no searching: the page number is the index.</div>`,
+qs:[
+{prompt:'A page table is',options:['an array of page table entries, one for each virtual page','a cache of recently used bytes','a list of the files on the disk'],answer:0,explain:'It maps virtual pages to physical pages.'},
+{prompt:'Each PTE holds',options:['a valid bit, plus a physical page number or a disk address','a tag and four data bytes','the whole contents of the page'],answer:0,explain:'The valid bit says whether the page is in DRAM.'},
+{prompt:'valid = 1 means',options:['the virtual page is in DRAM right now','the page is only on disk','the page was never allocated'],answer:0,explain:'The valid bit says whether the virtual page is currently cached in DRAM.'},
+{vis:ptFig(PT14,8,{hl:5}),prompt:'Where is VP 5?',options:['In DRAM, in PP 5','On disk only','Not allocated'],answer:0,keep:true,explain:'PTE 5 has valid = 1 and points to PP 5.'},
+{vis:ptFig(PT14,8,{hl:10}),prompt:'Where is VP 10?',options:['In DRAM','On disk only','Not allocated'],answer:1,keep:true,explain:'PTE 10 has valid = 0 and a disk address: the page exists, but it isn\'t in DRAM.'},
+{vis:ptFig(PT14,8,{hl:7}),prompt:'Where is VP 7?',options:['In DRAM','On disk only','Not allocated'],answer:2,keep:true,explain:'PTE 7 is null: the page was never allocated.'},
+{vis:ptFig(PT14,8,{}),prompt:'Which virtual page is stored in PP 3?',options:['VP 11','VP 3','VP 4'],answer:0,explain:'PTE 11 points to PP 3.'},
+{prompt:'To find the PTE for VP 9, the MMU',options:['goes straight to PTE 9','searches every PTE for a matching tag','reads the disk'],answer:0,explain:'The virtual page number is the index into the table.'},
+{prompt:'Where is the page table itself kept?',options:['In DRAM, one for each process','Only on the disk','Inside the TLB'],answer:0,explain:'It\'s a per-process kernel data structure in DRAM.'},
+{vis:ptFig(PT14,8,{}),prompt:'How many of these 16 virtual pages are in DRAM right now? Type a number.',input:true,dec:true,expect:'8',explain:'Eight PTEs have valid = 1, one for each of the 8 physical pages.'}
+]},
+{id:'ptecount',sec:'p13',name:'How many page table entries?',short:'Counting PTEs',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"One PTE per virtual page, so <b>PTEs = 2ⁿ ÷ 2ᵖ = 2ⁿ⁻ᵖ</b>. Write the page size as a power of 2 first: 4K = 2¹² and 8K = 2¹³.",
+lesson:`<p>Practice 13 asks one thing: how many PTEs does a page table need? Work up to it:</p>`+
+toy('walk',{w:'ptecount',title:'Try it · count the PTEs'}),
+qs:[
+{prompt:'How many PTEs does a page table need?',options:['One for every virtual page','One for every physical page','One for every byte'],answer:0,explain:'Every virtual page has a PTE, whether it\'s in DRAM or not.'},
+{prompt:'n = 4 address bits and 4-byte pages. Type the number of PTEs.',input:true,dec:true,expect:'4',explain:'2⁴ ÷ 2² = 2² = 4.'},
+{prompt:'With n address bits and pages of 2ᵖ bytes, the number of PTEs is',code:true,options:['2ⁿ⁻ᵖ','2ⁿ⁺ᵖ','n ÷ p'],answer:0,explain:'2ⁿ addresses ÷ 2ᵖ per page.'},
+{prompt:'2K as a power of 2 is',code:true,options:['2¹¹','2¹²','2²⁰'],answer:0,explain:'2K = 2¹ × 2¹⁰ = 2¹¹.'},
+{prompt:'n = 12 and P = 1K. Type the number of PTEs.',input:true,dec:true,expect:'4',explain:'1K = 2¹⁰, and 2¹² ÷ 2¹⁰ = 2² = 4.'},
+{prompt:'n = 20 and P = 4K. The number of PTEs is',code:true,options:['2⁸ = 256','2³²','2¹² = 4K'],answer:0,explain:'4K = 2¹², and 20 − 12 = 8.'},
+{prompt:'n = 32 and P = 16K. The number of PTEs is',code:true,options:['2¹⁸ = 256K','2⁴⁶','2¹⁴ = 16K'],answer:0,explain:'16K = 2¹⁴, and 2¹⁸ = 2⁸ × 2¹⁰ = 256K.'},
+{prompt:'If the page size doubles, the number of PTEs',options:['is cut in half','doubles','stays the same'],answer:0,explain:'p goes up by 1, so 2ⁿ⁻ᵖ halves.'},
+{prompt:'n = 16 and P = 1K. Type the number of PTEs.',input:true,dec:true,expect:'64',explain:'2¹⁶ ÷ 2¹⁰ = 2⁶ = 64.'}
+]},
+{id:'mlevel',sec:'p13',name:'Why page tables have levels',short:'Multi-level',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"A flat page table for 48-bit addresses would take <b>512 GB</b>, almost all of it null. With two levels, a null level 1 PTE means its whole level 2 table never has to exist.",
+lesson:`<p>One PTE for every virtual page adds up fast. See the problem, then the fix:</p>`+
+toy('walk',{w:'mlevel',title:'Try it · one table or two levels?'}),
+qs:[
+{prompt:'48-bit addresses, 4 KB pages and 8-byte PTEs. A one-level page table would need',options:['512 GB','512 MB','48 GB'],answer:0,explain:'2⁴⁸ ÷ 2¹² × 2³ = 2³⁹ bytes = 512 GB.'},
+{prompt:'The size of a flat page table is',options:['total addresses ÷ page size × PTE size','page size × PTE size','total addresses × page size'],answer:0,explain:'The number of pages, times the size of each entry.'},
+{prompt:'In a two-level page table, each level 1 PTE points to',options:['a level 2 page table','a page of data','the TLB'],answer:0,explain:'Level 1 entries point to level 2 tables.'},
+{prompt:'Each level 2 PTE points to',options:['a page','a level 1 table','a process'],answer:0,explain:'Level 2 entries point to pages.'},
+{prompt:'Which table is always kept in memory?',options:['The level 1 table','Every level 2 table','Neither'],answer:0,explain:'Level 2 tables can be paged in and out like any other data.'},
+{prompt:'A level 1 PTE is null. What does that save?',options:['Its whole level 2 table doesn\'t have to exist','Nothing','One byte on the disk'],answer:0,explain:'A big unallocated region costs just one null entry.'},
+{prompt:'32-bit addresses, 4 KB pages, 4-byte PTEs. A flat table needs 2²⁰ PTEs × 4 bytes =',code:true,options:['4 MB','4 KB','4 GB'],answer:0,explain:'2²⁰ × 2² = 2²² bytes = 4 MB.'},
+{prompt:'With 4-byte PTEs, how many PTEs fit in one 4 KB table? Type a number.',input:true,dec:true,expect:'1024',explain:'4,096 ÷ 4 = 1,024.'}
+]},
+{id:'cls13',sec:'p13',name:'Class Practice 13',short:'Class P13',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'From class'},
+recap:"<b>PTEs = 2ⁿ⁻ᵖ</b>. 4K pages: p = 12. 8K pages: p = 13. Then split the power: 2²⁰ = 1M and 2¹⁹ = 512K.",
+lesson:`<p>Practice 13 is one table: for each virtual address size n and page size P, find the number of page table entries. Three steps every time:</p>
+<div class="rule-box rule-lines"><div>1. Write P as 2ᵖ</div><div>2. PTEs = 2ⁿ⁻ᵖ</div><div>3. Turn the power into a number</div></div>`+
+unitStrip()+
+`<p class="fine">Two of the answer boxes already end in M or K, so you type only the number in front.</p>`,
+qs:[
+{tag:'From class · row 1',prompt:'Row 1: n = 16 and P = 4K. How many PTEs?',board:rowBoard(['n','P = 2ᵖ','Number of PTEs'],['16','4K',{k:'a'}]),
+ guided:[{label:'p',ask:'4K = 2² × 2¹⁰ = 2 to the',options:['12','14','40'],answer:0,hint:'Multiplying adds the exponents.',say:'p = 12.'},
+  {label:'Subtract',ask:'PTEs = 2¹⁶ ÷ 2¹² = 2 to the',options:['4','28','12'],answer:0,hint:'Dividing subtracts the exponents.',say:'2⁴.'},
+  {label:'Number',ask:'2⁴ =',options:['16','8','4'],answer:0,say:'16 page table entries.',fill:{a:'16'}}],
+ explain:'2¹⁶ ÷ 2¹² = 2⁴ = <b>16</b>.'},
+{tag:'From class · row 2',prompt:'Row 2: n = 16 and P = 8K. How many PTEs?',board:rowBoard(['n','P = 2ᵖ','Number of PTEs'],['16','8K',{k:'a'}]),
+ guided:[{label:'p',ask:'8K = 2³ × 2¹⁰ = 2 to the',options:['13','30','11'],answer:0,hint:'Multiplying adds the exponents.',say:'p = 13.'},
+  {label:'Subtract',ask:'PTEs = 2¹⁶ ÷ 2¹³ = 2 to the',options:['3','29','13'],answer:0,hint:'Dividing subtracts the exponents.',say:'2³.'},
+  {label:'Number',ask:'2³ =',options:['8','6','3'],answer:0,say:'8 page table entries: twice the page size, half as many pages.',fill:{a:'8'}}],
+ explain:'2¹⁶ ÷ 2¹³ = 2³ = <b>8</b>.'},
+{tag:'From class · row 3',prompt:'Row 3: n = 32 and P = 4K. The answer box ends in M.',board:rowBoard(['n','P = 2ᵖ','Number of PTEs'],['32','4K',{k:'a'}]),
+ guided:[{label:'p',ask:'4K is 2 to the',options:['12','13','10'],answer:0,say:'p = 12, the same as row 1.'},
+  {label:'Subtract',ask:'PTEs = 2³² ÷ 2¹² = 2 to the',options:['20','44','12'],answer:0,hint:'32 − 12.',say:'2²⁰.'},
+  {label:'Unit',ask:'M is 2²⁰. So 2²⁰ is',options:['1M','20M','4M'],answer:0,say:'Exactly 1M. The M is already printed, so you type 1.',fill:{a:'1 M'}}],
+ explain:'2³² ÷ 2¹² = 2²⁰ = 1M. Type <b>1</b> in front of the M.'},
+{tag:'From class · row 4',prompt:'Row 4: n = 32 and P = 8K. The answer box ends in K.',board:rowBoard(['n','P = 2ᵖ','Number of PTEs'],['32','8K',{k:'a'}]),
+ guided:[{label:'p',ask:'8K is 2 to the',options:['13','12','8'],answer:0,say:'p = 13, the same as row 2.'},
+  {label:'Subtract',ask:'PTEs = 2³² ÷ 2¹³ = 2 to the',options:['19','45','13'],answer:0,hint:'32 − 13.',say:'2¹⁹.'},
+  {label:'Split',ask:'K is 2¹⁰. So 2¹⁹ = 2⁹ × 2¹⁰ =',options:['512K','19K','9K','256K'],answer:0,hint:'2⁹ = 512.',say:'512K. The K is already printed, so you type 512.',fill:{a:'512 K'}}],
+ explain:'2³² ÷ 2¹³ = 2¹⁹ = 512K. Type <b>512</b> in front of the K.'}
+]},
+{id:'ex13',sec:'p13',name:'Exam practice: page tables',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'Exam-style'},
+lesson:`<p>The same ideas with new numbers: counting PTEs both ways, page table sizes, page states and permissions.</p>`,
+qs:[
+{prompt:'n = 24 and P = 8K. How many PTEs?',board:rowBoard(['n','P = 2ᵖ','Number of PTEs'],['24','8K',{k:'a'}]),
+ guided:[{label:'p',ask:'8K is 2 to the',options:['13','12','30'],answer:0,say:'p = 13.'},
+  {label:'Subtract',ask:'PTEs = 2²⁴ ÷ 2¹³ = 2 to the',options:['11','37','13'],answer:0,say:'2¹¹.'},
+  {label:'Split',ask:'2¹¹ = 2¹ × 2¹⁰ =',options:['2K','11K','1K'],answer:0,say:'2K entries.',fill:{a:'2K'}}],
+ explain:'2²⁴ ÷ 2¹³ = 2¹¹ = <b>2K</b>.'},
+{prompt:'n = 48 and P = 4K. How many PTEs?',board:rowBoard(['n','P = 2ᵖ','Number of PTEs'],['48','4K',{k:'a'}]),
+ guided:[{label:'Subtract',ask:'PTEs = 2⁴⁸ ÷ 2¹² = 2 to the',options:['36','60','4'],answer:0,say:'2³⁶.'},
+  {label:'Split',ask:'G is 2³⁰. So 2³⁶ = 2⁶ × 2³⁰ =',options:['64G','36G','6G'],answer:0,hint:'2⁶ = 64.',say:'64G entries.',fill:{a:'64G'}}],
+ explain:'2⁴⁸ ÷ 2¹² = 2³⁶ = <b>64G</b>.'},
+{prompt:'A page table has 2¹⁰ PTEs and the pages are 4K. How many bits is a virtual address?',options:['22','2','120'],answer:0,hint:'n − p = 10, and p = 12.',explain:'n − 12 = 10, so n = <b>22</b>.'},
+{prompt:'n = 32, P = 4K, and each PTE takes 4 bytes. How big is a flat page table?',board:rowBoard(['PTEs','× PTE size','Table size'],[{k:'a'},'4 bytes',{k:'b'}]),
+ guided:[{label:'PTEs',ask:'PTEs = 2³² ÷ 2¹² =',options:['2²⁰','2⁴⁴','2¹²'],answer:0,say:'2²⁰ entries.',fill:{a:'2²⁰'}},
+  {label:'Bytes',ask:'Each takes 4 = 2² bytes. 2²⁰ × 2² = 2 to the',options:['22','40','18'],answer:0,say:'2²² bytes.'},
+  {label:'Unit',ask:'2²² = 2² × 2²⁰ =',options:['4 MB','22 MB','4 KB'],answer:0,say:'4 MB.',fill:{b:'4 MB'}}],
+ explain:'2²⁰ PTEs × 4 bytes = <b>4 MB</b>.'},
+{code:false,prompt:'A PTE has valid = 0 and holds a disk address. The page is',options:['uncached: allocated, but not in DRAM','cached','unallocated'],answer:0,explain:'It exists on disk, but isn\'t in DRAM.'},
+{code:false,prompt:'A PTE has valid = 0 and is null. The page is',options:['unallocated','cached','uncached'],answer:0,explain:'Nothing has been created for it.'},
+{code:false,vis:tblS(['Process j','SUP','READ','WRITE','Address'],[['VP 0','No','Yes','No','PP 9'],['VP 1','Yes','Yes','Yes','PP 6'],['VP 2','No','Yes','Yes','PP 11']]),prompt:'A user program in process j reads VP 1.',options:['Allowed','Segmentation fault'],answer:1,keep:true,explain:'VP 1 has SUP = Yes: kernel only.'},
+{code:false,vis:tblS(['Process j','SUP','READ','WRITE','Address'],[['VP 0','No','Yes','No','PP 9'],['VP 1','Yes','Yes','Yes','PP 6'],['VP 2','No','Yes','Yes','PP 11']]),prompt:'A user program in process j writes to VP 2.',options:['Allowed','Segmentation fault'],answer:0,keep:true,explain:'VP 2 has WRITE = Yes and SUP = No.'},
+{code:false,prompt:'Which pair is right?',options:['DRAM is about 10× slower than SRAM, and disk about 10,000× slower than DRAM','DRAM is about 10,000× slower than SRAM, and disk about 10× slower than DRAM','They are all about the same speed'],answer:0,explain:'That enormous disk penalty drives every design choice in the DRAM cache.'}
+]},
+/* ===================== Part 14: address translation ===================== */
+{id:'vasplit',sec:'p14',name:'VPN and VPO: split a virtual address',short:'VPN and VPO',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"The low <b>p bits</b> are the offset and never change: PPO = VPO. The top <b>n − p bits</b> are the page number. Translating swaps the VPN for the PPN.",
+lesson:`<p>Translating an address is simpler than a cache lookup: the address has only two parts. Build it up:</p>`+
+toy('walk',{w:'vasplit',title:'Try it · split and swap'}),
+qs:[
+{prompt:'A virtual address splits into',options:['a virtual page number and a virtual page offset','a tag, a set index and a block offset','a row and a column'],answer:0,explain:'VPN and VPO.'},
+{prompt:'The page size is 64 bytes. How many bits is the VPO? Type a number.',input:true,dec:true,expect:'6',explain:'64 = 2⁶, so p = 6.'},
+{prompt:'n = 10 and p = 6. How many bits is the VPN? Type a number.',input:true,dec:true,expect:'4',explain:'n − p = 10 − 6 = 4.'},
+{prompt:'The PPO is always',options:['the same as the VPO','the VPN shifted left','zero'],answer:0,explain:'The byte sits at the same spot inside its page.'},
+{vis:bitsF(0x1A7,10,VA14,{legend:false}),prompt:'Pages are 64 bytes. What is the VPN of 0x1A7?',options:['6','26','39','1'],answer:0,explain:'The top 4 bits are 0110 = 6.'},
+{vis:bitsF(0x1A7,10,VA14,{legend:false}),prompt:'And the VPO of 0x1A7, in hex?',options:['0x27','0xA7','0x7'],answer:0,explain:'The low 6 bits are 10 0111 = 0x27.'},
+{prompt:'A physical address is built from',options:['the PPN, then the PPO','the VPN, then the PPO','the PPN, then the VPN'],answer:0,explain:'Page number first, then the unchanged offset.'},
+{prompt:'P = 4K and n = 32. How many bits is the VPN? Type a number.',input:true,dec:true,expect:'20',explain:'4K = 2¹², and 32 − 12 = 20.'},
+{code:true,prompt:'VP 6 is in PP 2, with 64-byte pages. VA = 0110 100111. The physical address is',options:['010 100111','110 100111','010 000000'],answer:0,explain:'PPN 2 = 010, then the same six offset bits.'},
+{code:true,prompt:'In hex, 010 100111 is',options:['0x0A7','0x127','0x4A7'],answer:0,explain:'From the right in fours: 0 1010 0111.'}
+]},
+{id:'xlate',sec:'p14',name:'Be the MMU: translate an address',short:'Translate',shuffleOpts:true,
+defaults:{m:null,code:true},
+recap:"Hex → binary → cut off the low 6 bits → look up the VPN's PTE → swap in the PPN → back to hex. If valid = 0, it's a page fault.",
+lesson:`<p>Practice 14 uses this small system: <b>10-bit</b> virtual addresses, <b>64-byte</b> pages, 16 virtual pages and 8 physical pages. So an address is a 4-bit VPN and a 6-bit VPO, and a physical address is a 3-bit PPN and the same 6-bit offset.</p>
+<p>Translate a few addresses yourself, with the worksheet's page table:</p>`+
+toy('chain',{c:'xlate',title:'Play · be the MMU'})+
+`<div class="tip"><span class="tl">Remember it</span>Only the page number changes. The six offset bits are copied straight across.</div>`,
+qs:[
+{prompt:'Translate virtual address 0x047.',board:b14(0x047),guided:g14(0x047),explain:'VPN 1 is in PP 4, so 0x047 becomes <b>0x107</b>.'},
+{prompt:'Translate virtual address 0x333.',board:b14(0x333),guided:g14(0x333),explain:'VPN 12 is in PP 7, so 0x333 becomes <b>0x1F3</b>.'},
+{code:false,vis:bitsF(0x3D0,10,VA14,{legend:false})+ptFig(PT14,8,{hl:15,key:false}),prompt:'Virtual address 0x3D0 is in VP 15. What happens?',options:['A page fault: PTE 15 has valid = 0','A page hit in PP 7','A page hit in PP 15'],answer:0,explain:'VP 15 is on disk, so there is no physical address until the page is loaded.'},
+{code:false,prompt:'Which of these is in the same page as 0x0B0? (64-byte pages.)',options:['0x0BF','0x0C0','0x130'],answer:0,hint:'A page is 0x40 bytes long. Page 2 runs from 0x080 to 0x0BF.',explain:'0x0B0 and 0x0BF both have VPN 2. 0x0C0 starts page 3.'},
+{code:false,prompt:'Two addresses in the same page always have the same',options:['VPN','VPO','byte value'],answer:0,explain:'The page number is the same. Their offsets differ.'},
+{code:false,prompt:'After translation, which part of the address hasn\'t changed?',options:['The offset','The page number','Nothing: every bit changes'],answer:0,explain:'PPO = VPO.'},
+{vis:ptFig(PT14,8,{hl:0,key:false}),prompt:'VP 0 is in PP 2. Type the physical address for virtual address 0x03F, in hex.',input:true,expect:'0xBF',hint:'PPN 010, then the offset 111111.',explain:'010 111111 = 0 1011 1111 = <b>0x0BF</b>.'},
+{code:false,prompt:'There are 8 physical pages of 64 bytes. How many bits is a physical address?',options:['9','8','6'],answer:0,explain:'8 × 64 = 512 = 2⁹.'}
+]},
+{id:'pfault',sec:'p14',name:'Page hit or page fault?',short:'Page faults',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"valid = 1: <b>page hit</b>. valid = 0: <b>page fault</b>. The handler picks a victim, writes it out if it's dirty, pages in the new page, updates both PTEs, and the instruction runs again.",
+lesson:`<p>What happens when the page you want isn't in DRAM? Follow your slide's example, one step at a time:</p>`+
+toy('walk',{w:'pfault',title:'Try it · handle a page fault'}),
+qs:[
+{prompt:'A page hit means',options:['the PTE\'s valid bit is 1: the page is in DRAM','the TLB is full','the page is only on disk'],answer:0,explain:'A page hit is a DRAM cache hit.'},
+{prompt:'A page fault is',options:['a DRAM cache miss: the page isn\'t in physical memory','a disk error','a broken permission bit'],answer:0,explain:'A reference to a page that isn\'t in DRAM.'},
+{prompt:'Who deals with a page fault?',options:['The page fault handler, in the operating system','The L1 cache','The programmer'],answer:0,explain:'The MMU raises an exception and the handler takes over.'},
+{prompt:'The page chosen to leave DRAM is called the',options:['victim','working set','valid page'],answer:0,explain:'The handler selects a victim to be evicted.'},
+{prompt:'If the victim page is dirty, the handler must',options:['write it to disk before replacing it','throw it away','copy it into the TLB'],answer:0,explain:'Otherwise the changes would be lost.'},
+{prompt:'Put what happens on a page fault in order.',order:['The MMU fetches the PTE and finds valid = 0','The MMU triggers a page fault exception','The handler picks a victim page','The handler pages in the new page and updates the PTEs','The faulting instruction is restarted'],explain:'Fetch the PTE, fault, pick a victim, page in, restart.'},
+{vis:ptFig(PT8,4,{hl:3,key:false}),prompt:'On your slide, the CPU asks for VP 3 and the handler evicts VP 4. Afterwards, PP 3 holds',options:['VP 3','VP 4','nothing'],answer:0,explain:'VP 3 is paged in where VP 4 used to be.'},
+{prompt:'After the handler returns, the instruction that faulted',options:['runs again, and this time it\'s a page hit','is skipped','ends the program'],answer:0,explain:'The offending instruction is restarted.'},
+{prompt:'On a page hit, who sends the physical address to memory?',options:['The MMU','The disk','The page fault handler'],answer:0,explain:'The MMU fetches the PTE, builds the physical address and sends it on.'}
+]},
+{id:'wset',sec:'p14',name:'Working sets and thrashing',short:'Thrashing',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"A program's <b>working set</b> is the pages it's using right now. If the working sets fit in memory, faults are rare. If they don't, pages swap in and out nonstop: <b>thrashing</b>.",
+lesson:`<p>Page faults are terribly slow, so why does virtual memory work at all? Three short steps:</p>`+
+toy('walk',{w:'wset',title:'Try it · why it works'}),
+qs:[
+{prompt:'The pages a program is actively using are called its',options:['working set','page table','victim'],answer:0,explain:'Programs tend to access a set of active virtual pages: the working set.'},
+{prompt:'Virtual memory works well because of',options:['locality','faster disks','bigger pages only'],answer:0,explain:'Locality to the rescue again.'},
+{prompt:'The working set is smaller than main memory. The program gets',options:['good performance, after the first compulsory misses','a page fault on every access','a segmentation fault'],answer:0,explain:'Once its pages are in, almost every access is a page hit.'},
+{prompt:'Thrashing happens when',options:['the working sets add up to more than main memory','the TLB is too large','a page is read-only'],answer:0,explain:'There isn\'t room for all the pages in use.'},
+{prompt:'During thrashing, the machine spends its time',options:['swapping pages in and out','running programs faster','erasing the disk'],answer:0,explain:'Pages are copied in and out continuously.'},
+{prompt:'Better temporal locality gives a',options:['smaller working set','bigger working set'],answer:0,keep:true,explain:'The program keeps reusing the same few pages.'},
+{prompt:'Which job of virtual memory keeps one process from interfering with another\'s memory?',options:['Protection','Caching','Loading'],answer:0,explain:'It isolates address spaces.'},
+{prompt:'Which job "uses main memory efficiently"?',options:['Caching','Protection','Linking'],answer:0,explain:'DRAM caches just the parts of the address space that are in use.'}
+]},
+{id:'cls14',sec:'p14',name:'Class Practice 14',short:'Class P14',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'From class'},
+recap:"Binary first. Low 6 bits: offset, copied across. Top 4 bits: the VPN. Read its PTE, swap in the PPN, and go back to hex. If the page isn't there, load it first.",
+lesson:`<p>Practice 14 has three questions about one page table: 16 virtual pages, 8 physical pages, <b>10-bit</b> virtual addresses, <b>9-bit</b> physical addresses and <b>64-byte</b> pages.</p>`+
+ptFig(PT14,8,{})+
+`<p class="fine">Your worksheet draws the "→ PP" entries as arrows, and shades the unallocated pages grey.</p>`,
+qs:[
+{tag:'From class · Q1',prompt:'Q1: what is the physical address for virtual address 0x2CD, and which VPN does it refer to?',board:b14(0x2CD),
+ guided:g14(0x2CD,{vps:['VP 11','VP 1','VP 16','VP 15'],pas:['0xCD','0x166','0xEC','0x6B']}),
+ explain:'The address refers to <b>VP 11</b>, which is in PP 3. PPN 011, then the offset 001101: <b>0xCD</b>.'},
+{tag:'From class · Q2',prompt:'Q2: virtual address 0x276. If a new page has to be loaded, it replaces PP 6.',board:b14(0x276,{load:6}),
+ guided:g14(0x276,{load:6,vps:['VP 9','VP 7','VP 6','VP 11'],pas:['0x1B6','0x1A7','0x276','0x13E']}),
+ explain:'The address refers to <b>VP 9</b>, which isn\'t in DRAM. Once it\'s loaded into PP 6, PPN 110, then the offset 110110: <b>0x1B6</b>.'},
+{tag:'From class · Q3',code:false,vis:ptFig(PT14,8,{}),prompt:'Q3: what other VPNs are not yet stored in disk?',options:['VPN 3, 7, 9, 14','VPN 2, 7, 9, 14','VPN 0, 3, 5, 7, 9','VPN 3, 4, 7, 9'],answer:0,hint:'Look for the PTEs that say "null". On the worksheet they\'re the grey pages.',
+ explain:'The pages that were never allocated: PTE 3, 7, 9 and 14 are null. <b>VPN 3, 7, 9, 14</b>.'}
+]},
+{id:'ex14',sec:'p14',name:'Exam practice: translation',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'Exam-style'},
+lesson:`<p>More translations with Practice 14's page table, including one that has to load a page, and one that runs backwards.</p>`,
+qs:[
+{prompt:'Translate virtual address 0x10C.',board:b14(0x10C),guided:g14(0x10C),explain:'VPN 4 is in PP 1, so 0x10C becomes <b>0x04C</b>.'},
+{prompt:'Translate virtual address 0x33F.',board:b14(0x33F),guided:g14(0x33F),explain:'VPN 12 is in PP 7, so 0x33F becomes <b>0x1FF</b>.'},
+{prompt:'Virtual address 0x236. If a new page has to be loaded, it replaces PP 0.',board:b14(0x236,{load:0}),guided:g14(0x236,{load:0}),explain:'VPN 8 is on disk. Loaded into PP 0, the address becomes <b>0x036</b>.'},
+{code:false,prompt:'With n = 10 and P = 64, how many virtual pages are there?',options:['16','64','10'],answer:0,explain:'2¹⁰ ÷ 2⁶ = 2⁴ = 16.'},
+{vis:ptFig(PT14,8,{hlPP:3,key:false}),prompt:'Physical address 0x0C5 is in PP 3 (011 000101). Which virtual address is that?',options:['0x2C5','0x0C5','0x305'],answer:0,hint:'PP 3 holds VP 11 = 1011. Keep the same offset.',explain:'VP 11, then the same offset: 1011 000101 = <b>0x2C5</b>.'},
+{code:false,prompt:'Several programs\' working sets add up to more than main memory. The result is',options:['thrashing','a segmentation fault','a TLB hit'],answer:0,explain:'Pages are swapped in and out continuously.'},
+{code:false,prompt:'A dirty page is chosen as the victim. Before the new page comes in, the handler',options:['writes the dirty page to disk','marks every PTE invalid','restarts the computer'],answer:0,explain:'Its changes have to be saved first.'}
+]},
+/* ===================== Part 15: the TLB and the whole trip ===================== */
+{id:'tlbidea',sec:'p15',name:'The TLB: a cache for translations',short:'The TLB',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"The <b>TLB</b> is a small cache of PTEs inside the MMU. A hit saves a memory read. A miss costs one extra read to fetch the PTE. And a TLB miss is <b>not</b> a page fault.",
+lesson:`<p>Translating every address through a table in memory would be slow. The last piece of virtual memory fixes that:</p>`+
+toy('walk',{w:'tlbidea',title:'Try it · why the TLB exists'}),
+qs:[
+{prompt:'TLB stands for',options:['translation lookaside buffer','table lookup byte','temporary local block'],answer:0,explain:'Translation lookaside buffer.'},
+{prompt:'The TLB is a small cache of',options:['page table entries','disk sectors','instructions'],answer:0,explain:'It holds complete PTEs for a small number of pages.'},
+{prompt:'Where is the TLB?',options:['Inside the MMU','On the disk','Inside main memory'],answer:0,explain:'It\'s a small hardware cache in the MMU.'},
+{prompt:'The TLB maps',options:['virtual page numbers to physical page numbers','physical addresses to data bytes','file names to disk blocks'],answer:0,explain:'VPN in, PPN out.'},
+{prompt:'A TLB hit saves',options:['a memory access','a disk access','nothing'],answer:0,explain:'The PTE doesn\'t have to be fetched from memory.'},
+{prompt:'On a TLB miss, the MMU',options:['fetches the PTE from the page table in memory','always raises a page fault','reads the page from disk'],answer:0,explain:'One extra memory access.'},
+{prompt:'TLB miss, and the PTE in memory has valid = 1. Is there a page fault?',options:['No','Yes'],answer:0,keep:true,explain:'The page is in DRAM. Only its PTE wasn\'t cached.'},
+{prompt:'TLB miss, and the PTE in memory has valid = 0. Is there a page fault?',options:['No','Yes'],answer:1,keep:true,explain:'valid = 0: the page isn\'t in DRAM.'},
+{prompt:'Why are TLB misses rare?',options:['Locality: one entry covers a whole page, and programs reuse the same few pages','The TLB holds every PTE','Pages are only 1 byte'],answer:0,explain:'Temporal and spatial locality, plus large pages.'}
+]},
+{id:'tlbsplit',sec:'p15',name:'TLBI and TLBT: look up the TLB',short:'TLB lookup',shuffleOpts:true,
+defaults:{m:null,code:true},
+recap:"The TLB is looked up with the <b>VPN</b>. Its low bits are the set (<b>TLBI</b>) and the rest are the tag (<b>TLBT</b>). Hit: take the PPN. Miss: read the page table, and valid = 0 there means a page fault.",
+lesson:`<p>Practice 15 uses the demo system on your slides: <b>14-bit</b> virtual addresses, <b>12-bit</b> physical addresses and <b>64-byte</b> pages. So the VPO is the low 6 bits, and the VPN is the other 8.</p>
+<p>The TLB is a cache that's looked up with the <b>VPN</b>. It has 16 entries, 4 to a set, so it has 4 sets. Split the VPN the way Part 10 split an address: the low <b>2 bits</b> pick the set (<b>TLBI</b>) and the other <b>6 bits</b> are the tag (<b>TLBT</b>).</p>`+
+bitsF(0,14,VA15,{blank:true})+
+`<p>Now do the first half of Practice 15 on a few addresses:</p>`+
+toy('chain',{c:'tlb',title:'Play · VPN to PPN'})+
+`<div class="tip"><span class="tl">Remember it</span>A TLB entry with valid = 0 never counts, even when its tag matches. Then it's a miss, and the page table decides.</div>`,
+qs:[
+{code:false,prompt:'The TLB is looked up using',options:['the VPN','the VPO','the physical address'],answer:0,explain:'It\'s a virtually addressed cache, indexed by the VPN.'},
+{code:false,prompt:'The TLB has 16 entries and is 4-way set associative. How many sets? Type a number.',input:true,dec:true,expect:'4',explain:'16 ÷ 4 = 4 sets.'},
+{code:false,prompt:'With 4 sets, how many bits is the TLBI? Type a number.',input:true,dec:true,expect:'2',explain:'2² = 4.'},
+{code:false,prompt:'The TLBI is which bits of the VPN?',options:['The low bits','The high bits'],answer:0,keep:true,explain:'The t least significant bits of the VPN.'},
+{code:false,prompt:'The VPN is 8 bits and the TLBI is 2. How many bits is the TLBT? Type a number.',input:true,dec:true,expect:'6',explain:'8 − 2 = 6.'},
+{vis:bitsF(0x02B5,14,VA15,{legend:false}),prompt:'What is the VPN of 0x02B5?',options:['0x0A','0x2B','0x02','0x35'],answer:0,explain:'The top 8 bits are 0000 1010 = 0x0A.'},
+{vis:bitsF(0x02B5,14,VA15,{legend:false}),prompt:'What is the TLBI of 0x02B5?',options:['0x2','0x0','0x1','0x3'],answer:0,explain:'The low 2 bits of the VPN are 10 = 2.'},
+{vis:bitsF(0x02B5,14,VA15,{legend:false}),prompt:'What is the TLBT of 0x02B5?',options:['0x02','0x0A','0x2B'],answer:0,explain:'The other 6 bits of the VPN are 000010 = 0x02.'},
+{code:false,vis:tlb15Tbl({set:2}),prompt:'You want tag 02 in set 2. Is it a TLB hit?',options:['No: the entry\'s valid bit is 0','Yes: the tag matches'],answer:0,explain:'An invalid entry never counts.'},
+{code:false,vis:pt15Tbl({hl:10}),prompt:'After that TLB miss, the page table row for VPN 0A gives',options:['PPN 0x09','a page fault','PPN 0x17'],answer:0,explain:'VPN 0A: PPN 09, valid = 1. No page fault.'}
+]},
+{id:'vmcache',sec:'p15',name:'From physical address to cache byte',short:'PA to cache',shuffleOpts:true,
+defaults:{m:null,code:true},
+recap:"Physical address = PPN, then the same offset. After that it's Part 10: low 2 bits <b>CO</b>, next 4 bits <b>CI</b>, top 6 bits <b>CT</b>. Check the set's tag and valid bit, then take the byte.",
+lesson:`<p>Once the MMU has the PPN, it puts it in front of the unchanged offset to make the <b>12-bit physical address</b>. From there it's exactly Part 10. The cache is direct-mapped with 16 sets and 4-byte blocks, so CO is 2 bits, CI is 4 bits and CT is the other 6:</p>`+
+bitsF(0,12,PA15,{blank:true})+
+`<p class="fine">CT is the same six bits as the PPN.</p>
+<p>Now the second half of Practice 15:</p>`+
+toy('chain',{c:'cache15',title:'Play · PPN to cache byte'})+
+`<div class="tip"><span class="tl">Remember it</span>The whole trip: VPN → TLB (or page table) → PPN → physical address → cache.</div>`,
+qs:[
+{code:false,prompt:'The cache has 4-byte blocks. How many bits is CO? Type a number.',input:true,dec:true,expect:'2',explain:'2² = 4.'},
+{code:false,prompt:'The cache has 16 sets. How many bits is CI? Type a number.',input:true,dec:true,expect:'4',explain:'2⁴ = 16.'},
+{code:false,prompt:'Physical addresses are 12 bits, with 4 for CI and 2 for CO. How many bits is CT? Type a number.',input:true,dec:true,expect:'6',explain:'12 − 4 − 2 = 6.'},
+{code:false,prompt:'The PPO is the same as',options:['the VPO','the VPN','the TLBT'],answer:0,explain:'The offset inside the page never changes.'},
+{code:false,prompt:'In this system, CT has the same bits as',options:['the PPN','the VPN','the TLBI'],answer:0,explain:'Both are the top 6 bits of the physical address.'},
+{prompt:'PPN 0x16 and VPO 0x26. The physical address is',options:['0x5A6','0x166','0x1626'],answer:0,hint:'010110 then 100110, grouped in fours: 0101 1010 0110.',explain:'010110 100110 = <b>0x5A6</b>.'},
+{vis:bitsF(0x5A6,12,PA15,{legend:false}),prompt:'What is the CI of physical address 0x5A6?',options:['0x9','0x6','0xA'],answer:0,explain:'Bits 5 to 2 are 1001 = 9.'},
+{code:false,vis:c15Tbl({hl:9}),prompt:'Physical address 0x5A6 needs tag 16 in set 9. Is it a cache hit?',options:['No: set 9 holds a different tag, and it isn\'t valid','Yes'],answer:0,explain:'Set 9 has tag 2D and valid = 0. A miss.'},
+{code:false,prompt:'On a cache miss, what does the worksheet want for "Cache byte returned"?',options:['---','0x0','The tag'],answer:0,explain:'Nothing comes back from the cache.'},
+{vis:c15Tbl({hl:5}),prompt:'Physical address 0x356 has CO = 2, CI = 5 and CT = 0x0D. The cache returns',options:['0xF0','0x36','0x72','---'],answer:0,explain:'Set 5 has tag 0D and valid = 1: a hit. Byte B2 is <b>0xF0</b>.'}
+]},
+{id:'cls15',sec:'p15',name:'Class Practice 15',short:'Class P15',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'From class'},
+recap:"Binary first. VPN = top 8 bits; TLBI = its low 2 bits; TLBT = the rest. TLB miss → page table. PPN + offset = physical address. Then CO, CI, CT and the cache.",
+lesson:`<p>Practice 15 follows one virtual address, <b>0x027c</b>, all the way through the demo system: TLB, page table, physical address, cache. It's four questions, and each is broken into small steps here.</p>
+<details class="ref"><summary>The three tables</summary>`+tlb15Tbl({})+pt15Tbl({})+c15Tbl({})+`</details>
+<p class="fine">14-bit virtual addresses, 12-bit physical addresses, 64-byte pages. The TLB is 4-way with 16 entries. The cache is direct-mapped with 16 sets and 4-byte lines.</p>`,
+qs:[
+{tag:'From class · Q1',prompt:'Q1: write virtual address 0x027c in the 14-bit format, one bit per box.',board:function(f){return bitsF(0x027C,14,VA15B,{legend:false,blank:f.bits==null});},
+ guided:[{label:'Binary',ask:'0x027c in binary: 0 = 0000, 2 = 0010, 7 = 0111, c = 1100. That\'s 16 bits, but a virtual address is 14 bits. So',options:['drop the two zeros on the left','drop the two bits on the right','add two more zeros'],answer:0,hint:'The extra bits are leading zeros.',say:'00 0010 0111 1100.',fill:{bits:'1'}},
+  {label:'Left half',ask:'Box 13 is on the far left. What goes in boxes 13 down to 8?',options:['0 0 0 0 1 0','0 0 0 0 0 0','1 0 0 1 1 1'],answer:0,hint:'Read the first six boxes above, left to right.',say:'0 0 0 0 1 0.'},
+  {label:'Right half',ask:'And in boxes 7 down to 0?',options:['0 1 1 1 1 1 0 0','0 0 1 1 1 1 1 0','1 1 1 1 1 0 0 0'],answer:0,hint:'Those are the bits of 7 and c.',say:'0 1 1 1 1 1 0 0.'}],
+ explain:'Left to right, box 13 down to box 0: <b>0 0 0 0 1 0 0 1 1 1 1 1 0 0</b>.'},
+{tag:'From class · Q2',prompt:'Q2: for 0x027c, find the VPN, TLB index, TLB tag, TLB hit?, page fault? and PPN.',board:b15tr(0x027C),guided:g15tr(0x027C),
+ explain:'VPN <b>0x9</b>, TLB index <b>0x1</b>, TLB tag <b>0x2</b>, TLB hit? <b>N</b>, page fault? <b>N</b>, PPN <b>0x17</b>.'},
+{tag:'From class · Q3',prompt:'Q3: write the physical address in the 12-bit format, one bit per box.',board:b15pa(0x027C),guided:g15pa(0x027C),
+ explain:'PPN 010111, then the offset 111100. Box 11 down to box 0: <b>0 1 0 1 1 1 1 1 1 1 0 0</b>, which is 0x5FC.'},
+{tag:'From class · Q4',prompt:'Q4: for that physical address, find the byte offset, cache index, cache tag, cache hit? and the byte returned.',board:b15ca(0x027C),guided:g15ca(0x027C),
+ explain:'Byte offset <b>0x0</b>, cache index <b>0xf</b>, cache tag <b>0x17</b>, cache hit? <b>N</b>, cache byte returned <b>---</b>.'}
+]},
+{id:'ex15',sec:'p15',name:'Exam practice: the whole trip',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:true,tag:'Exam-style'},
+lesson:`<p>Three more addresses through the same demo system. One hits in the TLB, one misses, and one ends in a page fault.</p>`,
+qs:[
+{prompt:'Virtual address 0x03a9: find the VPN, TLB index, TLB tag, TLB hit?, page fault? and PPN.',board:b15tr(0x03A9),guided:g15tr(0x03A9),explain:'VPN 0xE, TLBI 0x2, TLBT 0x3, TLB hit? N, page fault? N, PPN <b>0x11</b>.'},
+{prompt:'Still 0x03a9, with PPN 0x11. Build the physical address.',board:b15pa(0x03A9),guided:g15pa(0x03A9),explain:'010001, then 101001: <b>0x469</b>.'},
+{prompt:'Physical address 0x469: find CO, CI, CT, cache hit? and the byte returned.',board:b15ca(0x03A9),guided:g15ca(0x03A9),explain:'CO 0x1, CI 0xA, CT 0x11. Set A holds tag 2D, so it\'s a miss: <b>---</b>.'},
+{prompt:'Virtual address 0x0040: find the VPN, TLB index, TLB tag, TLB hit?, page fault? and PPN.',board:b15tr(0x0040),guided:g15tr(0x0040),explain:'VPN 0x1, TLBI 0x1, TLBT 0x0, TLB hit? N, page fault? <b>Y</b>, PPN ---. With a page fault, the physical address and cache parts are left blank.'},
+{prompt:'Virtual address 0x034e: find the VPN, TLB index, TLB tag, TLB hit?, page fault? and PPN.',board:b15tr(0x034E),guided:g15tr(0x034E),explain:'VPN 0xD, TLBI 0x1, TLBT 0x3: a TLB <b>hit</b>, giving PPN 0x2D.'},
+{prompt:'Still 0x034e, with PPN 0x2D. The physical address is 0xB4E. Find CO, CI, CT, cache hit? and the byte returned.',board:b15ca(0x034E),guided:g15ca(0x034E),explain:'CO 0x2, CI 0x3, CT 0x2D. Set 3 isn\'t valid, so it\'s a miss: <b>---</b>.'},
+{code:false,prompt:'Put the whole trip in order.',order:['Split the virtual address into VPN and VPO','Look for the VPN in the TLB','On a TLB miss, read the PTE from the page table','Build the physical address: PPN, then the offset','Look the physical address up in the cache'],explain:'VPN → TLB → page table if needed → physical address → cache.'}
+]},
+
 /* ===== Review ===== */
 {id:'mix',sec:'rev',name:'Quiz 1 mix: Parts 1–2',short:'Quiz 1 mix',shuffleOpts:true,pick:{p1:4,p2:5,both:3},
 defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?'},
@@ -5604,11 +6375,12 @@ qs:[
 ];
 LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o={};for(var k in d)o[k]=d[k];for(var k2 in q)o[k2]=q[k2];return o;});});
 (function(){
-  var m12=null, pools={p3:[],p45:[],p69:[],p1012:[]};
+  var m12=null, pools={p3:[],p45:[],p69:[],p1012:[],p1315:[]};
   var src={p3:['c1','c2','c3','c4','c5','c6','cflags','c7','c8','c9'],
     p45:['stk','callret','args','frame','saves','tsize','decl','eaddr','parith','leamov','grid2d','mat','multi','struct'],
     p69:['pyr','sram','dram','rascas','module','nvm','bus','disk','cap','atime','iobus','dread','ssd','ssdw','ssdvs','gap','loc','stride','rowcol','rcbits','fileread','wear','loop3d'],
-    p1012:['cblocks','cgeo','caddr','clook','dmsim','sasim','conflict','cwrite','cperf','vmidea','vspace']};
+    p1012:['cblocks','cgeo','caddr','clook','dmsim','sasim','conflict','cwrite','cperf','vmidea','vspace'],
+    p1315:['vmuses','vpages','ptable','ptecount','mlevel','vasplit','xlate','pfault','wset','tlbidea','tlbsplit','vmcache']};
   function copy(q,g){var o={};for(var k in q)o[k]=q[k];o.grp=g;return o;}
   LEVELS.forEach(function(L){
     if(L.id==='mix')m12=L;
@@ -5622,9 +6394,11 @@ LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o=
     lesson:'<p>Twelve questions from Parts 6 to 9, DRAM, buses, disks, SSDs and locality, in a random order with a new pick every time.</p>',qs:pools.p69});
   LEVELS.push({id:'mix1012',sec:'rev',name:'Parts 10–12 mix: caches and virtual memory',short:'Parts 10–12 mix',desc:'Caches, hits and misses, and address spaces, 12 questions.',shuffleOpts:true,pick:{p1012:12},
     lesson:'<p>Twelve questions from Parts 10 to 12, caches, hits and misses, and virtual addresses, in a random order with a new pick every time.</p>',qs:pools.p1012});
-  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',desc:'All twelve parts, 16 questions.',shuffleOpts:true,pick:{p1:2,p2:2,both:1,p3:2,p45:3,p69:3,p1012:3},
-    lesson:'<p>Sixteen questions drawn from all twelve parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Part 2.</p>'+machineHTML(MACHINES.practice),
-    qs:m12.qs.concat(pools.p3).concat(pools.p45).concat(pools.p69).concat(pools.p1012)});
+  LEVELS.push({id:'mix1315',sec:'rev',name:'Parts 13–15 mix: virtual memory',short:'Parts 13–15 mix',desc:'Page tables, address translation and the TLB, 12 questions.',shuffleOpts:true,pick:{p1315:12},
+    lesson:'<p>Twelve questions from Parts 13 to 15, page tables, address translation and the TLB, in a random order with a new pick every time.</p>',qs:pools.p1315});
+  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',desc:'All fifteen parts, 18 questions.',shuffleOpts:true,pick:{p1:2,p2:2,both:1,p3:2,p45:3,p69:3,p1012:2,p1315:3},
+    lesson:'<p>Eighteen questions drawn from all fifteen parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Part 2.</p>'+machineHTML(MACHINES.practice),
+    qs:m12.qs.concat(pools.p3).concat(pools.p45).concat(pools.p69).concat(pools.p1012).concat(pools.p1315)});
 })();
 
 var T_=function(rows,head){return '<div class="tbl-wrap"><table class="t">'+(head?'<thead><tr>'+head.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead>':'')+'<tbody>'+rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';};
@@ -5726,7 +6500,7 @@ var SECTIONS=[
    '<p>Through = through to memory every time. Back = back to memory later; dirty = memory is out of date. Typical pairs: write-through + no-write-allocate, or write-back + write-allocate.</p>'+
    '<div class="rule-box">miss rate = misses ÷ accesses = 1 − hit rate<br>average access time = hit rate × hit time + miss rate × miss penalty</div>'+
    '<p>Count 100 reads: 97 hits × 1 + 3 misses × 100 = 397 cycles, about 4 a read. 99% hits ≈ 2 cycles. Core i7: L1 32 KB 8-way (4 cycles), L2 256 KB 8-way (11), L3 8 MB 16-way and shared (30–40), all with 64-byte blocks.</p>'},
-  {id:'p12',part:'Part 12',name:'Virtual Memory',src:'L08 part 1 · In-Class Practice 12',next:'rev',
+  {id:'p12',part:'Part 12',name:'Virtual Memory',src:'L08 part 1 · In-Class Practice 12',next:'p13',
    intro:'Part 12 starts virtual memory: the addresses a program uses aren\'t the real ones. See what the MMU does, then count address spaces: n bits give N = 2ⁿ addresses. Then Practice 12\'s table, one row at a time.',
    after:'or try the Parts 10–12 mix.',
    path:[['vmidea','vmidea','Virtual addresses','Physical vs virtual addressing, and address spaces.'],['vspace','vspace','Counting addresses','N = 2ⁿ, the largest address, and K, M, G, T and P.'],['cls12','cls12','Class questions','Practice 12\'s table, one row at a time.'],['ex12','ex12','Exam-style practice','More address-space problems.']],
@@ -5734,6 +6508,27 @@ var SECTIONS=[
    '<ul class="facts"><li>Physical addressing: the CPU sends real addresses (simple embedded systems).</li><li>Virtual addressing: the MMU on the CPU chip turns each virtual address into a physical one (servers, desktops, laptops).</li><li>Physical address space: M = 2ᵐ addresses. Each byte has one physical address and one or more virtual ones.</li></ul>'+
    T_([['K','2¹⁰'],['M','2²⁰'],['G','2³⁰'],['T','2⁴⁰'],['P','2⁵⁰']],['Unit','Power of 2'])+
    '<p>Split n into tens plus the rest: 2¹⁶ = 2⁶ × 2¹⁰ = 64K, 2³² = 4G, 2⁴⁸ = 256T, 2⁶⁴ = 2¹⁴ × 2⁵⁰ = 16,384P. The largest address is all 1s: 2⁸ − 1 = 255 = 0xFF.</p>'},
+  {id:'p13',part:'Part 13',name:'Page Tables',src:'L08 part 2 · In-Class Practice 13',next:'p14',
+   intro:'Part 13 shows what virtual memory is for: giving every process its own memory, protecting it, and using DRAM as a cache for the disk. Then the page table that keeps track of every page, and Practice 13\'s question: how many entries does it need?',
+   after:'or try the Parts 13–15 mix.',
+   path:[['vmuses','vpages','Why virtual memory','Its three jobs, and DRAM as a cache for pages on disk.'],['ptable','mlevel','Page tables','Where each page is, how many PTEs there are, and why tables have levels.'],['cls13','cls13','Class questions','Practice 13\'s table, one row at a time.'],['ex13','ex13','Exam-style practice','More PTE counts, table sizes and permissions.']],
+   sheet:'<div class="rule-box">PTEs = 2ⁿ ÷ 2ᵖ = 2ⁿ⁻ᵖ</div>'+
+   T_([['16','4K = 2¹²','2⁴ = 16'],['16','8K = 2¹³','2³ = 8'],['32','4K = 2¹²','2²⁰ = 1M'],['32','8K = 2¹³','2¹⁹ = 512K']],['n','P','Number of PTEs'])+
+   '<ul class="facts"><li>Three jobs of virtual memory: memory management, protection, caching.</li><li>Permission bits: SUP (kernel only), READ, WRITE. Break one and the process gets SIGSEGV.</li><li>Pages are P = 2ᵖ bytes. Cached = in DRAM. Uncached = on disk only. Unallocated = never created.</li><li>Disk is about 10,000× slower than DRAM, so pages are large (4 to 8 KB), can go in any physical page (fully associative), and are written back late. Replacement is done in software.</li><li>Page table: one PTE for every virtual page. Each has a valid bit, plus a physical page number or a disk address.</li><li>Flat table size = addresses ÷ page size × PTE size. 2⁴⁸ ÷ 2¹² × 2³ = 512 GB, so real page tables have levels.</li></ul>'},
+  {id:'p14',part:'Part 14',name:'Address Translation',src:'L08 part 3 · In-Class Practice 14',next:'p15',
+   intro:'Part 14 turns virtual addresses into physical ones. Split the address into a page number and an offset, look the page up, and swap the page number. Then what happens on a page fault, and why faults are rare. Then all three Practice 14 questions.',
+   after:'or try the Parts 13–15 mix.',
+   path:[['vasplit','xlate','Translating','Split the address, look up the page, swap the page number.'],['pfault','wset','Page faults','What happens when the page isn\'t in DRAM, and why that\'s rare.'],['cls14','cls14','Class questions','All three Practice 14 questions.'],['ex14','ex14','Exam-style practice','More translations, forwards and backwards.']],
+   sheet:'<div class="rule-box rule-lines"><div>virtual address = VPN, then VPO</div><div>physical address = PPN, then PPO</div><div>PPO = VPO</div></div>'+
+   '<ul class="facts"><li>VPO = the low p bits (P = 2ᵖ). VPN = the top n − p bits.</li><li>valid = 1: page hit. valid = 0: page fault.</li><li>Page fault: the handler picks a victim (and writes it to disk if it\'s dirty), pages in the new page, updates the PTEs, and the instruction is restarted.</li><li>Working set: the pages a program is using. If the working sets add up to more than main memory, the machine thrashes.</li></ul>'+
+   '<p>Practice 14 (10-bit addresses, 64-byte pages): 0x2CD = 1011 001101, so VP 11, in PP 3: 011 001101 = 0xCD. 0x276 = 1001 110110, so VP 9, loaded into PP 6: 110 110110 = 0x1B6. Never allocated: VP 3, 7, 9, 14.</p>'},
+  {id:'p15',part:'Part 15',name:'The TLB',src:'L08 part 4 · In-Class Practice 15',next:'rev',
+   intro:'Part 15 finishes virtual memory. The TLB is a small cache that makes translation fast. Then follow one address the whole way: TLB, page table, physical address, cache. That\'s Practice 15, broken into small steps.',
+   after:'or try the Parts 13–15 mix.',
+   path:[['tlbidea','tlbsplit','The TLB','A cache for translations, and how to look one up.'],['vmcache','vmcache','On to the cache','From the physical address to the cache byte.'],['cls15','cls15','Class questions','Practice 15: one address, all the way through.'],['ex15','ex15','Exam-style practice','Three more addresses through the demo system.']],
+   sheet:'<div class="rule-box rule-lines"><div>VPN = top 8 bits, VPO = low 6</div><div>TLBI = low 2 bits of the VPN, TLBT = the other 6</div><div>physical address = PPN (6 bits), then the offset</div><div>CO = low 2 bits, CI = next 4, CT = top 6</div></div>'+
+   '<ul class="facts"><li>The TLB is a small cache of PTEs inside the MMU, looked up with the VPN.</li><li>TLB hit: the PPN comes straight from the TLB, with no memory read.</li><li>TLB miss: read the PTE from the page table. valid = 1 gives the PPN. valid = 0 is a page fault.</li><li>A TLB entry or cache line with valid = 0 never counts, even if the tag matches.</li><li>Page fault: PPN is "---" and the rest is left blank. Cache miss: the byte returned is "---".</li></ul>'+
+   '<p>Practice 15: 0x027c = 00001001 111100. VPN 0x9, TLBI 0x1, TLBT 0x2, TLB miss, no page fault, PPN 0x17. Physical address 010111 111100 = 0x5FC: CO 0x0, CI 0xF, CT 0x17, cache miss.</p>'},
   {id:'rev',part:'Review',name:'Mixed practice'}
 ];
 var LAB_FLAG_EX=[
@@ -5929,7 +6724,7 @@ function doneHTML(){
     acts='<button class="btn" data-act="replay">Play a new '+L.short+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="'+nextLi+'">Try the '+LEVELS[nextLi].short+'</button>';
   } else if(secEnd){
     var nxt=LEVELS[nextLi].sec;
-    var NEXTTXT={p2:'Part 2 covers memory addressing.',p3:'Part 3 covers condition codes and jumps.',p4:'Part 4 covers procedures: the stack, call and ret, and argument registers.',p5:'Part 5 covers arrays, 2D arrays and structs.',p6:'Part 6 starts the memory hierarchy: SRAM, DRAM, and what happens inside a DRAM chip.',p7:'Part 7 covers buses, memory reads and writes, and spinning disks.',p8:'Part 8 covers I/O devices and solid state disks.',p9:'Part 9 covers locality, the reason the memory hierarchy works.',p10:'Part 10 opens up the cache: blocks, hits and misses, S, E and B, and reading a byte.',p11:'Part 11 runs a cache: direct-mapped and 2-way simulations, conflict misses, writes, and speed.',p12:'Part 12 starts virtual memory: the MMU and address spaces.',rev:'The Review tab has mixes that shuffle the parts together, the way a quiz would.'};
+    var NEXTTXT={p2:'Part 2 covers memory addressing.',p3:'Part 3 covers condition codes and jumps.',p4:'Part 4 covers procedures: the stack, call and ret, and argument registers.',p5:'Part 5 covers arrays, 2D arrays and structs.',p6:'Part 6 starts the memory hierarchy: SRAM, DRAM, and what happens inside a DRAM chip.',p7:'Part 7 covers buses, memory reads and writes, and spinning disks.',p8:'Part 8 covers I/O devices and solid state disks.',p9:'Part 9 covers locality, the reason the memory hierarchy works.',p10:'Part 10 opens up the cache: blocks, hits and misses, S, E and B, and reading a byte.',p11:'Part 11 runs a cache: direct-mapped and 2-way simulations, conflict misses, writes, and speed.',p12:'Part 12 starts virtual memory: the MMU and address spaces.',p13:'Part 13 covers what virtual memory is for, and page tables.',p14:'Part 14 translates addresses, and handles page faults.',p15:'Part 15 adds the TLB and follows one address all the way to the cache.',rev:'The Review tab has mixes that shuffle the parts together, the way a quiz would.'};
     extra=(secCleared(L.sec)===secLevels(L.sec).length?'<div class="cleared">'+L.sec.replace('p','Part ')+' complete</div>':'')+'<p>That\'s all of '+L.sec.replace('p','Part ')+'. Its cheat sheet has the whole part on one page. '+(NEXTTXT[nxt]||'')+'</p>';
     acts='<button class="btn" data-act="nextlevel">'+(nxt.charAt(0)==='p'?'Start '+nxt.replace('p','Part ')+': Level '+(nextLi+1):'Go to the mixed practice')+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="sheet-'+L.sec+'">Cheat sheet</button><button class="btn ghost" data-act="replay">Replay this level</button>';
   } else {
