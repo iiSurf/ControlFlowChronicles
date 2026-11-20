@@ -2,6 +2,8 @@
 
 Check out [ControlFlowChronicles](https://iisurf.github.io/ControlFlowChronicles/) to play the game and learn at the same time.
 
+A learning game for a computer systems class: x86 assembly (AT&T syntax), the memory hierarchy, caches and virtual memory, in seventeen parts.
+
 **x86 assembly** (In-Class Practice 1–5)
 
 - **Part 1 · Moving Data**: operand kinds, suffix sizes, register names, and the rules that make a `mov` legal.
@@ -25,11 +27,13 @@ Check out [ControlFlowChronicles](https://iisurf.github.io/ControlFlowChronicles
 - **Part 13 · Page Tables**: the three jobs of virtual memory, permission bits, pages and the DRAM cache, reading a page table, counting PTEs, and why page tables have levels.
 - **Part 14 · Address Translation**: VPN and VPO, translating an address with a page table, page hits and page faults, working sets and thrashing.
 - **Part 15 · The TLB**: what the TLB is for, TLBI and TLBT, and following one address all the way through the TLB, the page table and the cache.
+- **Part 16 · Y86-64 ISA** (L09 part 1, In-Class Practice 16): CISC vs RISC, the Y86-64 registers and flags, encoding instructions as bytes, laying out a program with .pos and labels, decoding, and tracing a loop.
+- **Part 17 · SEQ Processor** (L09 part 2, In-Class Practice 17): the six stages (fetch, decode, execute, memory, write back, PC update), stage tables for every instruction kind, the pushq %rsp and popq %rsp puzzles, and running the worksheet program value by value.
 
 **Review**: seven shuffled mixes that pick new questions every replay, plus a Lab that works out any instruction, operand or flag result step by step.
 
 Every part ends with a **Class Practice** level that works through that part's in-class worksheet, and has a one-page **cheat sheet** for exam review. Bigger problems are broken into **guided steps** that fill in as you answer, and every level ends with a one-line **Remember** card.
 
-Most lessons are things to do rather than read. Many are short step-by-step walkthroughs where each step asks you to tap or predict something: the best DRAM shape, disk capacity, disk access time, whole-file reads and SSD lifetime (each with a calculator for your own numbers), a 4-slot cache you fill block by block, a build-a-cache walkthrough for S, E and B, the memory map for tag, set and offset, colliding arrays, write policies, counting 100 reads, and counting address bits. Others are small games and toys: sort-the-facts games that build each comparison table one tap at a time (operand kinds, real or fake registers, caller- vs callee-save, SRAM vs DRAM, volatile or not, SSD vs disk, temporal vs spatial), a byte dial, a live stack, a DRAM chip, loop-order explorers for 2D and 3D arrays, two be-the-cache games (a tiny cache, then Practice 11's), a hands-on run of the slides' caches, a be-the-MMU game, and four tap-through games for virtual memory: find a page in the page table, translate an address, look up the TLB, and take a physical address to the cache.
+Most lessons are things to do rather than read. Many are short step-by-step walkthroughs where each step asks you to tap or predict something: the best DRAM shape, disk capacity, disk access time, whole-file reads and SSD lifetime (each with a calculator for your own numbers), a 4-slot cache you fill block by block, a build-a-cache walkthrough for S, E and B, the memory map for tag, set and offset, colliding arrays, write policies, counting 100 reads, and counting address bits. Others are small games and toys: sort-the-facts games that build each comparison table one tap at a time (operand kinds, real or fake registers, caller- vs callee-save, SRAM vs DRAM, volatile or not, SSD vs disk, temporal vs spatial), a byte dial, a live stack, a DRAM chip, loop-order explorers for 2D and 3D arrays, two be-the-cache games (a tiny cache, then Practice 11's), a hands-on run of the slides' caches, a be-the-MMU game, and four tap-through games for virtual memory: find a page in the page table, translate an address, look up the TLB, and take a physical address to the cache. Part 16 adds a be-the-assembler game and a lay-out-the-program game for Y86-64, and Part 17 a which-stage game and a be-the-processor game.
 
 The whole game is a single file, `index.html`, with no build step and no dependencies beyond Google Fonts.
