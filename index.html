@@ -1126,6 +1126,48 @@ button.ycb:hover{border-color:var(--accent)}
 .sqs span.chg{border-color:var(--good);background:var(--good-soft)}
 .sqs span.ptr{border-color:var(--accent);background:var(--accent-soft)}
 @media (max-width:430px){.yt-r{grid-template-columns:max-content minmax(0,1fr);padding:3px 5px}.yt-r em{display:none}.yt-p i{min-width:15px}.yt-p i.w{min-width:40px}.yhelp{padding:8px 10px}}
+/* ===== v14: Practice 16 Q2/Q3 trace board ===== */
+.sb{display:grid;gap:10px;min-width:0}
+.sb-call{margin:0;font-size:14px}
+.sb-blk{display:grid;gap:4px;min-width:0}
+.sb-blk .cb-lab{margin:0}
+.sc{display:grid;border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden;min-width:0}
+.sc-h,.sc-r{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr);gap:8px;align-items:center;padding:3px 10px;font-size:12.5px}
+.sc-h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:var(--sunk);padding-block:5px}
+.sc-r{border-top:1px solid var(--line);border-left:3px solid transparent}
+.sc-r code{background:none;border:0;padding:0;font-size:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-r span{font-size:inherit;color:var(--muted);line-height:1.3}
+.sc-r.body{border-left-color:var(--line)}
+.sc-r.lab code{color:var(--src);font-weight:600}
+.sc-r.on{background:var(--accent-soft);border-left-color:var(--accent)}
+.sc-r.on span{color:var(--ink)}
+.sb-rg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}
+.sb-r{display:grid;justify-items:center;align-content:start;padding:4px 2px;border:1px solid var(--line);border-radius:6px;background:var(--panel);min-width:0;text-align:center}
+.sb-r i{font-style:normal;font-family:var(--font-code);font-size:11px;color:var(--muted)}
+.sb-r b{font-family:var(--font-code);font-size:13.5px;font-weight:600;overflow-wrap:anywhere;line-height:1.25}
+.sb-r em{font-style:normal;font-size:10px;color:var(--muted);line-height:1.2}
+.sb-r.unk b,b.unk{color:var(--byte-ink)}
+.sb-fl{font-size:12.5px;color:var(--muted)}
+.sb-fl b{font-family:var(--font-code);color:var(--ink);margin-left:6px}
+.sb-mm{display:flex;flex-wrap:wrap;gap:3px}
+.sb-m{display:grid;justify-items:center;min-width:56px;flex:1 1 56px;padding:3px 2px;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+.sb-m i{font-style:normal;font-family:var(--font-code);font-size:10.5px;color:var(--muted)}
+.sb-m b{font-family:var(--font-code);font-size:13px;font-weight:600}
+.sb-m em{font-style:normal;font-size:10.5px;color:var(--accent);font-weight:600}
+.sb-m.end{border-style:dashed}
+.sb-m.end b{font-family:inherit;font-size:11px;font-weight:400;color:var(--muted)}
+.sb-m.gap{flex:0 0 auto;min-width:24px;border-color:transparent;background:none;align-content:center}
+.sb-m.at{border-color:var(--accent);background:var(--accent-soft)}
+.sb-tw{overflow-x:auto;max-width:100%}
+.sb-tr{border-collapse:collapse;font-size:12.5px;width:100%}
+.sb-tr th{font-size:11px;font-weight:600;color:var(--muted);text-align:left;padding:3px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.sb-tr td{font-family:var(--font-code);padding:4px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.sb-tr tbody tr:last-child td{background:var(--accent-soft)}
+.sb-tr td.sb-none{font-family:inherit;color:var(--muted);white-space:normal;background:none}
+@media (max-width:430px){.sc-h,.sc-r{grid-template-columns:minmax(0,11.6em) minmax(0,1fr);padding-inline:7px;gap:6px}.sc-r{font-size:11.5px}.sb-tr th,.sb-tr td{padding:3px 4px}.sb-tr{font-size:11.5px}}
+.sc-h{font-size:11px}
+.sb-key{margin:2px 0 0;font-size:11.5px;color:var(--muted)}
+.sb-key b{font-family:var(--font-code);color:var(--ink);font-weight:600}
 
 /* ===== v12: Part 17, SEQ ===== */
 .sq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:start;margin-block:6px}
@@ -4443,6 +4485,77 @@ var CP16={pos:0x100,lines:['irmovq $15,%rbx','rrmovq %rbx,%rcx','loop:','rmmovq 
 var EX16P={pos:0x200,lines:['irmovq $1, %rax','pushq %rax','top:','addq %rax, %rax','jl top','halt']};
 function bEncH(asm){var B=bEnc(asm);return function(f){return B(f)+y86Help(asm);};}
 
+/* ===================== v14: Practice 16 Q2 and Q3, traced pass by pass ===================== */
+var SUM_CODE=[
+ ['xorq %rax, %rax','%rax = 0 (the total)'],
+ ['irmovq $8, %rcx','%rcx = 8 (bytes per long)'],
+ ['irmovq $1, %rdx','%rdx = 1'],
+ ['loop:','the loop starts here'],
+ ['mrmovq 0(%rdi), %r9','%r9 = the long at %rdi'],
+ ['addq %r9, %rax','%rax += %r9 (add to total)'],
+ ['addq %rcx, %rdi','%rdi += 8 (next long)'],
+ ['subq %rdx, %rsi','%rsi −= 1, and set the flags'],
+ ['jne loop','if %rsi ≠ 0, back to loop'],
+ ['ret','return %rax']
+];
+/* the code, each line with what it does; hl = line indexes to highlight */
+function sumCode(hl){
+  return '<div class="sc" role="table" aria-label="sum(), line by line"><div class="sc-h" role="row"><span role="columnheader">The code</span><span role="columnheader">What it does</span></div>'+SUM_CODE.map(function(r,i){
+    var on=hl&&hl.indexOf(i)>=0;
+    return '<div role="row" class="sc-r'+(on?' on':'')+(/:$/.test(r[0])?' lab':'')+(i>=4&&i<=8?' body':'')+'"><code role="cell">'+esc(r[0])+'</code><span role="cell">'+r[1]+'</span></div>';}).join('')+'</div>';
+}
+/* one record per pass of the loop */
+function sumRows(start,len,arr){
+  var R=[],rdi=start,rsi=len,rax=0;
+  for(var p=1;p<=len;p++){var v=arr?arr[p-1]:null;if(arr)rax+=v;var at=rdi;rdi+=8;rsi-=1;R.push({p:p,at:at,v:v,rax:arr?rax:null,rdi:rdi,rsi:rsi,zf:rsi===0?1:0,sf:rsi<0?1:0});}
+  return R;
+}
+function sumNum(n){return n<0?'−'+(-n):String(n);}
+/* lines to highlight for the step about to be asked (index = steps done) */
+var SUM_HL={q2:[[],[0],[1,2],[4,5,6,7,8],[4,5,6,7,8],[7,8],[6],[9]],q3:[[],[5,6,7],[4,5,6,7,8],[4,5,6,7,8],[4,5,6,7,8],[7],[7],[7],[9]]};
+/* C = {mode:'q2'|'q3', start, len, arr}; heads/cells: the answer boxes, as rowBoard takes them */
+function sumBoard(C,heads,cells){
+  var ans=rowBoard(heads,cells);
+  return function(f,done){
+    var ph=+(f.ph||0),q2=C.mode==='q2',rows=sumRows(C.start,C.len,C.arr),n=C.len;
+    var shown=q2?(ph<4?0:ph===4?1:ph===5?2:n):(ph<3?0:Math.min(ph-2,n));
+    var last=shown?rows[shown-1]:null,hideEnd=q2&&ph<7&&!done;
+    var rdiN=last?last.rdi:C.start,rdi=(last&&shown===n&&hideEnd)?'?':h3(rdiN);
+    var rsi=ph<1?'?':sumNum(last?last.rsi:n);
+    var rax=q2?(ph<2?'?':shown?'…':'0'):sumNum(last?last.rax:0);
+    var k8=q2&&ph<3?'?':'8',k1=q2&&ph<3?'?':'1';
+    var h='<div class="sb">';
+    h+='<p class="sb-call">Called as <code>sum('+h3(C.start)+', '+n+')</code>'+(C.arr?', with the array '+C.arr.map(sumNum).join(', '):'')+'.</p>';
+    h+=sumCode(SUM_HL[C.mode][Math.min(ph,SUM_HL[C.mode].length-1)]);
+    /* registers */
+    h+='<div class="sb-blk"><div class="cb-lab">Registers'+(shown?' after pass '+shown:ph>=1?', before the loop':'')+'</div><div class="sb-rg">'+[['%rdi',rdi,'next address'],['%rsi',rsi,'longs left'],['%rax',rax,q2&&shown?'total so far':'total'],['%rcx',k8,''],['%rdx',k1,'']].map(function(r){
+      return '<span class="sb-r'+(r[1]==='?'?' unk':'')+'"><i>'+r[0]+'</i><b>'+esc(r[1])+'</b>'+(r[2]?'<em>'+r[2]+'</em>':'')+'</span>';}).join('')+'</div>';
+    if(!q2){var lz=last?(last.rsi===0?(f.z!=null?f.z:'?'):last.zf):'–',ls=last?(last.rsi===0?(f.s!=null?f.s:'?'):last.sf):'–';
+      h+='<div class="sb-fl">Flags'+(last?', from the last subq':'')+': <b>ZF '+lz+'</b> <b>SF '+ls+'</b></div>';}
+    h+='</div>';
+    /* the array in memory, with %rdi's arrow */
+    var cells=q2?[0,1,2,'gap',n-1,'end']:[0,1,2,'end'],ptr=(rdi==='?')?-1:rdiN;
+    h+='<div class="sb-blk"><div class="cb-lab">The array in memory</div><div class="sb-mm">'+cells.map(function(c){
+      if(c==='gap')return '<span class="sb-m gap"><b>…</b></span>';
+      var a=C.start+8*(c==='end'?n:c),at=a===ptr;
+      return '<span class="sb-m'+(c==='end'?' end':'')+(at?' at':'')+'"><i>'+h3(a)+'</i><b>'+(c==='end'?'past the end':C.arr?sumNum(C.arr[c]):'long '+c)+'</b>'+(at?'<em>▲ %rdi</em>':'')+'</span>';}).join('')+'</div></div>';
+    /* the trace, one row per pass */
+    var hd=q2?['Pass','Reads at','%rdi after','%rsi after','jne?']:['Pass','Reads','%rax','%rsi','ZF','SF','jne?'];
+    var jne=function(r){return r.rsi!==0?'jumps':'ret';};
+    var row=function(r){
+      if(q2)return '<tr><td>'+r.p+'</td><td>'+h3(r.at)+'</td><td>'+(r.p===n&&hideEnd?'<b class="unk">?</b>':h3(r.rdi))+'</td><td>'+r.rsi+'</td><td>'+jne(r)+'</td></tr>';
+      var z=r.rsi===0?(f.z!=null?f.z:'<b class="unk">?</b>'):r.zf,s=r.rsi===0?(f.s!=null?f.s:'<b class="unk">?</b>'):r.sf;
+      return '<tr><td>'+r.p+'</td><td>'+sumNum(r.v)+'</td><td>'+sumNum(r.rax)+'</td><td>'+r.rsi+'</td><td>'+z+'</td><td>'+s+'</td><td>'+jne(r)+'</td></tr>';};
+    var body='';
+    if(!shown)body='<tr><td colspan="'+hd.length+'" class="sb-none">No passes yet.</td></tr>';
+    else if(q2&&shown===n)body=row(rows[0])+row(rows[1])+'<tr><td colspan="'+hd.length+'" class="sb-none">⋮ passes 3 to '+(n-1)+': the same, 8 further on each time</td></tr>'+row(rows[n-1]);
+    else body=rows.slice(0,shown).map(row).join('');
+    h+='<div class="sb-blk"><div class="cb-lab">The loop, pass by pass</div><div class="sb-tw"><table class="sb-tr"><thead><tr>'+hd.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr></thead><tbody>'+body+'</tbody></table></div><p class="sb-key">jne? <b>jumps</b>: back to loop for another pass. <b>ret</b>: the loop is over.</p></div>';
+    h+='<div class="sb-blk"><div class="cb-lab">Your answers</div>'+ans(f)+'</div></div>';
+    return h;
+  };
+}
+
 WALKS.y86state={steps:[
  {t:'Fifteen registers, each with a number',
   intro:'<p>Y86-64 is a small, made-up version of x86-64 for learning how a processor works. Its registers are x86-64\'s 16, minus <b>%r15</b>. Each has a number, written in hex. Instructions store the <b>number</b>, not the name:</p>',
@@ -7451,19 +7564,28 @@ qs:[
 {tag:'From class · Q1 row 2',prompt:'Q1: encode <code>irmovq 0x200, %rbx</code>.',board:bEncH('irmovq 0x200, %rbx'),guided:gEnc('irmovq 0x200, %rbx'),explain:'<b>30 F3 00 02 00 00 00 00 00 00</b>.'},
 {tag:'From class · Q1 row 3',prompt:'Q1: encode <code>jne 0x103a8</code>.',board:bEncH('jne 0x103a8'),guided:gEnc('jne 0x103a8'),explain:'jne is 7 4, then 0x103a8 lowest byte first: <b>74 A8 03 01 00 00 00 00 00</b>.'},
 {tag:'From class · Q1 row 4',prompt:'Q1: encode <code>xorq %rax, %rax</code>.',board:bEncH('xorq %rax, %rax'),guided:gEnc('xorq %rax, %rax'),explain:'<b>63 00</b>.'},
-{tag:'From class · Q2',pre:'.pos 0x100\nsum:\n   xorq %rax, %rax\n   irmovq $8, %rcx\n   irmovq $1, %rdx\nloop:\n   mrmovq 0(%rdi), %r9\n   addq %r9, %rax\n   addq %rcx, %rdi\n   subq %rdx, %rsi\n   jne loop\nret',
- prompt:'Q2: <code>sum(0x200, 10)</code>.',board:rowBoard(['%rax when loop: is first reached','Times the loop runs','%rdi at ret'],[{k:'a'},{k:'b'},{k:'c'}]),
- guided:[{label:'%rax',ask:'Before loop:, <code>xorq %rax, %rax</code> runs. When loop: is first reached, %rax holds',options:['0','0x200','10'],answer:0,hint:'Anything XOR itself is 0.',say:'0.',fill:{a:'0'}},
-  {label:'Passes',ask:'subq counts %rsi down from 10, and jne loops until it hits 0. How many passes?',options:['10','9','11'],answer:0,hint:'10 → 9 … 1 → 0: count the steps.',say:'10 passes.',fill:{b:'10'}},
-  {label:'%rdi',ask:'Each pass adds 8 to %rdi. 10 × 8 = 80 = 0x50. So at ret, %rdi =',options:['0x250','0x280','0x248'],answer:0,hint:'80 in decimal is 0x50 in hex.',say:'0x200 + 0x50 = 0x250.',fill:{c:'0x250'}}],
+{tag:'From class · Q2',
+ prompt:'Q2: <code>sum(0x200, 10)</code>. Follow it one pass at a time.',board:sumBoard({mode:'q2',start:0x200,len:10},['%rax when loop: is first reached','Times the loop runs','%rdi when ret runs'],[{k:'a'},{k:'b'},{k:'c'}]),
+ guided:[
+  {label:'Inputs',ask:'GCC passes the 1st argument in %rdi and the 2nd in %rsi. So %rdi = 0x200 (where the array starts) and %rsi =',options:['10','0x200','8'],answer:0,hint:'The 2nd argument is the length, 10.',say:'10: how many longs are left to add.',fill:{ph:'1'}},
+  {label:'Line 1',ask:'Line 1, <code>xorq %rax, %rax</code>, XORs %rax with itself. When loop: is first reached, %rax holds',options:['0','0x200','10'],answer:0,hint:'Anything XOR itself is 0: every bit matches.',say:'0. That\'s Q2\'s first answer.',fill:{ph:'2',a:'0'}},
+  {label:'Lines 2–3',ask:'Lines 2 and 3 set %rcx = 8 and %rdx = 1 for the loop to use. Why 8?',options:['A long is 8 bytes, so +8 moves to the next one','The array has 8 longs','The loop runs 8 times'],answer:0,hint:'Look at what line 7 does with %rcx.',say:'Right: %rdi walks through the array 8 bytes at a time.',fill:{ph:'3'}},
+  {label:'Pass 1',ask:'Now the loop (the highlighted lines). Pass 1 reads the long at 0x200, adds it to %rax, adds 8 to %rdi and takes 1 off %rsi. After pass 1, %rdi = 0x208 and %rsi =',options:['9','10','8'],answer:0,hint:'%rsi started at 10, and subq takes 1 off.',say:'9. That isn\'t 0, so jne jumps back to loop:.',fill:{ph:'4'}},
+  {label:'Pass 2',ask:'Pass 2 reads the long at 0x208. Then %rdi = 0x208 + 8 =',options:['0x210','0x216','0x209'],answer:0,hint:'In hex, 8 + 8 = 16 = 0x10. So 0x208 + 8 = 0x210.',say:'0x210, and %rsi = 8. Still not 0, so jne jumps back again.',fill:{ph:'5'}},
+  {label:'Passes',ask:'Each pass takes 1 off %rsi: 10, 9, 8, … jne stops looping once subq makes %rsi 0. How many passes in all?',options:['10','9','11'],answer:0,hint:'One pass for each step from 10 down to 0.',say:'10 passes, one for each long in the array.',fill:{ph:'6',b:'10'}},
+  {label:'%rdi',ask:'%rdi went up 8 on each of the 10 passes: 0x200 + 10 × 8. And 10 × 8 = 80 = 5 × 16 = 0x50. So when ret runs, %rdi =',options:['0x250','0x280','0x248'],answer:0,hint:'80 in decimal is 0x50 in hex (five 16s).',say:'0x250: one long past the end of the array.',fill:{ph:'7',c:'0x250'}}],
  explain:'%rax = <b>0</b>, the loop runs <b>10</b> times, and %rdi = <b>0x250</b> at ret.'},
-{tag:'From class · Q3',pre:'loop:\n   mrmovq 0(%rdi), %r9\n   addq %r9, %rax\n   addq %rcx, %rdi\n   subq %rdx, %rsi\n   jne loop\nret',
- prompt:'Q3: the array is 13, −17, 2 and len = 3. What are the condition codes when sum() returns?',board:rowBoard(['ZF','CF','SF'],[{k:'z'},{k:'c'},{k:'s'}]),
- guided:[{label:'Last',ask:'Which instruction sets the flags last before ret?',options:['subq %rdx, %rsi','addq %r9, %rax','mrmovq 0(%rdi), %r9','jne loop'],answer:0,hint:'Only addq, subq, andq and xorq set flags. Which comes last in the loop?',say:'subq, on the last pass.'},
-  {label:'Result',ask:'On the last pass, subq computes',options:['1 − 1 = 0','3 − 1 = 2','−2'],answer:0,hint:'%rsi counts 3, 2, 1, 0.',say:'0.'},
-  {label:'ZF',ask:'ZF: was the result zero?',options:['1','0'],answer:0,keep:true,say:'ZF = 1.',fill:{z:'1'}},
-  {label:'CF',ask:'Your worksheet\'s "CF" means overflow (Y86-64 calls it OF). Did 1 − 1 overflow?',options:['1','0'],answer:1,keep:true,say:'No: CF = 0.',fill:{c:'0'}},
-  {label:'SF',ask:'The sum in %rax is 13 − 17 + 2 = −2. SF =',options:['1','0'],answer:1,keep:true,hint:'SF describes subq\'s result, not %rax.',say:'SF = 0: subq\'s result, 0, isn\'t negative.',fill:{s:'0'}}],
+{tag:'From class · Q3',
+ prompt:'Q3: the array is 13, −17, 2 and len = 3. What are the condition codes when sum() returns?',board:sumBoard({mode:'q3',start:0x200,len:3,arr:[13,-17,2]},['ZF','CF','SF'],[{k:'z'},{k:'c'},{k:'s'}]),
+ guided:[
+  {label:'Inputs',ask:'Say the array starts at 0x200 (the address doesn\'t change the answer). len = 3 is the 2nd argument, so it goes in',options:['%rsi','%rdi','%rax'],answer:0,code:true,hint:'Q2: the 1st argument goes in %rdi, the 2nd in %rsi.',say:'%rsi = 3. Lines 1 to 3 then set %rax = 0, %rcx = 8 and %rdx = 1, just like Q2.',fill:{ph:'1'}},
+  {label:'Flags',ask:'ZF, SF and CF are set by every addq and subq, and each one replaces the flags before it. In each pass, which instruction sets them last, right before jne checks them?',options:['subq %rdx, %rsi','addq %r9, %rax','mrmovq 0(%rdi), %r9'],answer:0,code:true,hint:'mrmovq doesn\'t set flags. Of the addq\'s and the subq, which comes last?',say:'subq. So the flags describe the new %rsi, not the total in %rax.',fill:{ph:'2'}},
+  {label:'Pass 1',ask:'Pass 1 reads 13, the long at 0x200. %rax = 0 + 13 =',options:['13','0','−4'],answer:0,hint:'%rax starts at 0.',say:'13. Then subq: %rsi = 3 − 1 = 2. Not 0, so ZF = 0 and jne jumps back.',fill:{ph:'3'}},
+  {label:'Pass 2',ask:'Pass 2 reads −17, at 0x208. %rax = 13 + (−17) =',options:['−4','−30','4'],answer:0,hint:'13 − 17.',say:'−4. subq: %rsi = 2 − 1 = 1. Still not 0, so jne jumps back.',fill:{ph:'4'}},
+  {label:'Pass 3',ask:'Pass 3 reads 2, at 0x210, so %rax = −4 + 2 = −2. Then subq computes %rsi = 1 − 1 =',options:['0','1','−1'],answer:0,hint:'%rsi was 1.',say:'0. So jne doesn\'t jump, and sum() returns. The flags at ret come from this subq.',fill:{ph:'5'}},
+  {label:'ZF',ask:'ZF: was that subq\'s result zero?',options:['1','0'],answer:0,keep:true,say:'Yes, so ZF = 1.',fill:{ph:'6',z:'1'}},
+  {label:'CF',ask:'CF (your worksheet\'s name for overflow): did 1 − 1 = 0 overflow?',options:['1','0'],answer:1,keep:true,hint:'0 fits easily in 64 bits.',say:'No, so CF = 0.',fill:{ph:'7',c:'0'}},
+  {label:'SF',ask:'SF: was subq\'s result negative? Careful: %rax = −2 is negative, but addq ran before subq, and subq\'s flags replaced its flags.',options:['1','0'],answer:1,keep:true,hint:'Look at subq\'s result, not %rax.',say:'subq\'s result, 0, isn\'t negative, so SF = 0.',fill:{ph:'8',s:'0'}}],
  explain:'ZF = <b>1</b>, CF = <b>0</b>, SF = <b>0</b>. They come from the last subq (1 − 1 = 0), not from the sum, −2.'},
 {tag:'From class · Q4',vis:yRulerHTML(CP16,0,{extra:0})+y86Help('irmovq'),pre:'.pos 0x100  #  Start code at address 0x100\n  irmovq $15,%rbx\n  rrmovq %rbx,%rcx\nloop:\n  rmmovq %rcx, -3(%rbx)\n  addq  %rbx,%rcx\n  jmp loop',prompt:'Q4: the byte encoding for <code>irmovq $15,%rbx</code>.',options:['0x100: 30f30f00000000000000','0x101: 30f30f00000000000000','0x100: 30f3000000000000000f','0x102: 30f30ff0000000000000'],answer:0,hint:'It\'s the first line, so it starts at 0x100. $15 = 0x0f, lowest byte first.',explain:'30 f3, then 15 = 0x0f as 0f 00 00 00 00 00 00 00.'},
 {tag:'From class · Q5',vis:yRulerHTML(CP16,1,{extra:0})+y86Help('rrmovq'),pre:'.pos 0x100\n  irmovq $15,%rbx   # 10 bytes\n  rrmovq %rbx,%rcx\nloop:\n  rmmovq %rcx, -3(%rbx)\n  addq  %rbx,%rcx\n  jmp loop',prompt:'Q5: the byte encoding for <code>rrmovq %rbx, %rcx</code>.',options:['0x10b: 4031','0x10a: 2013','0x10a: 2031','0x10a: 3031'],answer:2,hint:'0x100 + 10 = 0x10a. rA = %rbx = 3, rB = %rcx = 1.',explain:'<b>0x10a: 2031</b>.'},
@@ -7484,8 +7606,8 @@ qs:[
 {vis:yRulerHTML(EX16P,2,{extra:0})+yLens(),pre:'.pos 0x200\n  irmovq $1, %rax\n  pushq %rax\ntop:\n  addq %rax, %rax\n  jl top\n  halt',prompt:'What is the value of <code>top</code>?',options:['0x20c','0x20b','0x212','0x20a'],answer:0,hint:'irmovq is 10 bytes, pushq 2.',explain:'0x200 + 10 + 2 = <b>0x20c</b>.'},
 {vis:yRulerHTML(EX16P,4,{extra:0})+y86Help('jl'),pre:'.pos 0x200\n  irmovq $1, %rax\n  pushq %rax\ntop:\n  addq %rax, %rax\n  jl top\n  halt',prompt:'The byte encoding for <code>jl top</code>.',options:['0x20e: 720c02000000000000','0x20e: 70020c000000000000','0x20d: 720c02000000000000','0x20e: 72000000000000020c'],answer:0,hint:'top = 0x20c, and addq takes 2 bytes. jl is 7 2.',explain:'<b>0x20e: 720c02000000000000</b>.'},
 {vis:y86Help(null,{nohl:true}),prompt:'Decode these bytes: <code>30f40001000000000000</code>',options:['irmovq $0x100, %rsp','irmovq $1, %rsp','rmmovq %rsp, 0x100'],answer:0,hint:'30 f4: irmovq into register 4. Then the constant, lowest byte first: 00 01 …',explain:'00 01 00… is 0x100 little-endian.'},
-{prompt:'<code>sum(0x380, 5)</code> from Practice 16. What is %rdi at ret?',options:['0x3a8','0x385','0x3d0'],answer:0,hint:'5 × 8 = 40 = 0x28.',explain:'0x380 + 0x28 = <b>0x3a8</b>.'},
-{prompt:'Practice 16\'s sum with array 4, −9 and len = 2. Which flags are 1 at ret?',options:['Only ZF','Only SF','ZF and SF'],answer:0,hint:'The last OPq is subq: 1 − 1.',explain:'subq gives 0: ZF = 1, SF = 0. %rax = −5 doesn\'t matter.'},
+{vis:sumCode(),prompt:'<code>sum(0x380, 5)</code> from Practice 16. What is %rdi at ret?',options:['0x3a8','0x385','0x3d0'],answer:0,hint:'5 × 8 = 40 = 0x28.',explain:'0x380 + 0x28 = <b>0x3a8</b>.'},
+{vis:sumCode(),prompt:'Practice 16\'s sum with array 4, −9 and len = 2. Which flags are 1 at ret?',options:['Only ZF','Only SF','ZF and SF'],answer:0,hint:'The last OPq is subq: 1 − 1.',explain:'subq gives 0: ZF = 1, SF = 0. %rax = −5 doesn\'t matter.'},
 {code:false,prompt:'Y86-64 takes a CISC design and',options:['simplifies it with RISC principles','adds more complex instructions','removes all registers'],answer:0,explain:'It has both CISC and RISC attributes.'}
 ]},
 
