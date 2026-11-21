@@ -1238,6 +1238,19 @@ button.smb:hover,button.smr:hover,button.smm:hover,button.sm-ll:hover{border-col
 .sm-cc.chg b{color:var(--good)}
 .sm-mm{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;max-width:400px}
 .seqpp-mini{font-size:12px}
+/* v15: teaching layer */
+.sm-learn{padding:9px 11px;border-radius:10px;border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--panel);font-size:14px;line-height:1.45;display:grid;gap:6px}
+.sm-sn{color:var(--accent);font-weight:600;margin-right:4px}
+.sm-g{font-size:12.5px}
+.sm-note{display:block;font-size:12.5px;color:var(--ink);padding:5px 8px;border-radius:7px;background:var(--sunk)}
+.sm-note i{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);border-radius:4px;padding:1px 5px;margin-right:6px;vertical-align:1px}
+.sm-blk.dim{opacity:.5}
+.sm-blk.focus>.cb-lab{color:var(--accent);font-weight:600}
+.smb.hint,.smr.hint,.smm.hint,.sm-ll.hint{border-color:var(--accent);background:var(--accent-soft);animation:smglow 1.4s ease-in-out infinite;position:relative;z-index:1}
+@keyframes smglow{0%,100%{box-shadow:0 0 0 2px var(--accent)}50%{box-shadow:0 0 0 5px var(--accent-soft),0 0 0 2px var(--accent)}}
+@media (prefers-reduced-motion:reduce){.smb.hint,.smr.hint,.smm.hint,.sm-ll.hint{animation:none;box-shadow:0 0 0 3px var(--accent)}}
+.sm .toy-btns .link{font-size:13px}
+.gd-learn{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:3px}
 </style>
 </head>
 <body>
@@ -4687,7 +4700,7 @@ function gSeq(pc,o){
   R.steps.forEach(function(s,i){
     var right=specTxt(s),opts=[right].concat(s.alts.slice(0,2).map(function(a){return s.lhs+' ← '+s.expr.replace(/= .*/,'')+(s.expr===a?'':' = '+a);})).filter(function(v,j,a){return a.indexOf(v)===j;});
     if(opts.length<2)opts.push(s.lhs+' ← '+s.expr+' = ?');
-    S.push({label:s.st,ask:s.st+': <code>'+s.g+'</code>',options:opts,answer:0,hint:(s.why?s.why+' ':'')+'Here: '+s.lhs+' ← '+s.expr+'.',say:right+'.',fill:(function(){var f={};f['s'+i]=right;return f;})()});
+    S.push({label:s.st,ask:s.st+': <code>'+s.g+'</code><span class="gd-learn">'+seqmLearn(R,s)+'</span>',options:opts,answer:0,hint:(s.why?s.why+' ':'')+'Here: '+s.lhs+' ← '+s.expr+'.',say:right+'.',fill:(function(){var f={};f['s'+i]=right;return f;})()});
   });
   if(o.effect){var opt=[R.effect].concat(o.effect);S.push({label:'Effect',ask:'So, overall, the instruction',options:opt,answer:0,say:'It '+R.effect+'.',fill:{eff:R.effect}});}
   return S;
@@ -4743,22 +4756,21 @@ function seqmOpts(R,s,k){
   var lab=function(x){if(s.lhs==='Cnd')return x==='1'?'Cnd = 1: it jumps':'Cnd = 0: no jump';if(s.lhs==='CC')return x.replace(/ OF=0/,'').replace(/=/g,' = ').replace(' S',', S');return x;};
   return {o:ro.map(lab),r:ro.indexOf(s.v)};
 }
-function seqmAsk(R,s,K){
-  var e=R.e,G='<code>'+s.g+'</code>';
+function seqmAsk(R,s,K,teach){
+  var e=R.e,G='<code>'+s.g+'</code>',glow=teach?' (It\'s glowing.)':'';
   if(K.t==='byte'){
-    if(s.lhs==='icode:ifun')return G+': the PC is '+h3(R.pc)+'. Tap the byte it reads.';
-    if(s.lhs==='rA:rB')return G+': tap the byte at PC + 1.';
-    if(s.lhs==='valC')return G+': the 8-byte constant starts at PC + '+(e.hasR?2:1)+'. Tap its first byte.';
-    return G+': this instruction is '+e.n+' byte'+(e.n>1?'s':'')+'. Tap the byte where the next one starts.';
+    if(s.lhs==='icode:ifun')return 'The PC is '+h3(R.pc)+'. Tap the byte at the PC.'+glow;
+    if(s.lhs==='rA:rB')return 'Tap the byte at PC + 1 = '+h3(R.pc+1)+'.'+glow;
+    if(s.lhs==='valC')return 'The constant starts at PC + '+(e.hasR?2:1)+' = '+h3(K.at)+'. Tap its first byte.'+glow;
+    return 'This instruction is '+e.n+' byte'+(e.n>1?'s':'')+' long. Tap the byte where the next instruction starts.'+glow;
   }
-  if(K.t==='reg')return G+': tap the register it reads.';
-  if(K.t==='regw')return G+': tap the register it writes.';
-  if(K.t==='mem')return G+': tap the memory word it reads.';
-  if(K.t==='memw')return G+': tap the memory word it writes.';
-  if(K.t==='line')return G+': tap the line that runs next.';
-  if(s.lhs==='valE')return G+(e.ic===6?' (OP is '+['+','−','&amp;','^'][e.fn]+' for '+e.op+')':'')+'. valE =';
-  if(s.lhs==='CC')return G+' from valE = '+s.expr.replace('valE = ','')+'. The new flags:';
-  if(s.lhs==='Cnd')return G+': look at the flags. Does <code>'+e.op+'</code> jump?';
+  if(K.t==='reg'||K.t==='regw'){var w=/R\[([^\]]+)\]/.exec(s.g)[1],n=w==='rA'?e.ra:w==='rB'?e.rb:4;
+    return (w==='%rsp'?'':w+' = '+n.toString(16)+'. ')+'Tap the register it '+(K.t==='reg'?'reads':'writes')+'.'+glow;}
+  if(K.t==='mem'||K.t==='memw'){var src=/M8\[(\w+)\]/.exec(s.g)[1];return 'The address is '+src+' = '+K.a+'. Tap that memory word.'+glow;}
+  if(K.t==='line')return 'Tap the line that runs next.'+glow;
+  if(s.lhs==='valE')return teach?'Here that\'s <b>'+s.expr+'</b>. valE =':G+'. valE =';
+  if(s.lhs==='CC'){var v=s.expr.replace('valE = ','');return 'valE = '+v+'. '+(teach?'Is it 0? Is it negative? ':'')+'The new flags:';}
+  if(s.lhs==='Cnd')return (teach?(SEQ_JRULE[e.op]||'')+' Here ZF = '+R.before.CC.ZF+'. ':'Look at the flags. ')+'Does <code>'+e.op+'</code> jump?';
   return G+' =';
 }
 function seqmWhy(R,s,K){
@@ -4803,71 +4815,134 @@ function seqmView(R,k){
   });
   return V;
 }
-function seqmBytes(T,R,tap,bad,k){
+function seqmBytes(T,R,tap,bad,tgt){
   var pc=R.pc,e=R.e,nx=pc+e.n,nl=1;
   T.A.rows.forEach(function(r){if(!r.lab&&r.a===nx)nl=r.e.n;});
   var lo=pc-(pc%8),hi=nx+nl;hi=hi+((8-(hi%8))%8);
-  var cst=e.c!=null?pc+(e.hasR?2:1):-1,h='<div class="sm-by" role="group" aria-label="Instruction memory, one cell per byte">';
+  var h='<div class="sm-by" role="group" aria-label="Instruction memory, one cell per byte">';
   for(var a=lo;a<hi;a+=8){
     h+='<span class="yru-h">'+h3(a)+'</span>';
     for(var c=0;c<8;c++){var x=a+c,b=T.bytes[x],cls='smb';
       if(x>=pc&&x<nx)cls+=x===pc?' p0':(x===pc+1&&e.hasR)?' p1':' pk';else if(x>=nx&&x<nx+nl&&b!=null)cls+=' nx';else cls+=' pre';
       if(x===pc)cls+=' at';
       if(bad==='b:'+x)cls+=' bad';
+      if(tgt==='b:'+x)cls+=' hint';
       var inner='<b>'+(b!=null?h2u(b):'')+'</b><i>'+x.toString(16).slice(-1)+'</i>';
       h+=tap?'<button class="'+cls+'" data-ta="b:'+x+'" aria-label="Byte at '+h3(x)+'">'+inner+'</button>':'<span class="'+cls+'">'+inner+'</span>';}
   }
   return h+'</div>';
 }
-function seqmList(T,R,tap,bad){
+function seqmList(T,R,tap,bad,tgt){
   return '<div class="sm-ls">'+T.A.rows.map(function(r){
     if(r.lab)return '<span class="sm-ll lab"><i></i><code>'+esc(r.t)+'</code></span>';
-    var cls='sm-ll'+(r.a===R.pc?' here':'')+(bad==='l:'+r.a?' bad':''),inner='<i>'+h3(r.a)+'</i><code>'+esc(r.t)+'</code>'+(r.a===R.pc?'<em>◀ PC</em>':'');
+    var cls='sm-ll'+(r.a===R.pc?' here':'')+(bad==='l:'+r.a?' bad':'')+(tgt==='l:'+r.a?' hint':''),inner='<i>'+h3(r.a)+'</i><code>'+esc(r.t)+'</code>'+(r.a===R.pc?'<em>◀ PC</em>':'');
     return tap?'<button class="'+cls+'" data-ta="l:'+r.a+'">'+inner+'</button>':'<span class="'+cls+'">'+inner+'</span>';}).join('')+'</div>';
 }
+/* ---- what each row means, in plain words ---- */
+var SEQ_LEARN={
+ 'icode:ifun ← M1[PC]':'Read the instruction\'s first byte, at the PC. Its first hex digit is <b>icode</b> (what kind of instruction), its second is <b>ifun</b> (which one of that kind).',
+ 'rA:rB ← M1[PC+1]':'Read the next byte. It names the registers: first digit <b>rA</b>, second digit <b>rB</b>. F means "no register".',
+ 'valC ← M8[PC+2]':'Read the 8-byte constant inside the instruction into <b>valC</b>.',
+ 'valC ← M8[PC+1]':'Read the 8-byte address inside the instruction into <b>valC</b>.',
+ 'valA ← R[rA]':'Read register rA into <b>valA</b>.',
+ 'valB ← R[rB]':'Read register rB into <b>valB</b>.',
+ 'valA ← R[%rsp]':'Read the stack pointer, %rsp, into <b>valA</b>.',
+ 'valB ← R[%rsp]':'Read the stack pointer, %rsp, into <b>valB</b>.',
+ 'valE ← 0 + valC':'The ALU just passes valC through: <b>valE</b> = valC.',
+ 'valE ← valB + valC':'The ALU works out a memory address, into <b>valE</b>: valB (the base register) + valC (the offset).',
+ 'valE ← valB + (−8)':'The ALU works out the new stack pointer, into <b>valE</b>: %rsp − 8.',
+ 'valE ← valB + 8':'The ALU works out the new stack pointer, into <b>valE</b>: %rsp + 8.',
+ 'Set CC':'Set the flags from valE: ZF = 1 if valE is 0, SF = 1 if valE is negative.',
+ 'Cnd ← Cond(CC, ifun)':'Check the flags: does this jump happen? <b>Cnd</b> = 1 means yes.',
+ 'valM ← M8[valA]':'Read the 8 bytes at address valA into <b>valM</b>.',
+ 'valM ← M8[valE]':'Read the 8 bytes at address valE into <b>valM</b>.',
+ 'M8[valE] ← valA':'Store valA in memory, at address valE.',
+ 'M8[valE] ← valP':'Store valP (the return address) in memory, at address valE.',
+ 'R[rB] ← valE':'Write valE into register rB.',
+ 'R[%rsp] ← valE':'Write valE into %rsp: the stack pointer moves.',
+ 'R[rA] ← valM':'Write valM (what was read from memory) into register rA.',
+ 'PC ← valP':'Move the PC to valP: on to the next instruction.',
+ 'PC ← Cnd ? valC : valP':'If Cnd = 1, jump to valC. If not, go on to valP.',
+ 'PC ← valC':'call always jumps, to valC.',
+ 'PC ← valM':'ret jumps to valM, the return address it just read from the stack.'
+};
+function seqmLearn(R,s){
+  if(/^valP ← PC \+ /.test(s.g))return '<b>valP</b> is where the next instruction starts: the PC plus this instruction\'s length, '+R.e.n+' byte'+(R.e.n>1?'s':'')+'.';
+  if(s.g==='valE ← valB OP valA')return 'The ALU does the math, into <b>valE</b>: valB OP valA. For '+R.e.op+', OP is '+['+','−','&amp;','^'][R.e.fn]+'.';
+  return SEQ_LEARN[s.g]||'';
+}
+/* notation, explained the first time it shows up */
+var SEQ_NOTE=[['←','<code>←</code> means "gets": the left side gets the value on the right.'],['M1[','<code>M1[x]</code> means the 1 byte at address x.'],['val','<b>valC, valP, valA, valB, valE, valM</b> are named boxes for values SEQ works out. They fill in under <i>Values</i>.'],['R[','<code>R[r]</code> means the value in register r.'],['M8[','<code>M8[x]</code> means the 8 bytes (one long) at address x.']];
+function seqmNotes(s,seen){var o=[];SEQ_NOTE.forEach(function(n){var hit=n[0]==='val'?/^val/.test(s.lhs):s.g.indexOf(n[0])>=0;if(hit&&!seen[n[0]])o.push(n);});return o;}
+/* L120's three-tap tour of the hardware, before the first instruction */
+var SEQ_TOUR=[
+ {t:'b',a:0x014,blk:'ins',lead:'<b>Instruction memory</b> holds the program\'s bytes, one cell per byte. Each row starts at the address on its left; the small digit in a cell is the last digit of its address.',q:'Tap the byte at address 0x014.',bad:'Find row 0x010, then the cell marked 4.',say:'That\'s 61, the first byte of <code>subq %rdx, %rbx</code> (61 23). The <b>PC</b>, the program counter, holds 0x014: the address of the instruction to run.'},
+ {t:'r',a:2,blk:'reg',lead:'These are the <b>registers</b>. Each cell shows the register\'s number and name, and the value in it.',q:'Tap %rdx, register 2.',bad:'Look for the cell labeled 2 %rdx.',say:'%rdx holds 9. The book writes that as R[%rdx] = 9.'},
+ {t:'m',a:120,blk:'mem',lead:'This is <b>data memory</b>, shown as 8-byte words (one long each), by address.',q:'Tap the word at address 120.',bad:'Look for the cell labeled M8[120].',say:'It holds 0. The book writes that as M8[120] = 0.'},
+ {t:'go',blk:'',lead:'SEQ runs every instruction in <b>six stages</b>, the strip at the top. Each stage is one or two small steps. Do them one at a time, top to bottom. Each step you finish becomes one row of the <b>stage table</b> under the machine.'}
+];
+var SEQ_FOCUS={byte:'ins',line:'ins',reg:'reg',regw:'reg',mem:'mem',memw:'mem'};
 TOYDEF.seqm={title:'Try it · run it on the machine',
-  init:function(){return {i:0,k:0,pk:null,bad:null,msg:'',say:'',slip:false,n:0,clean:0};},
+  init:function(){return {i:0,k:0,pk:null,bad:null,msg:'',say:'',slip:false,n:0,clean:0,lap:0,t:0,toured:false,seen:{},show:false};},
   out:function(st,d){
-    var T=seqTr(d.tr||'main'),L=seqmRecs(T,d),R=L[st.i],k=st.k,done=k>=R.steps.length,s=done?null:R.steps[k],K=s?seqmKind(R,s):{t:'none'},V=seqmView(R,k),e=R.e;
+    var T=seqTr(d.tr||'main'),L=seqmRecs(T,d),R=L[st.i],tour=!!d.tour&&!st.toured,TS=tour?SEQ_TOUR[st.t]:null,k=st.k;
+    var done=!tour&&k>=R.steps.length,s=(tour||done)?null:R.steps[k],K=s?seqmKind(R,s):{t:'none'},V=seqmView(R,k),e=R.e;
+    var teach=!!s&&((d.teach&&!st.lap)||st.show),tgt=(teach&&K.t!=='mc')?seqmRight(R,k):null;
+    var blk=tour?TS.blk:s?(SEQ_FOCUS[K.t]||(s.lhs==='Cnd'?'reg':'val')):'';
     var h='<div class="sm">';
     h+='<p class="sm-top">'+(L.length>1?'<span>Instruction '+(st.i+1)+' of '+L.length+'</span>':'')+'<b><code>'+esc(T.A.rows[R.line].t)+'</code></b> at '+h3(R.pc)+'</p>';
     var used={},ci=s?SEQ_STAGES.indexOf(s.st):9;R.steps.forEach(function(x){used[x.st]=1;});
-    h+='<div class="sm-stg">'+SEQ_STAGES.map(function(n,i){return '<span class="'+(i===ci?'on':i<ci?'past':'')+(used[n]?'':' none')+'">'+n+'</span>';}).join('')+'</div>';
-    if(s){
-      h+='<p class="sm-qh"><b>'+s.st+'</b> '+(s.lhs==='Cnd'?'checks the flags, to decide whether to jump.':s.lhs==='CC'?'sets the flags from valE.':SEQ_BLURB[s.st])+'</p>';
-      if(K.t==='mc'){var O=seqmOpts(R,s,k);h+=chipAsk(seqmAsk(R,s,K),O.o,'o',st.pk,O.r);}
-      else h+='<p class="tr-note ask-q"><b>'+seqmAsk(R,s,K)+'</b></p>';
+    h+='<div class="sm-stg">'+SEQ_STAGES.map(function(n,i){return '<span class="'+(i===ci?'on':(!tour&&i<ci)?'past':'')+(used[n]?'':' none')+'">'+n+'</span>';}).join('')+'</div>';
+    if(tour){
+      h+='<div class="sm-learn"><div>'+TS.lead+'</div></div>';
       if(st.say)h+='<p class="sm-say">✓ '+st.say+'</p>';
+      if(TS.t==='go')h+='<div class="toy-btns"><button class="btn sm" data-ta="go">Start running subq ▶</button></div>';
+      else h+='<p class="tr-note ask-q"><b>'+TS.q+'</b></p>'+msgP(st);
+    } else if(s){
+      var notes=seqmNotes(s,st.seen);
+      h+='<div class="sm-learn"><div><b class="sm-sn">'+s.st+'</b> <code class="sm-g">'+s.g+'</code></div><div>'+seqmLearn(R,s)+'</div>'+notes.map(function(n){return '<span class="sm-note"><i>New</i> '+n[1]+'</span>';}).join('')+'</div>';
+      if(st.say)h+='<p class="sm-say">✓ '+st.say+'</p>';
+      if(K.t==='mc'){var O=seqmOpts(R,s,k);h+=chipAsk(seqmAsk(R,s,K,teach),O.o,'o',st.pk,O.r);}
+      else h+='<p class="tr-note ask-q"><b>'+seqmAsk(R,s,K,teach)+'</b></p>';
       h+=msgP(st);
+      if(!teach)h+='<div class="toy-btns"><button class="link" data-ta="show">Show me</button></div>';
     } else {
       h+='<p class="tr-note"><b class="ok">Done.</b> '+(e.ic===0?'<code>halt</code> stops the processor. That\'s the whole program.':'<code>'+esc(T.A.rows[R.line].t)+'</code> '+R.effect+'.')+'</p>';
-      h+='<div class="toy-btns"><button class="btn sm" data-ta="next">'+(L.length===1?'Run it again ▶':st.i+1<L.length?'Next instruction ▶':'Start over ▶')+'</button></div>';
+      if(d.tour&&!st.lap)h+='<p class="tr-note">The table under the machine is <code>subq</code>\'s <b>stage table</b>: one row for each step you just did. Each row shows the rule (small) and what it gave here (bold). Practice 17 asks you to fill in tables like this.</p>';
+      var last=st.i+1>=L.length;
+      h+='<div class="toy-btns"><button class="btn sm" data-ta="next">'+(d.teach&&!st.lap&&last?'Again, without the glow ▶':L.length===1?'Run it again ▶':last?'Start over ▶':'Next instruction ▶')+'</button></div>';
     }
-    /* instruction memory */
-    h+='<div class="sm-hw"><div class="sm-blk"><div class="cb-lab">'+(K.t==='line'?'The program':'Instruction memory')+'</div>'+(K.t==='line'?seqmList(T,R,true,st.bad):seqmBytes(T,R,K.t==='byte',st.bad,k))+'</div>';
-    /* signals: the values this instruction computes */
+    var tapB=tour?TS.t==='b':K.t==='byte',tapR=tour?TS.t==='r':(K.t==='reg'||K.t==='regw'),tapM=tour?TS.t==='m':(K.t==='mem'||K.t==='memw');
+    var bc=function(n){return 'sm-blk'+(blk===n?' focus':blk&&n!=='val'?' dim':'');};
+    h+='<div class="sm-hw"><div class="'+bc('ins')+'"><div class="cb-lab">'+(K.t==='line'?'The program':'Instruction memory')+'</div>'+(K.t==='line'?seqmList(T,R,true,st.bad,tgt):seqmBytes(T,R,tapB,st.bad,tgt))+'</div>';
     var sig=[];R.steps.forEach(function(x){var t=seqmKind(R,x).t;if(t!=='regw'&&t!=='memw'&&t!=='line'&&x.lhs!=='CC'&&sig.indexOf(x.lhs)<0)sig.push(x.lhs);});
-    h+='<div class="sm-blk"><div class="cb-lab">Values so far</div><div class="sm-sig">'+sig.map(function(n){var v=V.sig[n],cur=s&&s.lhs===n;return '<span class="'+(cur?'cur':v!=null?'got':'')+'"><i>'+n+'</i><b>'+(v!=null?v:cur?'?':'')+'</b></span>';}).join('')+'</div></div>';
-    /* register file and flags */
-    var rt=K.t==='reg'||K.t==='regw';
-    h+='<div class="sm-blk"><div class="cb-lab">Registers</div><div class="sm-rg">'+[0,1,2,3,4,5,6,7].map(function(r){
-      var cls='smr'+(V.chg[r]?' chg':V.rd[r]?' rd':'')+(st.bad==='r:'+r?' bad':''),inner='<i>'+r+' %'+Y86R[r]+'</i><b>'+V.R[r]+'</b>';
-      return rt?'<button class="'+cls+'" data-ta="r:'+r+'">'+inner+'</button>':'<span class="'+cls+'">'+inner+'</span>';}).join('')+'</div>';
+    h+='<div class="'+bc('val')+'"><div class="cb-lab">'+(done?'Values':'Values so far')+'</div><div class="sm-sig">'+sig.map(function(n){var v=V.sig[n],cur=s&&s.lhs===n;return '<span class="'+(cur?'cur':v!=null?'got':'')+'"><i>'+n+'</i><b>'+(v!=null?v:cur?'?':'')+'</b></span>';}).join('')+'</div></div>';
+    h+='<div class="'+bc('reg')+'"><div class="cb-lab">Registers</div><div class="sm-rg">'+[0,1,2,3,4,5,6,7].map(function(r){
+      var cls='smr'+(V.chg[r]?' chg':V.rd[r]?' rd':'')+(st.bad==='r:'+r?' bad':'')+(tgt==='r:'+r?' hint':''),inner='<i>'+r+' %'+Y86R[r]+'</i><b>'+V.R[r]+'</b>';
+      return tapR?'<button class="'+cls+'" data-ta="r:'+r+'">'+inner+'</button>':'<span class="'+cls+'">'+inner+'</span>';}).join('')+'</div>';
     h+='<div class="sm-cc'+(V.cc?' chg':'')+'">Flags: <b>ZF '+V.CC.ZF+'</b> <b>SF '+V.CC.SF+'</b> <b>OF '+V.CC.OF+'</b></div></div>';
-    /* data memory */
-    var mt=K.t==='mem'||K.t==='memw';
-    h+='<div class="sm-blk"><div class="cb-lab">Data memory (8-byte words)</div><div class="sm-mm">'+T.words.map(function(a){
-      var v=V.M[a]||0,cls='smm'+(V.mchg===a?' chg':V.mrd===a?' rd':'')+(st.bad==='m:'+a?' bad':''),inner='<i>M8['+a+']</i><b>'+(V.H[a]?h3(v):v)+'</b>';
-      return mt?'<button class="'+cls+'" data-ta="m:'+a+'">'+inner+'</button>':'<span class="'+cls+'">'+inner+'</span>';}).join('')+'</div></div></div>';
-    h+='<div class="cb-lab">The stage table'+(done?'':', filling in')+'</div>'+seqTbl(R.steps,done?null:k,{});
+    h+='<div class="'+bc('mem')+'"><div class="cb-lab">Data memory (8-byte words)</div><div class="sm-mm">'+T.words.map(function(a){
+      var v=V.M[a]||0,cls='smm'+(V.mchg===a?' chg':V.mrd===a?' rd':'')+(st.bad==='m:'+a?' bad':'')+(tgt==='m:'+a?' hint':''),inner='<i>M8['+a+']</i><b>'+(V.H[a]?h3(v):v)+'</b>';
+      return tapM?'<button class="'+cls+'" data-ta="m:'+a+'">'+inner+'</button>':'<span class="'+cls+'">'+inner+'</span>';}).join('')+'</div></div></div>';
+    if(!tour)h+='<div class="cb-lab">The stage table'+(done?'':', filling in as you go')+'</div>'+seqTbl(R.steps,done?null:k,{});
     h+='<p class="fine">Instructions run: '+st.n+' · with no slips: '+st.clean+'</p></div>';
     return h;
   },
   act:function(st,a,el,d){
-    var T=seqTr(d.tr||'main'),L=seqmRecs(T,d),R=L[st.i];
-    if(a==='next'){st.i=(st.i+1)%L.length;st.k=0;st.pk=null;st.bad=null;st.msg='';st.say='';st.slip=false;return;}
+    var T=seqTr(d.tr||'main'),L=seqmRecs(T,d),R=L[st.i],tour=!!d.tour&&!st.toured;
+    st.seen=st.seen||{};
+    if(tour){
+      var TS=SEQ_TOUR[st.t],p0=a.split(':');
+      if(a==='go'&&TS.t==='go'){st.toured=true;st.say='';st.msg='';return;}
+      if(p0[0]!==TS.t)return;
+      if(+p0[1]===TS.a){st.t++;st.say=TS.say;st.msg='';st.bad=null;}else{st.msg=TS.bad;st.bad=a;st.say='';}
+      return;
+    }
+    if(a==='next'){st.i=(st.i+1)%L.length;if(st.i===0)st.lap++;st.k=0;st.pk=null;st.bad=null;st.msg='';st.say='';st.slip=false;st.show=false;return;}
     if(st.k>=R.steps.length)return;
-    var p=a.split(':'),s=R.steps[st.k],K=seqmKind(R,s),v=+p[1],ok;
+    var s=R.steps[st.k],K=seqmKind(R,s);
+    if(a==='show'){st.show=true;st.slip=true;st.msg='';return;}
+    var p=a.split(':'),v=+p[1],ok;
     if(p[0]==='o'&&K.t==='mc')ok=v===seqmOpts(R,s,st.k).r;
     else if(p[0]==='b'&&K.t==='byte')ok=v===K.at;
     else if(p[0]==='r'&&(K.t==='reg'||K.t==='regw'))ok=v===K.r;
@@ -4875,7 +4950,8 @@ TOYDEF.seqm={title:'Try it · run it on the machine',
     else if(p[0]==='l'&&K.t==='line')ok=v===K.a;
     else return;
     if(!ok){st.slip=true;st.pk=p[0]==='o'?v:null;st.bad=a;st.msg=seqmWhy(R,s,K);st.say='';return;}
-    st.pk=null;st.bad=null;st.msg='';st.say=seqmSay(R,s);st.k++;
+    seqmNotes(s,st.seen).forEach(function(n){st.seen[n[0]]=1;});
+    st.pk=null;st.bad=null;st.msg='';st.show=false;st.say=seqmSay(R,s);st.k++;
     if(st.k>=R.steps.length){st.n++;if(!st.slip)st.clean++;st.say='';}
   }};
 /* the right tap for row k, for tests: returns the data-ta string */
@@ -4884,13 +4960,13 @@ function seqmRight(R,k){var s=R.steps[k],K=seqmKind(R,s);return K.t==='mc'?'o:'+
 function seqPP(){return tblS(['Stage','pushq rA','popq rA'],[['Fetch','icode:ifun ← M1[PC]<br>rA:rB ← M1[PC+1]<br>valP ← PC+2','icode:ifun ← M1[PC]<br>rA:rB ← M1[PC+1]<br>valP ← PC+2'],['Decode','valA ← R[rA]<br>valB ← R[%rsp]','valA ← R[%rsp]<br>valB ← R[%rsp]'],['Execute','valE ← valB + (−8)','valE ← valB + 8'],['Memory','M8[valE] ← valA','valM ← M8[valA]'],['Write back','R[%rsp] ← valE','R[%rsp] ← valE<br>R[rA] ← valM'],['PC update','PC ← valP','PC ← valP']]);}
 function seqPart(pc,n){var R=seqAt(pc);return seqTbl(R.steps.slice(0,n),null,{});}
 WALKS.seqsix={steps:[
- {t:'One instruction, six stages',
-  intro:'<p>The simplest processor, <b>SEQ</b>, runs one whole instruction at a time. Every instruction goes through the same six stages, in order:</p><ol class="steps"><li><b>Fetch</b>: read the instruction\'s bytes, and work out valP, the address of the next one.</li><li><b>Decode</b>: read up to two registers (valA, valB).</li><li><b>Execute</b>: the ALU computes valE, and maybe sets the flags.</li><li><b>Memory</b>: read memory (valM) or write it.</li><li><b>Write back</b>: write up to two registers.</li><li><b>PC update</b>: set the PC to the next instruction.</li></ol>',
+ {t:'The six stages',
+  intro:'<p>This processor is called <b>SEQ</b>: it runs one whole instruction at a time, through the same six stages, in order:</p><ol class="steps"><li><b>Fetch</b>: read the instruction\'s bytes, and work out valP, the address of the next one.</li><li><b>Decode</b>: read up to two registers (valA, valB).</li><li><b>Execute</b>: the ALU computes valE, and maybe sets the flags.</li><li><b>Memory</b>: read memory (valM) or write it.</li><li><b>Write back</b>: write up to two registers.</li><li><b>PC update</b>: set the PC to the next instruction.</li></ol>',
   asks:[{q:'Which stage reads registers?',o:['Fetch','Decode','Write back'],r:1,h:'Fetch reads the instruction. Write back writes registers.',say:'<b>Decode</b> reads them; Write back writes them.'}]},
  {t:'Reading a stage table',
-  intro:'<p>Your book writes each instruction as a <b>stage table</b>, with one row per step. Here is the one for <code>subq %rdx, %rbx</code>, filled in. The small grey part of a row is the general rule for every OPq. The bold part is what it works out to for this subq.</p>',
+  intro:'<p>This is the stage table you just built for <code>subq %rdx, %rbx</code>. The small grey part of each row is the rule for every OPq; the bold part is what it gave for this subq.</p>',
   vis:function(){var R=seqAt(0x014);return seqTbl(R.steps,null,{});},
-  asks:[{q:'What does subq do in the Memory stage?',o:['Nothing','valM ← M8[valE]','M8[valE] ← valA'],r:0,h:'Look at the Memory row.',say:'Nothing: subq never touches memory. Each instruction uses only the rows it needs. Next, you fill this table in yourself.'}]}
+  asks:[{q:'What does subq do in the Memory stage?',o:['Nothing','valM ← M8[valE]','M8[valE] ← valA'],r:0,h:'Look at the Memory row.',say:'Nothing: subq never touches memory. Each instruction uses only the rows it needs.'}]}
 ]};
 WALKS.seqpuz={steps:[
  {t:'Why pushq %rsp pushes the old value',
@@ -7615,16 +7691,14 @@ qs:[
 {id:'seqsix',sec:'p17',name:'Six stages: Fetch to PC update',short:'Six stages',shuffleOpts:true,
 defaults:{m:null,code:false},
 recap:"<b>Fetch</b> reads the instruction and valP. <b>Decode</b> reads valA and valB. <b>Execute</b> computes valE (and the flags). <b>Memory</b> reads valM or writes. <b>Write back</b> writes registers. <b>PC update</b> sets the PC.",
-lesson:`<p>Part 16 turned instructions into bytes. Now see how a processor <b>runs</b> them.</p>`+
-toy('walk',{w:'seqsix',title:'Try it · six stages'})+
-`<p>Now run <code>subq %rdx, %rbx</code> yourself. Each row of its table is one tap on the hardware: the byte Fetch reads, the register Decode reads, and so on. The table at the bottom fills in as you go.</p>`+
-toy('seqm',{tr:'main',at:[0x014],title:'Try it · run subq on the machine'})+
-`<p>Every instruction uses the same six stages. Sort the steps of a few more:</p>`+toy('chain',{c:'stagepick',title:'Play · which stage?'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
+lesson:`<p>A processor runs each instruction as a list of small steps. You'll do the steps yourself, on a model of the hardware, for one instruction: <code>subq %rdx, %rbx</code>. Each step says what it means and what to tap. The first time through, the right spot glows.</p>`+
+toy('seqm',{tr:'main',at:[0x014],tour:true,teach:true,title:'Try it · run subq, step by step'})+
+`<p>You've done all six stages. A quick check on what you just did:</p>`+
+toy('walk',{w:'seqsix',title:'Try it · what you just did'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
 qs:[
 {prompt:'Put the six SEQ stages in order.',order:['Fetch','Decode','Execute','Memory','Write back','PC update'],explain:'Fetch, decode, execute, memory, write back, PC update.'},
 {prompt:'valP is',options:['the address of the next instruction','the value read from memory','the ALU\'s result'],answer:0,explain:'PC plus the instruction\'s length.'},
 {prompt:'valE is computed in',options:['Execute, by the ALU','Fetch','Memory'],answer:0,explain:'E for execute.'},
-{prompt:'valM is',options:['the value read from memory','the value of rA','the next PC'],answer:0,explain:'M for memory.'},
 {prompt:'For <code>OPq rA, rB</code>, Execute computes',code:true,options:['valE ← valB OP valA','valE ← valA OP valB','valE ← valB + valC'],answer:0,explain:'rB OP rA, like x86.'},
 {prompt:'Which instructions set the condition codes in Execute?',options:['OPq (addq, subq, andq, xorq)','All of them','Only jumps'],answer:0,explain:'Set CC is only in OPq\'s table.'},
 {prompt:'<code>subq %rdx, %rbx</code> with %rdx = 9 and %rbx = 21. valE =',options:['12','−12','30'],answer:0,explain:'valB − valA = 21 − 9.'},
@@ -7634,11 +7708,13 @@ qs:[
 {id:'seqmem',sec:'p17',name:'Moves and the stack, stage by stage',short:'Moves & stack',shuffleOpts:true,
 defaults:{m:null,code:true},
 recap:"The ALU does all the adding: valE ← 0 + valC (irmovq), valB + valC (an address), valB ± 8 (the stack). popq reads memory at <b>valA</b>, the old %rsp. Registers are read in Decode, before any writes, and the last write wins.",
-lesson:`<p>SEQ's ALU does all the adding, even for moves. <code>irmovq</code> passes a constant through it into a register. <code>rmmovq</code> uses it to work out an address, then stores a register there. Run lines 4 and 5 of the program:</p>`+
-toy('seqm',{tr:'main',at:[0x016,0x020],title:'Try it · irmovq and rmmovq'})+
+lesson:`<p>Same six stages, new steps. Each new kind of step explains itself when you reach it, and the right spot glows the first time through.</p>
+<p><code>irmovq</code> puts a constant in a register. <code>rmmovq</code> stores a register in memory. Run lines 4 and 5 of the program:</p>`+
+toy('seqm',{tr:'main',at:[0x016,0x020],teach:true,title:'Try it · irmovq and rmmovq'})+
 `<p>The stack instructions use %rsp without naming it. <code>pushq</code> moves %rsp down 8, then stores there. <code>popq</code> reads at the <b>old</b> %rsp, then moves it up 8. Run lines 6 and 7:</p>`+
-toy('seqm',{tr:'main',at:[0x02a,0x02c],title:'Try it · pushq and popq'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
+toy('seqm',{tr:'main',at:[0x02a,0x02c],teach:true,title:'Try it · pushq and popq'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
 qs:[
+{prompt:'valM is',options:['the value read from memory','the value of rA','the next PC'],answer:0,explain:'M for memory: popq reads it with valM ← M8[valA].'},
 {prompt:'For <code>irmovq V, rB</code>, Execute does',options:['valE ← 0 + valC','valE ← valB + valC','nothing'],answer:0,explain:'The ALU passes valC through.'},
 {prompt:'For <code>rmmovq rA, D(rB)</code>, valE is',options:['the memory address: valB + valC','the value to store','valA + 8'],answer:0,explain:'Then M8[valE] ← valA.'},
 {prompt:'<code>rmmovq %rsp, 100(%rbx)</code> with %rsp = 128, %rbx = 12. Which address is written?',options:['112','228','100'],answer:0,explain:'valE = 12 + 100. The value 128 is stored there.'},
@@ -7651,8 +7727,9 @@ qs:[
 {id:'seqjump',sec:'p17',name:'Jumps, call and ret',short:'Control flow',shuffleOpts:true,
 defaults:{m:null,code:true},
 recap:"jXX: Fetch gets valC and valP; Execute finds Cnd; PC ← Cnd ? valC : valP. <b>call</b> stores valP on the stack and sets PC ← valC. <b>ret</b> reads it back: PC ← valM. SEQ is too slow because one cycle must fit every stage.",
-lesson:`<p>Jumps, call and ret change the PC in other ways. Fetch reads valC (where to go) and valP (the next line) for both. Run line 8 (<code>je</code>), line 9 (<code>call</code>), and then proc's <code>ret</code>:</p>`+
-toy('seqm',{tr:'main',at:[0x02e,0x037,0x041],title:'Try it · je, call and ret'})+
+lesson:`<p>Jumps, call and ret change the PC in other ways. Fetch reads valC (where to jump to) and valP (the next line) for each. Run line 8 (<code>je</code>), line 9 (<code>call</code>), and then proc's <code>ret</code>:</p>`+
+toy('seqm',{tr:'main',at:[0x02e,0x037,0x041],teach:true,title:'Try it · je, call and ret'})+
+`<p>You've now run every kind of instruction in the program. They all use the same six stages; only the steps inside change. Sort the steps of a few:</p>`+toy('chain',{c:'stagepick',title:'Play · which stage?'})+
 toy('walk',{w:'seqslow',title:'One more thing'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
 qs:[
 {prompt:'For <code>jXX Dest</code>, valC is',options:['the destination address','the condition code','PC + 9'],answer:0,explain:'valP is PC + 9.'},
@@ -7669,8 +7746,8 @@ qs:[
 defaults:{m:null,code:true},
 recap:"pushq %rsp: Decode reads valA = the old %rsp, and Memory stores valA, so the <b>original</b> value is pushed. popq %rsp: both Write back rows write %rsp, and R[rA] ← valM comes last, so %rsp ends up holding the <b>value read from memory</b>.",
 lesson:`<p>Practice 17 asks: what if the register you push or pop is %rsp itself? Run each one and watch %rsp and memory.</p>`+
-toy('seqm',{tr:'push',title:'Try it · pushq %rsp, with %rsp = 128'})+
-toy('seqm',{tr:'pop',title:'Try it · popq %rsp, with %rsp = 120 and 40 stored at 120'})+
+toy('seqm',{tr:'push',teach:true,title:'Try it · pushq %rsp, with %rsp = 128'})+
+toy('seqm',{tr:'pop',teach:true,title:'Try it · popq %rsp, with %rsp = 120 and 40 stored at 120'})+
 `<p>Now the why, with your book's table:</p>`+toy('walk',{w:'seqpuz',title:'Try it · what the table says'}),
 qs:[
 {prompt:'<code>pushq %rsp</code> with %rsp = 128. What gets stored at M8[120]?',options:['128','120','136'],answer:0,keep:true,explain:'Memory stores valA, which Decode read as 128 before %rsp changed.'},
@@ -7685,7 +7762,7 @@ qs:[
 {id:'seqrun',sec:'p17',name:'Be the processor',short:'Run it',shuffleOpts:true,
 defaults:{m:null,code:true},
 recap:"Track the machine state as you go: each instruction starts with what the last one left. Read values in Decode, compute in Execute, and write at the end.",
-lesson:`<p>Now run the whole worksheet program on the machine, start to finish: 11 instructions. Each one starts with what the last one left behind, so watch the registers and memory carry over.</p>`+
+lesson:`<p>Now run the whole worksheet program, start to finish: 11 instructions. Each one starts with what the last one left behind, so watch the registers and memory carry over. No glow this time, but every step still says what it means, and <b>Show me</b> lights up the answer if you're stuck.</p>`+
 toy('seqm',{tr:'main',at:'all',title:'Play · be the processor'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
 qs:[
 {prompt:'After <code>irmovq $9, %rdx</code> and <code>irmovq $21, %rbx</code>, then <code>subq %rdx, %rbx</code>, %rbx =',options:['12','−12','30'],answer:0,explain:'21 − 9.'},
@@ -7698,7 +7775,7 @@ qs:[
 {id:'cls17',sec:'p17',name:'Class Practice 17',short:'Class P17',shuffleOpts:true,
 defaults:{m:null,code:true,tag:'From class'},
 recap:"irmovq $128, %rsp: %rsp = 128, PC + 10. popq %rax: valA = valB = 120, valE = 128, valM = 9, so %rax = 9 and %rsp = 128, PC + 2. pushq %rsp pushes the old %rsp. popq %rsp ends with the popped value.",
-lesson:`<p>Practice 17 has four questions about the worksheet program: two stage tables, filled in row by row, and two puzzles.</p>`+seqList(null)+
+lesson:`<p>Practice 17 has four questions about the worksheet program: two stage tables, filled in row by row, and two puzzles. You've done all four on the machine: Q1 and Q2 in L121, Q3 and Q4 in L123. Each row below says what it means, the same as on the machine.</p>`+seqList(null)+
 `<details class="ref"><summary>pushq and popq, stage by stage</summary>`+seqPP()+`</details>`,
 qs:[
 {tag:'From class · Q1',prompt:'Q1: fill in the table for <code>irmovq $128, %rsp</code> on line 4, at 0x016.',board:bSeq(0x016),
