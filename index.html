@@ -1286,6 +1286,45 @@ button.smb:hover,button.smr:hover,button.smm:hover,button.sm-ll:hover{border-col
 .stg-new i{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);border-radius:4px;padding:1px 5px;margin-right:6px;vertical-align:1px}
 @media (max-width:430px){.stg-res,.stg-q,.stg-new,.stg-s .chips{padding-left:0}.stg-s .bc-msg{margin-left:0}.stg-s{padding:7px 9px}}
 .stg-means{width:100%;font-size:13.5px;color:var(--ink)}
+/* v17: the class's figures, with the questions */
+.sqf,.sqc{font-size:12.5px;min-width:0}
+.sqf th,.sqc th{font-weight:600;text-align:left;vertical-align:bottom;line-height:1.35}
+.sqf td,.sqc td{vertical-align:top;line-height:1.45}
+.sqf td.sqc-st,.sqc td.sqc-st{font-weight:600;white-space:nowrap}
+.sqf th,.sqc th{text-transform:none;letter-spacing:0;font-size:11.5px;color:var(--muted)}
+.sqf th code,.sqc th code{text-transform:none;font-size:12px;color:var(--ink);background:none;border:0;padding:0;white-space:normal}
+.sqf td,.sqc td,.sqf th,.sqc th{padding:5px 6px}
+.sqf td code,.sqc td code{background:none;border:0;padding:0;font-size:12px;white-space:normal}
+.sqc td.sqc-s.got code{color:var(--good);font-weight:600}
+.sqc tr.cur td:not(:first-child){background:var(--accent-soft)}
+.sqc td.sqc-s b{color:var(--accent)}
+.sqc-note{margin:2px 0 6px}
+.gd-give{display:block;font-size:13px;font-weight:400;color:var(--ink);margin-top:4px;padding:4px 8px;border-radius:6px;background:var(--sunk)}
+.sb-def{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--panel)}
+.sb-def p{margin:3px 0;font-size:13px}
+.ysf{display:grid;gap:10px;max-width:420px;margin:6px 0}
+.ysf-t{font-size:12.5px;font-weight:600;text-align:center;margin-bottom:3px}
+.ysf-rf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:2px solid var(--ink)}
+.ysf-rf span{font-family:var(--font-code);font-size:13px;text-align:center;padding:5px 2px;border:1px solid var(--line)}
+.ysf-rf span.none{background:var(--sunk)}
+.ysf-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;align-items:end}
+.ysf-cc{display:flex;justify-content:center;border:2px solid var(--ink);width:max-content;margin:0 auto}
+.ysf-cc span{font-family:var(--font-code);font-size:13px;padding:4px 8px;border-right:1px solid var(--line)}
+.ysf-cc span:last-child{border-right:0}
+.ysf-box{border:2px solid var(--ink);height:26px}
+.ysf-box.big{height:48px}
+.sql{display:grid;border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden;margin-bottom:4px}
+.sql-r{display:grid;grid-template-columns:1.5em 3.4em max-content minmax(0,1fr);gap:0 8px;align-items:baseline;padding:3px 8px;border-top:1px solid var(--line);line-height:1.3}
+.sql-r:first-child{border-top:0}
+.sql-r.hs{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.sql-n{font-size:10.5px;color:var(--muted);text-align:right}
+.sql-a{font-family:var(--font-code);font-size:11.5px;color:var(--muted)}
+code.sql-b{background:none;border:0;padding:0;font-size:11px;color:var(--ink)}
+.sql-i code{background:none;border:0;padding:0;font-size:12px;font-weight:600;white-space:nowrap}
+.sql-r.lab .sql-i code{color:var(--src)}
+.sql-c{font-family:var(--font-code);font-size:11px;color:var(--muted);white-space:nowrap}
+.sqc th:first-child{width:22%}
+@media (max-width:560px){.sql-r{grid-template-columns:1.5em 3.4em minmax(0,1fr)}.sql-i{grid-column:3/-1}.sql-r.lab .sql-i{grid-column:3/-1}}
 </style>
 </head>
 <body>
@@ -4270,7 +4309,7 @@ function yRegs(o){
 function y86Help(asm,o){
   o=o||{};var op=asm?/^\s*(\w+)/.exec(asm)[1]:null,k=op?yRowKey(op):null;
   return '<details class="ref yhelp" open><summary>The encoding table</summary>'+yTable({hl:o.nohl?null:k})+yFns({hl:o.nohl?null:op})+yRegs({})+
-    '<p class="fine">Each box is one hex digit (4 bits), so two boxes make a byte. A constant (V, D or Dest) is 8 bytes, stored <b>little-endian</b>: lowest byte first.</p></details>';
+    '<p class="fine">Each box is one hex digit (4 bits), so two boxes make a byte. A constant (V, D or Dest) is 8 bytes, stored <b>little-endian</b>: lowest byte first. The class\'s example: <code>rmmovq %rdx, 4(%r10)</code> is <code>40 2A 04 00 00 00 00 00 00 00</code>.</p></details>';
 }
 function yLens(){return '<div class="ylen">'+[[1,'halt nop ret'],[2,'rrmovq cmovXX OPq pushq popq'],[9,'jXX call'],[10,'irmovq rmmovq mrmovq']].map(function(r){return '<span><b>'+r[0]+' byte'+(r[0]>1?'s':'')+'</b> '+r[1]+'</span>';}).join('')+'</div>';}
 
@@ -4533,6 +4572,17 @@ var CP16={pos:0x100,lines:['irmovq $15,%rbx','rrmovq %rbx,%rcx','loop:','rmmovq 
 var EX16P={pos:0x200,lines:['irmovq $1, %rax','pushq %rax','top:','addq %rax, %rax','jl top','halt']};
 function bEncH(asm){var B=bEnc(asm);return function(f){return B(f)+y86Help(asm);};}
 
+/* Practice 16's intro figure: the programmer-visible state */
+function y86StateFig(){
+  var g=[['%rax','%rsp','%r8','%r12'],['%rcx','%rbp','%r9','%r13'],['%rdx','%rsi','%r10','%r14'],['%rbx','%rdi','%r11','']];
+  return '<div class="ysf"><div class="ysf-t">RF: Program registers</div><div class="ysf-rf">'+g.map(function(r){return r.map(function(x){return '<span'+(x?'':' class="none"')+'>'+x+'</span>';}).join('');}).join('')+'</div>'+
+    '<div class="ysf-row"><div><div class="ysf-t">CC: Condition codes</div><div class="ysf-cc"><span>ZF</span><span>SF</span><span>OF</span></div></div><div><div class="ysf-t">Stat: Program status</div><div class="ysf-box"></div></div></div>'+
+    '<div class="ysf-row"><div><div class="ysf-t">PC</div><div class="ysf-box"></div></div><div><div class="ysf-t">DMEM: Memory</div><div class="ysf-box big"></div></div></div></div>';
+}
+function y86StateFold(){return '<details class="ref"><summary>The Y86-64 state (the figure from the problem)</summary>'+y86StateFig()+'<p class="fine">15 registers (%r15 is gone), the condition codes ZF, SF and OF, the status, the PC, and memory.</p></details>';}
+function bEncS(asm){var B=bEncH(asm);return function(f,d){return B(f,d)+y86StateFold();};}
+function bState(B){return function(f,d){return B(f,d)+y86StateFold();};}
+
 /* ===================== v14: Practice 16 Q2 and Q3, traced pass by pass ===================== */
 var SUM_CODE=[
  ['xorq %rax, %rax','%rax = 0 (the total)'],
@@ -4574,6 +4624,7 @@ function sumBoard(C,heads,cells){
     var k8=q2&&ph<3?'?':'8',k1=q2&&ph<3?'?':'1';
     var h='<div class="sb">';
     h+='<p class="sb-call">Called as <code>sum('+h3(C.start)+', '+n+')</code>'+(C.arr?', with the array '+C.arr.map(sumNum).join(', '):'')+'.</p>';
+    if(!q2)h+='<div class="sb-def"><div class="cb-lab">The flags, as the question defines them</div><p><b>ZF</b>, Zero Flag: the previous operation left a value of zero.</p><p><b>SF</b>, Sign Flag: the previous operation left the most significant bit 1 (a negative result).</p><p><b>CF</b>, Carry Flag: the previous operation overflowed.</p></div>';
     h+=sumCode(SUM_HL[C.mode][Math.min(ph,SUM_HL[C.mode].length-1)]);
     /* registers */
     h+='<div class="sb-blk"><div class="cb-lab">Registers'+(shown?' after pass '+shown:ph>=1?', before the loop':'')+'</div><div class="sb-rg">'+[['%rdi',rdi,'next address'],['%rsi',rsi,'longs left'],['%rax',rax,q2&&shown?'total so far':'total'],['%rcx',k8,''],['%rdx',k1,'']].map(function(r){
@@ -4690,10 +4741,33 @@ var SEQ_RUN=(function(){
 function seqAt(pc){for(var i=0;i<SEQ_RUN.length;i++)if(SEQ_RUN[i].pc===pc)return SEQ_RUN[i];return null;}
 function specTxt(s){return s.lhs+' ← '+s.expr+(s.expr===s.v?'':' = '+s.v);}
 /* the program listing, with one line highlighted */
+var SEQ_CMT={3:'# subtract',4:'# Problem 4.13',5:'# store',6:'# push',7:'# Problem 4.14',8:'# Not taken',9:'# Problem 4.18',13:'# Return'};
+/* the worksheet's object code, as the class shows it: line, address, bytes, instruction, comment */
 function seqList(hl){
   var A=y86Asm(SEQ_PROG);
-  return '<div class="tbl-wrap"><table class="t y86l"><tbody>'+A.rows.map(function(r,i){var on=hl!=null&&r.a===hl&&!r.lab;
-    return '<tr'+(on?' class="hs"':'')+'><td>'+h3(r.a)+':</td><td class="yl-b">'+(r.lab?'':'<code>'+r.e.low+'</code>')+'</td><td><code>'+esc(r.t)+'</code></td></tr>';}).join('')+'</tbody></table></div>';
+  return '<div class="sql" role="table" aria-label="The object code">'+A.rows.map(function(r,i){var on=hl!=null&&r.a===hl&&!r.lab;
+    return '<div role="row" class="sql-r'+(on?' hs':'')+(r.lab?' lab':'')+'"><span class="sql-n">'+(i+1)+'</span><span class="sql-a">'+h3(r.a)+':</span><code class="sql-b">'+(r.lab?'':r.e.low)+'</code><span class="sql-i"><code>'+esc(r.t)+'</code>'+(SEQ_CMT[i+1]?' <span class="sql-c">'+SEQ_CMT[i+1]+'</span>':'')+'</span></div>';}).join('')+'</div>';
+}
+/* Practice 17's reference from the top of the page: register numbers, function codes, encodings */
+function seqRef(open,asm){var op=asm?/^\s*(\w+)/.exec(asm)[1]:null,k=op?yRowKey(op):null;
+  return '<details class="ref yhelp"'+(open?' open':'')+'><summary>The reference from the top of the page: register numbers, function codes, encodings</summary>'+yRegs({})+yFns({hl:op})+yTable({hl:k})+'<p class="fine">Each box is one hex digit. A constant (V, D or Dest) is 8 bytes, lowest byte first.</p></details>';}
+var SEQ_GEN=['halt','nop','rrmovq rA, rB','irmovq V, rB','rmmovq rA, D(rB)','mrmovq D(rB), rA','OPq rA, rB','jXX Dest','call Dest','ret','pushq rA','popq rA'];
+/* the book's figure: Stage, then the generic rows of one or more instructions side by side */
+function seqFig(pcs){
+  var Rs=pcs.map(function(x){return typeof x==='number'?seqAt(x):x;});
+  return '<div class="tbl-wrap"><table class="t sqf"><thead><tr><th>Stage</th>'+Rs.map(function(R){return '<th><code>'+SEQ_GEN[R.e.ic]+'</code></th>';}).join('')+'</tr></thead><tbody>'+
+    SEQ_STAGES.map(function(stg){return '<tr><td class="sqc-st">'+stg+'</td>'+Rs.map(function(R){var g=R.steps.filter(function(s){return s.st===stg;}).map(function(s){return esc(s.g);});return '<td>'+(g.length?g.join('<br>'):'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
+}
+/* the class's table: Stage | Generic | Specific, the specific column filling in (n rows known) */
+function seqCanvas(R,n){
+  var h='<div class="tbl-wrap"><table class="t sqc"><thead><tr><th>Stage</th><th>Generic<br><code>'+SEQ_GEN[R.e.ic]+'</code></th><th>Specific<br><code>'+esc(R.e.asm)+'</code></th></tr></thead><tbody>';
+  SEQ_STAGES.forEach(function(stg){
+    var rows=R.steps.map(function(s,i){return [s,i];}).filter(function(p){return p[0].st===stg;});
+    if(!rows.length){h+='<tr><td class="sqc-st">'+stg+'</td><td></td><td></td></tr>';return;}
+    rows.forEach(function(p,j){var s=p[0],i=p[1],cur=i===n;
+      h+='<tr'+(cur?' class="cur"':'')+'>'+(j===0?'<td class="sqc-st" rowspan="'+rows.length+'">'+stg+'</td>':'')+'<td><code>'+esc(s.g)+'</code></td><td class="sqc-s'+(i<n?' got':'')+'">'+(i<n?'<code>'+esc(specTxt(s))+'</code>':cur?'<b>?</b>':'')+'</td></tr>';});
+  });
+  return h+'</tbody></table></div>';
 }
 /* registers and stack words before an instruction */
 function seqState(S,pc){
@@ -4735,14 +4809,17 @@ function gSeq(pc,o){
   R.steps.forEach(function(s,i){
     var right=specTxt(s),opts=[right].concat(s.alts.slice(0,2).map(function(a){return s.lhs+' ← '+s.expr.replace(/= .*/,'')+(s.expr===a?'':' = '+a);})).filter(function(v,j,a){return a.indexOf(v)===j;});
     if(opts.length<2)opts.push(s.lhs+' ← '+s.expr+' = ?');
-    S.push({label:s.st,ask:s.st+': <code>'+s.g+'</code><span class="gd-learn">'+seqmLearn(R,s)+'</span>',options:opts,answer:0,hint:(s.why?s.why+' ':'')+'Here: '+s.lhs+' ← '+s.expr+'.',say:right+'.',fill:(function(){var f={};f['s'+i]=right;return f;})()});
+    var gv=seqBook(R)[i].give;S.push({label:s.st,ask:s.st+': <code>'+s.g+'</code><span class="gd-learn">'+seqmLearn(R,s)+'</span>'+(gv.length?'<span class="gd-give">Look: '+gv.join('; ')+'.</span>':''),options:opts,answer:0,hint:(s.why?s.why+' ':'')+'Here: '+s.lhs+' ← '+s.expr+'.',say:right+'.',fill:(function(){var f={};f['s'+i]=right;return f;})()});
   });
   if(o.effect){var opt=[R.effect].concat(o.effect);S.push({label:'Effect',ask:'So, overall, the instruction',options:opt,answer:0,say:'It '+R.effect+'.',fill:{eff:R.effect}});}
   return S;
 }
 function bSeq(pc){var R=seqAt(pc);return function(f){
   var n=0;while(f['s'+n]!=null)n++;
-  return seqState(R.before,pc)+seqTbl(R.steps,n,{})+(f.eff?'<p class="tr-note">Effect: it '+esc(f.eff)+'.</p>':'');};}
+  return '<div class="cb-lab">The object code (this question is line '+(R.line+1)+')</div>'+seqList(pc)+
+    '<div class="cb-lab">Registers and memory when line '+(R.line+1)+' starts</div>'+seqState(R.before,pc)+'<p class="fine sqc-note">Worked out by running the lines above it, in order.</p>'+
+    '<div class="cb-lab">The table to fill in</div>'+seqCanvas(R,n)+(f.eff?'<p class="tr-note">Effect: it '+esc(f.eff)+'.</p>':'')+
+    seqRef(false,R.e.asm);};}
 
 /* ===================== v13: Part 17 rebuilt: the SEQ machine, one tap per table row ===================== */
 var SEQ_IC=['halt','nop','rrmovq','irmovq','rmmovq','mrmovq','OPq','jXX','call','ret','pushq','popq'];
@@ -5068,7 +5145,7 @@ function seqBook(R){
     var give=names.map(function(x){return x==='rA'?'rA is '+sqRn(e.ra):x==='rB'?'rB is '+sqRn(e.rb):x+' = '+got[x];});
     if(s.lhs==='icode:ifun')give=['the byte at '+h3(R.pc)+' is '+h2u(e.b[0])];
     if(s.lhs==='rA:rB')give=['the byte at '+h3(R.pc+1)+' is '+h2u(e.b[1])];
-    if(s.lhs==='valC')give=['the constant in <code>'+esc(e.asm)+'</code>'];
+    if(s.lhs==='valC'){var c0=R.pc+(e.hasR?2:1);give=['the 8 bytes from '+h3(c0)+' are '+e.b.slice(e.hasR?2:1).map(h2u).join(' ')+', lowest byte first'];}
     if(s.lhs==='valP')give=['this instruction is '+e.n+' byte'+(e.n>1?'s':'')];
     if(s.lhs==='CC')give=['valE = '+got.valE+'. ZF = 1 if it\'s 0, SF = 1 if it\'s negative'];
     if(s.lhs==='Cnd')give=[(SEQ_JRULE[e.op]||'')+' Here ZF = '+R.before.CC.ZF];
@@ -5077,7 +5154,7 @@ function seqBook(R){
     var o=s.lhs==='Cnd'?[s.v,s.v==='1'?'0':'1']:sqUniq([s.v].concat(s.alts)).slice(0,3);
     if(s.lhs==='CC')o=o.map(function(x){return x.replace(/ OF=0/,'').replace(/=/g,' = ').replace(' S',', S');});
     if(/^val|^icode|^rA|^Cnd|^CC/.test(s.lhs))got[s.lhs]=s.v;
-    return {st:s.st,s:s,q:'<code>'+s.g+'</code>'+(give.length?'<span class="stg-give">'+give.join('; ')+'.</span>':'')+'<span class="stg-tail">'+tail+'</span>',o:o,r:0,h:(s.why?s.why+' ':'')+'Here: '+s.lhs+' ← '+s.expr+'.',res:specTxt(s)};
+    return {st:s.st,s:s,give:give,q:'<code>'+s.g+'</code>'+(give.length?'<span class="stg-give">'+give.join('; ')+'.</span>':'')+'<span class="stg-tail">'+tail+'</span>',o:o,r:0,h:(s.why?s.why+' ':'')+'Here: '+s.lhs+' ← '+s.expr+'.',res:specTxt(s)};
   });
 }
 /* what to show in the little state box: only what this instruction touches */
@@ -5102,6 +5179,7 @@ TOYDEF.seqstrip={title:'Try it · six stages',
     var V=seqmView(R,rowsDone),pcNow=R.pc;R.steps.slice(0,rowsDone).forEach(function(s){if(s.lhs==='PC')pcNow=parseInt(s.v,16);});
     var h='<div class="stg">';
     h+='<div class="stg-ins">'+(L.length>1?'<span class="stg-k">Instruction '+(st.i+1)+' of '+L.length+'</span>':'')+'<b><code>'+esc(e.asm)+'</code></b> <span class="stg-at">at '+h3(R.pc)+' · bytes '+e.b.map(h2u).join(' ')+'</span><span class="stg-means">means: '+sqMeans(e)+'</span></div>';
+    if(book)h+='<details class="ref"><summary>The book\'s table for <code>'+SEQ_GEN[e.ic]+'</code></summary>'+seqFig([R])+'</details>';
     h+=sqState(R,V,pcNow);
     h+='<ol class="stg-st">'+SEQ_STAGES.map(function(name,si){
       var mine=U.map(function(x,j){return j;}).filter(function(j){return U[j].st===name;});
@@ -7817,15 +7895,15 @@ qs:[
 {id:'cls16',sec:'p16',name:'Class Practice 16',short:'Class P16',shuffleOpts:true,
 defaults:{m:null,code:true,tag:'From class'},
 recap:"Encode: icode:ifun, rA:rB, then the constant little-endian. Trace: the loop runs len times and %rdi moves 8 a pass. Flags come from the last OPq. Layout: count 10, 2, 10, 2, 9 bytes in hex.",
-lesson:`<p>Practice 16 has nine questions: four encodings, a trace of <code>sum()</code>, its flags, and a six-part layout. Each is broken into small steps.</p>
+lesson:`<p>Practice 16 has nine questions: four encodings, a trace of <code>sum()</code>, its flags, and a six-part layout. Each is broken into small steps, and each shows the figures the class problem gives you.</p><p>The problem starts with this figure of the Y86-64 state, for Q1 to Q3:</p>`+y86StateFig()+`
 `+y86Help(null,{nohl:true}),
 qs:[
-{tag:'From class · Q1 row 1',prompt:'Q1: encode <code>cmovge %r8, %rdx</code>.',board:bEncH('cmovge %r8, %rdx'),guided:gEnc('cmovge %r8, %rdx'),explain:'cmovge is 2 5; %r8 = 8, %rdx = 2: <b>25 82</b>.'},
-{tag:'From class · Q1 row 2',prompt:'Q1: encode <code>irmovq 0x200, %rbx</code>.',board:bEncH('irmovq 0x200, %rbx'),guided:gEnc('irmovq 0x200, %rbx'),explain:'<b>30 F3 00 02 00 00 00 00 00 00</b>.'},
-{tag:'From class · Q1 row 3',prompt:'Q1: encode <code>jne 0x103a8</code>.',board:bEncH('jne 0x103a8'),guided:gEnc('jne 0x103a8'),explain:'jne is 7 4, then 0x103a8 lowest byte first: <b>74 A8 03 01 00 00 00 00 00</b>.'},
-{tag:'From class · Q1 row 4',prompt:'Q1: encode <code>xorq %rax, %rax</code>.',board:bEncH('xorq %rax, %rax'),guided:gEnc('xorq %rax, %rax'),explain:'<b>63 00</b>.'},
+{tag:'From class · Q1 row 1',prompt:'Q1: encode <code>cmovge %r8, %rdx</code>.',board:bEncS('cmovge %r8, %rdx'),guided:gEnc('cmovge %r8, %rdx'),explain:'cmovge is 2 5; %r8 = 8, %rdx = 2: <b>25 82</b>.'},
+{tag:'From class · Q1 row 2',prompt:'Q1: encode <code>irmovq 0x200, %rbx</code>.',board:bEncS('irmovq 0x200, %rbx'),guided:gEnc('irmovq 0x200, %rbx'),explain:'<b>30 F3 00 02 00 00 00 00 00 00</b>.'},
+{tag:'From class · Q1 row 3',prompt:'Q1: encode <code>jne 0x103a8</code>.',board:bEncS('jne 0x103a8'),guided:gEnc('jne 0x103a8'),explain:'jne is 7 4, then 0x103a8 lowest byte first: <b>74 A8 03 01 00 00 00 00 00</b>.'},
+{tag:'From class · Q1 row 4',prompt:'Q1: encode <code>xorq %rax, %rax</code>.',board:bEncS('xorq %rax, %rax'),guided:gEnc('xorq %rax, %rax'),explain:'<b>63 00</b>.'},
 {tag:'From class · Q2',
- prompt:'Q2: <code>sum(0x200, 10)</code>. Follow it one pass at a time.',board:sumBoard({mode:'q2',start:0x200,len:10},['%rax when loop: is first reached','Times the loop runs','%rdi when ret runs'],[{k:'a'},{k:'b'},{k:'c'}]),
+ prompt:'Q2: <code>sum(0x200, 10)</code>. Follow it one pass at a time.',board:bState(sumBoard({mode:'q2',start:0x200,len:10},['%rax when loop: is first reached','Times the loop runs','%rdi when ret runs'],[{k:'a'},{k:'b'},{k:'c'}])),
  guided:[
   {label:'Inputs',ask:'GCC passes the 1st argument in %rdi and the 2nd in %rsi. So %rdi = 0x200 (where the array starts) and %rsi =',options:['10','0x200','8'],answer:0,hint:'The 2nd argument is the length, 10.',say:'10: how many longs are left to add.',fill:{ph:'1'}},
   {label:'Line 1',ask:'Line 1, <code>xorq %rax, %rax</code>, XORs %rax with itself. When loop: is first reached, %rax holds',options:['0','0x200','10'],answer:0,hint:'Anything XOR itself is 0: every bit matches.',say:'0. That\'s Q2\'s first answer.',fill:{ph:'2',a:'0'}},
@@ -7836,7 +7914,7 @@ qs:[
   {label:'%rdi',ask:'%rdi went up 8 on each of the 10 passes: 0x200 + 10 × 8. And 10 × 8 = 80 = 5 × 16 = 0x50. So when ret runs, %rdi =',options:['0x250','0x280','0x248'],answer:0,hint:'80 in decimal is 0x50 in hex (five 16s).',say:'0x250: one long past the end of the array.',fill:{ph:'7',c:'0x250'}}],
  explain:'%rax = <b>0</b>, the loop runs <b>10</b> times, and %rdi = <b>0x250</b> at ret.'},
 {tag:'From class · Q3',
- prompt:'Q3: the array is 13, −17, 2 and len = 3. What are the condition codes when sum() returns?',board:sumBoard({mode:'q3',start:0x200,len:3,arr:[13,-17,2]},['ZF','CF','SF'],[{k:'z'},{k:'c'},{k:'s'}]),
+ prompt:'Q3: the array is 13, −17, 2 and len = 3. What are the condition codes when sum() returns?',board:bState(sumBoard({mode:'q3',start:0x200,len:3,arr:[13,-17,2]},['ZF','CF','SF'],[{k:'z'},{k:'c'},{k:'s'}])),
  guided:[
   {label:'Inputs',ask:'Say the array starts at 0x200 (the address doesn\'t change the answer). len = 3 is the 2nd argument, so it goes in',options:['%rsi','%rdi','%rax'],answer:0,code:true,hint:'Q2: the 1st argument goes in %rdi, the 2nd in %rsi.',say:'%rsi = 3. Lines 1 to 3 then set %rax = 0, %rcx = 8 and %rdx = 1, just like Q2.',fill:{ph:'1'}},
   {label:'Flags',ask:'ZF, SF and CF are set by every addq and subq, and each one replaces the flags before it. In each pass, which instruction sets them last, right before jne checks them?',options:['subq %rdx, %rsi','addq %r9, %rax','mrmovq 0(%rdi), %r9'],answer:0,code:true,hint:'mrmovq doesn\'t set flags. Of the addq\'s and the subq, which comes last?',say:'subq. So the flags describe the new %rsi, not the total in %rax.',fill:{ph:'2'}},
@@ -7962,6 +8040,7 @@ qs:[
 defaults:{m:null,code:true,tag:'From class'},
 recap:"irmovq $128, %rsp: %rsp = 128, PC + 10. popq %rax: valA = valB = 120, valE = 128, valM = 9, so %rax = 9 and %rsp = 128, PC + 2. pushq %rsp pushes the old %rsp. popq %rsp ends with the popped value.",
 lesson:`<p>Practice 17 has four questions about the worksheet program: two stage tables, filled in row by row, and two puzzles. Q1 is like the irmovq in L121, Q2 is like the popq in L122, and Q3 and Q4 are L123's puzzles. Each row below says what it means.</p>`+seqList(null)+
+`<p>The class page starts with this reference. Every question here has it too, one tap away.</p>`+seqRef(true)+
 `<details class="ref"><summary>pushq and popq, stage by stage</summary>`+seqPP()+`</details>`,
 qs:[
 {tag:'From class · Q1',prompt:'Q1: fill in the table for <code>irmovq $128, %rsp</code> on line 4, at 0x016.',board:bSeq(0x016),
@@ -7970,9 +8049,9 @@ qs:[
 {tag:'From class · Q2',prompt:'Q2: fill in the table for <code>popq %rax</code> on line 7, at 0x02c.',board:bSeq(0x02c),
  guided:gSeq(0x02c,{effect:['sets %rsp to 120, sets %rax to 9 and increments the PC by 2','sets %rsp to 128, sets %rax to 120 and increments the PC by 2','sets %rax to 9 and increments the PC by 10']}),
  explain:'Fetch: b:0, 0:f, valP = 0x02e. Decode: valA = valB = 120. Execute: valE = 128. Memory: valM = M8[120] = 9. Write back: %rsp ← 128, %rax ← 9. PC ← 0x02e. It sets %rax to 9, sets %rsp to 128, and increments the PC by 2.'},
-{tag:'From class · Q3',vis:seqPP(),prompt:'Q3: what would be the effect of the instruction <code>pushq %rsp</code> according to these steps?',options:['Tracing the steps listed in the figure with rB equal to % rsp, we can see that in the memory stage the instruction will store valA, the original value of the stack pointer, to memory.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that in the memory stage the instruction will store valA, the original value of the stack pointer, to memory.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that in the memory stage the instruction will store valE, the original value of the stack pointer, to memory.','Tracing the steps listed in the figure with rB equal to % rsp, we can see that in the memory stage the instruction will store valB, the original value of the stack pointer, to memory.'],answer:1,
+{tag:'From class · Q3',vis:seqPP()+seqRef(false,'pushq'),prompt:'Q3: what would be the effect of the instruction <code>pushq %rsp</code> according to these steps?',options:['Tracing the steps listed in the figure with rB equal to % rsp, we can see that in the memory stage the instruction will store valA, the original value of the stack pointer, to memory.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that in the memory stage the instruction will store valA, the original value of the stack pointer, to memory.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that in the memory stage the instruction will store valE, the original value of the stack pointer, to memory.','Tracing the steps listed in the figure with rB equal to % rsp, we can see that in the memory stage the instruction will store valB, the original value of the stack pointer, to memory.'],answer:1,
  hint:'pushq rA: the register being pushed is rA. Which value does the Memory stage store?',explain:'pushq\'s operand is <b>rA</b>, and Memory stores <b>valA</b>, which Decode read before %rsp changed: the original stack pointer. (valE is the new, decremented one.)'},
-{tag:'From class · Q4',vis:seqPP(),prompt:'Q4: the two write-back writes for popq happen in the order listed. What would be the effect of executing <code>popq %rsp</code>?',options:['Tracing the steps listed in the figure with rA equal to % rsp, we can see that both of the write-back operations will update % rsp. Since the one writing valM would occur first, the net effect of the instruction will be to write the value read from memory to % rsp.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that both of the write-back operations will update % rsp. Since the one writing valE would occur first, the net effect of the instruction will be to write the value read from memory to % rsp.','Tracing the steps listed in the figure with rA equal to 0, we can see that only R[ % rsp] ← valE write-back operation will update % rsp. Since the one writing valM would have no effect, the net effect of the instruction will be to write the value read from memory to % rsp.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that both of the write-back operations will update % rsp. Since the one writing valM would occur last, the net effect of the instruction will be to write the value read from memory to % rsp.'],answer:3,
+{tag:'From class · Q4',vis:seqPP()+seqRef(false,'popq'),prompt:'Q4: the two write-back writes for popq happen in the order listed. What would be the effect of executing <code>popq %rsp</code>?',options:['Tracing the steps listed in the figure with rA equal to % rsp, we can see that both of the write-back operations will update % rsp. Since the one writing valM would occur first, the net effect of the instruction will be to write the value read from memory to % rsp.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that both of the write-back operations will update % rsp. Since the one writing valE would occur first, the net effect of the instruction will be to write the value read from memory to % rsp.','Tracing the steps listed in the figure with rA equal to 0, we can see that only R[ % rsp] ← valE write-back operation will update % rsp. Since the one writing valM would have no effect, the net effect of the instruction will be to write the value read from memory to % rsp.','Tracing the steps listed in the figure with rA equal to % rsp, we can see that both of the write-back operations will update % rsp. Since the one writing valM would occur last, the net effect of the instruction will be to write the value read from memory to % rsp.'],answer:3,
  hint:'In the figure, R[%rsp] ← valE is listed first and R[rA] ← valM second. The last write wins.',explain:'Both writes go to %rsp. The valM write is <b>last</b>, so it wins: %rsp gets the value read from memory.'}
 ]},
 {id:'ex17',sec:'p17',name:'Exam practice: SEQ',short:'Exam practice',shuffleOpts:true,
