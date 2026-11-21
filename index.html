@@ -1251,6 +1251,41 @@ button.smb:hover,button.smr:hover,button.smm:hover,button.sm-ll:hover{border-col
 @media (prefers-reduced-motion:reduce){.smb.hint,.smr.hint,.smm.hint,.sm-ll.hint{animation:none;box-shadow:0 0 0 3px var(--accent)}}
 .sm .toy-btns .link{font-size:13px}
 .gd-learn{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:3px}
+/* ===== v16: Part 17 six-stage strip ===== */
+.stg{display:grid;gap:10px;min-width:0}
+.stg-ins{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;font-size:16px}
+.stg-k{width:100%;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.stg-at{font-size:12.5px;color:var(--muted);font-family:var(--font-code)}
+.stg-state{display:flex;flex-wrap:wrap;gap:4px}
+.stg-c{display:grid;justify-items:center;min-width:58px;padding:3px 8px;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+.stg-c i{font-style:normal;font-size:10.5px;color:var(--muted);font-family:var(--font-code);white-space:nowrap}
+.stg-c b{font-family:var(--font-code);font-size:14px;font-weight:600;white-space:nowrap}
+.stg-c.chg{border-color:var(--good);background:var(--good-soft)}
+.stg-c.chg b{color:var(--good)}
+.stg-st{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.stg-s{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:7px 11px;display:grid;gap:5px;min-width:0}
+.stg-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.stg-n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;background:var(--sunk);color:var(--muted);flex:none;align-self:center}
+.stg-h b{font-size:14px}
+.stg-role{font-size:12.5px;color:var(--muted)}
+.stg-s.todo{opacity:.55;padding-block:5px}
+.stg-s.done .stg-n{background:var(--good-soft);color:var(--good)}
+.stg-s.now{border:1.5px solid var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.stg-s.now .stg-n{background:var(--accent);color:var(--accent-ink)}
+.stg-s.now .stg-h b{color:var(--accent)}
+.stg-res{margin:0;font-size:13.5px;line-height:1.4;padding-left:28px;overflow-wrap:anywhere}
+.stg-res code{font-size:12.5px;background:none;border:0;padding:0;color:var(--good);font-weight:600}
+.stg-q{margin:0;font-size:15px;font-weight:600;line-height:1.45;padding-left:28px}
+.stg-q code{font-size:13.5px}
+.stg-give{display:block;font-size:13.5px;font-weight:400;color:var(--muted);margin-top:2px}
+.stg-tail{display:block;margin-top:2px}
+.stg-s .chips{padding-left:28px}
+.stg-s .bc-msg{margin:0 0 0 28px}
+.stg-new{display:grid;gap:4px;padding-left:28px}
+.stg-new span{font-size:12.5px;padding:4px 8px;border-radius:7px;background:var(--sunk)}
+.stg-new i{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);border-radius:4px;padding:1px 5px;margin-right:6px;vertical-align:1px}
+@media (max-width:430px){.stg-res,.stg-q,.stg-new,.stg-s .chips{padding-left:0}.stg-s .bc-msg{margin-left:0}.stg-s{padding:7px 9px}}
+.stg-means{width:100%;font-size:13.5px;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -4957,6 +4992,155 @@ TOYDEF.seqm={title:'Try it · run it on the machine',
 /* the right tap for row k, for tests: returns the data-ta string */
 function seqmRight(R,k){var s=R.steps[k],K=seqmKind(R,s);return K.t==='mc'?'o:'+seqmOpts(R,s,k).r:K.t==='byte'?'b:'+K.at:(K.t==='reg'||K.t==='regw')?'r:'+K.r:(K.t==='mem'||K.t==='memw')?'m:'+K.a:'l:'+K.a;}
 
+/* ===================== v16: Part 17, simplest first: six stage cards, plain words, then the book's names ===================== */
+SEQ_PUZ.stack={P:{pos:0x100,lines:['pushq %rdx','popq %rcx','halt']},init:{R:{2:7,4:200}}};
+var SEQ_ROLE={'Fetch':'read the instruction','Decode':'read registers','Execute':'do the math','Memory':'use memory','Write back':'save to registers','PC update':'go to the next instruction'};
+function sqRn(x){return '%'+Y86R[x];}
+function sqUniq(a){return a.filter(function(x,i){return x!=null&&a.indexOf(x)===i;});}
+/* plain words: one question per stage, built from the run record */
+function seqPlain(R){
+  var e=R.e,op=e.op,ic=e.ic,B=R.before,pc=R.pc,n=e.n,valP=pc+n,rsp=B.R[4],ra=e.ra,rb=e.rb;
+  var stp=function(l){for(var i=0;i<R.steps.length;i++)if(R.steps[i].lhs===l)return R.steps[i];return null;};
+  var vE=stp('valE'),vM=stp('valM'),Cn=stp('Cnd'),asm='<code>'+esc(e.asm)+'</code>',sym=['+','−','&amp;','^'][e.fn],U=[];
+  /* Fetch */
+  U.push({st:'Fetch',q:'Read the instruction at the PC, '+h3(pc)+'. It\'s '+asm+', '+n+' byte'+(n>1?'s':'')+' long. Where does the next instruction start?',
+    o:sqUniq([h3(valP),h3(pc+1),h3(pc+2),h3(valP+1)]).slice(0,3),h:h3(pc)+' + '+n+' byte'+(n>1?'s':'')+'.',res:'Read '+asm+'. The next instruction starts at '+h3(valP)+'.'});
+  /* Decode */
+  var D;
+  if(ic===6)D={o:[sqRn(ra)+' and '+sqRn(rb),'only '+sqRn(rb),'none'],h:'subq '+sqRn(ra)+', '+sqRn(rb)+' needs both: '+sqRn(rb)+' − '+sqRn(ra)+'.',res:sqRn(ra)+' = '+B.R[ra]+', '+sqRn(rb)+' = '+B.R[rb]+'.'};
+  else if(ic===3)D={o:['none: the value is inside the instruction',sqRn(rb),rb===4?'%rax':'%rsp'],h:'irmovq writes '+sqRn(rb)+', but doesn\'t need to read anything: $'+e.c+' is in the instruction.',res:'Nothing to read.'};
+  else if(ic===4)D={o:[sqRn(ra)+' and '+sqRn(rb),'only '+sqRn(rb),'none'],h:'It needs the value to store ('+sqRn(ra)+') and the base address ('+sqRn(rb)+').',res:sqRn(ra)+' = '+B.R[ra]+' (the value to store), '+sqRn(rb)+' = '+B.R[rb]+' (the base address).'};
+  else if(ic===10)D=ra===4?{o:['only %rsp','%rax and %rsp','none'],h:'The value to push is %rsp itself, and the stack top is %rsp too.',res:'%rsp = '+rsp+': both the value to push and the stack top.'}:{o:[sqRn(ra)+' and %rsp','only '+sqRn(ra),'only %rsp'],h:'It needs the value to push ('+sqRn(ra)+') and where the stack top is (%rsp).',res:sqRn(ra)+' = '+B.R[ra]+' (the value to push), %rsp = '+rsp+' (the stack top).'};
+  else if(ic===11)D={o:['only %rsp',(ra===4?'%rax':sqRn(ra))+' and %rsp','none'],h:'popq only needs to know where the stack top is. '+sqRn(ra)+' gets written, not read.',res:'%rsp = '+rsp+': the stack top.'};
+  else if(ic===7)D={o:['none','only %rsp','%rax'],h:'A jump reads no registers. It checks the flags in Execute.',res:'Nothing to read.'};
+  else if(ic===8||ic===9)D={o:['only %rsp','none','%rax and %rsp'],h:(ic===8?'call pushes':'ret pops')+' the return address, so it needs the stack top, %rsp.',res:'%rsp = '+rsp+': the stack top.'};
+  if(D)U.push({st:'Decode',q:'Which registers does '+asm+' need to read?',o:D.o,h:D.h,res:D.res});
+  /* Execute */
+  var X;
+  if(ic===6)X={q:'Do the math: '+sqRn(rb)+' '+sym+' '+sqRn(ra)+' = '+B.R[rb]+' '+sym+' '+B.R[ra]+' =',o:[vE.v].concat(vE.alts),h:B.R[rb]+' '+sym+' '+B.R[ra]+': '+sqRn(rb)+' comes first.',res:B.R[rb]+' '+sym+' '+B.R[ra]+' = '+vE.v+'. The flags are set from it: '+(+vE.v===0?'zero':'not zero')+', '+(+vE.v<0?'negative':'not negative')+'.'};
+  else if(ic===3)X={q:'irmovq has no math to do: the constant just passes through. The result is',o:[vE.v,'0',h3(valP)],h:'It\'s the constant, $'+e.c+'.',res:'The result is '+vE.v+', the constant.'};
+  else if(ic===4)X={q:'Work out the address: '+sqRn(rb)+' + '+e.c+' = '+B.R[rb]+' + '+e.c+' =',o:[vE.v].concat(vE.alts),h:B.R[rb]+' + '+e.c+'.',res:'The address is '+vE.v+'.'};
+  else if(ic===10||ic===8)X={q:'The stack grows down. New stack top: %rsp − 8 = '+rsp+' − 8 =',o:[vE.v,String(rsp+8),String(rsp)],h:rsp+' − 8.',res:'The new stack top is '+vE.v+'.'};
+  else if(ic===11||ic===9)X={q:'Popping moves the stack top back up. New stack top: %rsp + 8 = '+rsp+' + 8 =',o:[vE.v,String(rsp-8),String(rsp)],h:rsp+' + 8.',res:'The new stack top is '+vE.v+'.'};
+  else if(ic===7)X={q:(SEQ_JRULE[op]||'')+' The flags say ZF = '+B.CC.ZF+'. Does it jump?',o:Cn.v==='1'?['Yes','No']:['No','Yes'],h:'ZF = '+B.CC.ZF+'.',res:'ZF = '+B.CC.ZF+', so '+(Cn.v==='1'?'it jumps.':'no jump.')};
+  if(X)U.push({st:'Execute',q:X.q,o:X.o,h:X.h,res:X.res});
+  /* Memory */
+  var M;
+  if(ic===4)M={q:'Store '+sqRn(ra)+' ('+B.R[ra]+') at address '+vE.v+'. Memory at '+vE.v+' becomes',o:[String(B.R[ra]),vE.v,'0'],h:'It stores '+sqRn(ra)+'\'s value.',res:'Memory at '+vE.v+' = '+B.R[ra]+'.'};
+  else if(ic===10)M={q:'Store the value to push at the new top, '+vE.v+'. Decode read it as '+B.R[ra]+', before anything changed. Memory at '+vE.v+' becomes',o:sqUniq([String(B.R[ra]),vE.v,String(rsp+8),'0']).slice(0,3),h:'The value Decode read: '+B.R[ra]+'.',res:'Memory at '+vE.v+' = '+B.R[ra]+'.'};
+  else if(ic===8)M={q:'Store the return address at the new top, '+vE.v+'. The return address is the line after call, '+h3(valP)+'. Memory at '+vE.v+' becomes',o:[h3(valP),h3(e.c),h3(pc)],h:'The line after call: '+h3(valP)+'.',res:'Memory at '+vE.v+' = '+h3(valP)+'.'};
+  else if(ic===11||ic===9){var mv=vM.v;M={q:'Read memory at the <b>old</b> top, '+rsp+'. It holds',o:sqUniq([mv,String(rsp),vE.v,'0']).slice(0,3),h:'Look at memory at '+rsp+' (shown above).',res:'Read '+mv+' from memory at '+rsp+'.'};}
+  else M={q:'Does '+asm+' read or write data memory?',o:['No','Yes, it reads','Yes, it writes'],h:op+' only uses registers'+(ic===7?' and the flags':'')+'.',res:'Nothing: '+op+' doesn\'t touch memory.'};
+  U.push({st:'Memory',q:M.q,o:M.o,h:M.h,res:M.res});
+  /* Write back */
+  var W;
+  if(ic===6)W={q:'Save the result, '+vE.v+'. Which register gets it?',o:[sqRn(rb),sqRn(ra),'none'],h:'subq '+sqRn(ra)+', '+sqRn(rb)+' means '+sqRn(rb)+' = '+sqRn(rb)+' − '+sqRn(ra)+'.',res:sqRn(rb)+' = '+vE.v+'.'};
+  else if(ic===3)W={q:'Save '+vE.v+'. Which register gets it?',o:[sqRn(rb),rb===4?'%rax':'%rsp','none'],h:'irmovq $V, rB writes rB.',res:sqRn(rb)+' = '+vE.v+'.'};
+  else if(ic===4)W={q:'Does rmmovq change a register?',o:['No: it only wrote memory','Yes: '+sqRn(ra),'Yes: '+sqRn(rb)],h:'It stored into memory. No register gets a new value.',res:'No register changes.'};
+  else if(ic===10||ic===8)W={q:'Which register changes?',o:sqUniq(['%rsp, to '+vE.v,(ic===10&&ra!==4?sqRn(ra):'%rax')+', to '+vE.v,'none']),h:'The stack top moved, so %rsp changes.',res:'%rsp = '+vE.v+'.'};
+  else if(ic===11&&ra===4)W={q:'%rsp gets two writes: first the new top, '+vE.v+', then the value read, '+vM.v+'. The last write wins. %rsp ends up',o:[vM.v,vE.v],h:'The value read from memory is written last.',res:'%rsp = '+vM.v+'.'};
+  else if(ic===11)W={q:'Which registers change?',o:['%rsp to '+vE.v+', and '+sqRn(ra)+' to '+vM.v,'only '+sqRn(ra)+', to '+vM.v,'only %rsp, to '+vE.v],h:'The stack top moves up, and '+sqRn(ra)+' gets the value read.',res:'%rsp = '+vE.v+' and '+sqRn(ra)+' = '+vM.v+'.'};
+  else if(ic===9)W={q:'Which register changes?',o:['%rsp, to '+vE.v,'none','%rax, to '+vM.v],h:'The stack top moved, so %rsp changes.',res:'%rsp = '+vE.v+'.'};
+  else if(ic===7)W={q:'Does '+asm+' change a register?',o:['No','Yes: %rsp'],h:'A jump only changes the PC.',res:'No register changes.'};
+  if(W)U.push({st:'Write back',q:W.q,o:W.o,h:W.h,res:W.res});
+  /* PC update */
+  var P;
+  if(ic===7)P=Cn.v==='1'?{q:'It jumps, so the PC goes to',o:[h3(e.c)+' (the jump target)',h3(valP)+' (the next line)'],res:'PC = '+h3(e.c)+'.'}:{q:'No jump, so the PC goes to',o:[h3(valP)+' (the next line)',h3(e.c)+' (the jump target)'],res:'PC = '+h3(valP)+': the next line.'};
+  else if(ic===8)P={q:'call jumps to the function. The PC becomes',o:[h3(e.c)+' (proc:)',h3(valP)+' (the next line)'],res:'PC = '+h3(e.c)+'.'};
+  else if(ic===9)P={q:'ret jumps to the address it read from the stack. The PC becomes',o:[vM.v,h3(valP)],res:'PC = '+vM.v+'.'};
+  else P={q:'Where does the PC go next?',o:sqUniq([h3(valP),h3(pc),h3(pc+1)]),res:'PC = '+h3(valP)+': the next line.'};
+  if(ic!==0)U.push({st:'PC update',q:P.q,o:P.o,h:P.h||'This instruction ends at '+h3(valP)+'.',res:P.res});
+  U.forEach(function(u){u.o=sqUniq(u.o.map(String));u.r=0;});
+  return U;
+}
+/* what the instruction does, in one line */
+function sqMeans(e){var a=sqRn(e.ra),b=sqRn(e.rb),sym=['+','−','&amp;','^'][e.fn];
+  switch(e.ic){case 6:return b+' = '+b+' '+sym+' '+a;case 3:return b+' = '+e.c;case 4:return 'memory at ('+b+' + '+e.c+') = '+a;case 10:return 'push '+a+' onto the stack';case 11:return 'pop the top of the stack into '+a;
+  case 7:return e.op==='jmp'?'jump to '+h3(e.c):'jump to '+h3(e.c)+' if '+({je:'the last result was 0',jne:'the last result wasn\'t 0'}[e.op]||'the condition holds');case 8:return 'push the return address, then jump to '+h3(e.c);case 9:return 'pop the return address and jump there';case 0:return 'stop';}return '';}
+/* the book's names: one question per table row, with the values it needs shown */
+var SQ_NEW=[['←','<code>←</code> means "gets".'],['M1[','<code>M1[x]</code> = the 1 byte at address x.'],['icode:ifun','<b>icode:ifun</b> = the first byte\'s two hex digits: which instruction it is (Part 16).'],['rA:rB','<b>rA:rB</b> = the register byte: rA and rB (F = none).'],['valC','<b>valC</b> = the constant inside the instruction.'],['valP','<b>valP</b> = where the next instruction starts.'],['R[','<code>R[r]</code> = the value in register r.'],['valA','<b>valA</b>, <b>valB</b> = the values read from registers.'],['valE','<b>valE</b> = the ALU\'s result (E for Execute).'],['CC','<b>CC</b> = the flags: ZF, SF, OF.'],['Cnd','<b>Cnd</b> = 1 if the jump happens.'],['M8[','<code>M8[x]</code> = the 8 bytes (one long) at address x.'],['valM','<b>valM</b> = the value read from memory (M for Memory).']];
+function sqNew(s,seen){return SQ_NEW.filter(function(n){return !seen[n[0]]&&((n[0]==='valA'&&/val[AB]/.test(s.g))||(n[0]==='CC'&&s.lhs==='CC')||(n[0]!=='valA'&&n[0]!=='CC'&&s.g.indexOf(n[0])>=0));});}
+function seqBook(R){
+  var e=R.e,got={};
+  return R.steps.map(function(s){
+    var names=[];(s.g.match(/val[ABCEMP]|rA|rB|Cnd/g)||[]).forEach(function(x){if(x!==s.lhs&&names.indexOf(x)<0)names.push(x);});
+    if(s.lhs==='icode:ifun'||s.lhs==='rA:rB'||s.lhs==='valP'||s.lhs==='valC')names=[];
+    var give=names.map(function(x){return x==='rA'?'rA is '+sqRn(e.ra):x==='rB'?'rB is '+sqRn(e.rb):x+' = '+got[x];});
+    if(s.lhs==='icode:ifun')give=['the byte at '+h3(R.pc)+' is '+h2u(e.b[0])];
+    if(s.lhs==='rA:rB')give=['the byte at '+h3(R.pc+1)+' is '+h2u(e.b[1])];
+    if(s.lhs==='valC')give=['the constant in <code>'+esc(e.asm)+'</code>'];
+    if(s.lhs==='valP')give=['this instruction is '+e.n+' byte'+(e.n>1?'s':'')];
+    if(s.lhs==='CC')give=['valE = '+got.valE+'. ZF = 1 if it\'s 0, SF = 1 if it\'s negative'];
+    if(s.lhs==='Cnd')give=[(SEQ_JRULE[e.op]||'')+' Here ZF = '+R.before.CC.ZF];
+    if(s.g==='valE ← valB OP valA')give.unshift('OP is '+['+','−','&amp;','^'][e.fn]);
+    var tail=/^R\[/.test(s.lhs)?'%'+/R\[%(\w+)\]/.exec(s.lhs)[1]+' becomes':/^M8\[/.test(s.lhs)?'Memory at '+s.lhs.slice(3,-1)+' becomes':s.lhs==='CC'?'The flags:':s.lhs+' =';
+    var o=s.lhs==='Cnd'?[s.v,s.v==='1'?'0':'1']:sqUniq([s.v].concat(s.alts)).slice(0,3);
+    if(s.lhs==='CC')o=o.map(function(x){return x.replace(/ OF=0/,'').replace(/=/g,' = ').replace(' S',', S');});
+    if(/^val|^icode|^rA|^Cnd|^CC/.test(s.lhs))got[s.lhs]=s.v;
+    return {st:s.st,s:s,q:'<code>'+s.g+'</code>'+(give.length?'<span class="stg-give">'+give.join('; ')+'.</span>':'')+'<span class="stg-tail">'+tail+'</span>',o:o,r:0,h:(s.why?s.why+' ':'')+'Here: '+s.lhs+' ← '+s.expr+'.',res:specTxt(s)};
+  });
+}
+/* what to show in the little state box: only what this instruction touches */
+function sqState(R,V,pcNow){
+  var regs=[],mem=[];
+  R.steps.forEach(function(s){(s.lhs+' '+s.expr).replace(/R\[%(\w+)\]/g,function(m,r){var i=Y86R.indexOf(r);if(regs.indexOf(i)<0)regs.push(i);return m;}).replace(/M8\[(\d+)\]/g,function(m,a){if(mem.indexOf(+a)<0)mem.push(+a);return m;});});
+  var e=R.e;[e.ra,e.rb].forEach(function(r){if(r!=null&&r!==15&&r<8&&regs.indexOf(r)<0)regs.push(r);});
+  regs.sort(function(a,b){return a-b;});mem.sort(function(a,b){return a-b;});
+  var h='<div class="stg-state"><span class="stg-c pc'+(pcNow!==R.pc?' chg':'')+'"><i>PC</i><b>'+h3(pcNow)+'</b></span>';
+  regs.forEach(function(r){h+='<span class="stg-c'+(V.chg[r]?' chg':'')+'"><i>'+sqRn(r)+'</i><b>'+V.R[r]+'</b></span>';});
+  mem.forEach(function(a){var v=V.M[a]||0;h+='<span class="stg-c m'+(V.mchg===a?' chg':'')+'"><i>memory at '+a+'</i><b>'+(V.H[a]?h3(v):v)+'</b></span>';});
+  if(e.ic===6||e.ic===7)h+='<span class="stg-c f'+(V.cc?' chg':'')+'"><i>flags</i><b>ZF '+V.CC.ZF+' SF '+V.CC.SF+'</b></span>';
+  return h+'</div>';
+}
+TOYDEF.seqstrip={title:'Try it · six stages',
+  init:function(d){var sn={};((d&&d.known)||[]).forEach(function(k){sn[k]=1;});return {i:0,u:0,pk:null,msg:'',seen:sn,n:0,clean:0,slip:false};},
+  out:function(st,d){
+    var T=seqTr(d.tr||'main'),L=seqmRecs(T,d),R=L[st.i],book=d.mode==='book',U=book?seqBook(R):seqPlain(R),u=st.u,done=u>=U.length,e=R.e;
+    var cur=done?null:U[u],ci=cur?SEQ_STAGES.indexOf(cur.st):6;
+    /* rows done, for the state box: book = rows; plain = every row of the stages already done */
+    var rowsDone=book?u:R.steps.filter(function(s){return SEQ_STAGES.indexOf(s.st)<ci;}).length;
+    var V=seqmView(R,rowsDone),pcNow=R.pc;R.steps.slice(0,rowsDone).forEach(function(s){if(s.lhs==='PC')pcNow=parseInt(s.v,16);});
+    var h='<div class="stg">';
+    h+='<div class="stg-ins">'+(L.length>1?'<span class="stg-k">Instruction '+(st.i+1)+' of '+L.length+'</span>':'')+'<b><code>'+esc(e.asm)+'</code></b> <span class="stg-at">at '+h3(R.pc)+' · bytes '+e.b.map(h2u).join(' ')+'</span><span class="stg-means">means: '+sqMeans(e)+'</span></div>';
+    h+=sqState(R,V,pcNow);
+    h+='<ol class="stg-st">'+SEQ_STAGES.map(function(name,si){
+      var mine=U.map(function(x,j){return j;}).filter(function(j){return U[j].st===name;});
+      var state=si<ci?'done':si===ci?'now':'todo';
+      var b='<li class="stg-s '+state+(mine.length?'':' empty')+'"><div class="stg-h"><span class="stg-n">'+(state==='done'?'✓':si+1)+'</span><b>'+name+'</b><span class="stg-role">'+SEQ_ROLE[name]+'</span></div>';
+      if(!mine.length){if(state!=='todo')b+='<p class="stg-res">Nothing for this instruction.</p>';return b+'</li>';}
+      if(state==='todo')return b+'</li>';
+      mine.forEach(function(j){
+        if(j<u)b+='<p class="stg-res">'+(book?'<code>'+esc(U[j].res)+'</code>':U[j].res)+'</p>';
+        else if(j===u){
+          var x=U[j],n=x.o.length,q=(R.pc+j*3)%n,ro=x.o.slice(n-q).concat(x.o.slice(0,n-q)),right=ro.indexOf(x.o[x.r]);
+          var notes=book?sqNew(x.s,st.seen):[];
+          b+=(notes.length?'<div class="stg-new">'+notes.map(function(nn){return '<span><i>New</i> '+nn[1]+'</span>';}).join('')+'</div>':'');
+          b+='<p class="stg-q">'+x.q+'</p><div class="chips ask" role="group" aria-label="Answers">'+ro.map(function(o,k){return '<button class="chip'+(st.pk===k?' wrong':'')+'" data-ta="o:'+k+'"'+(st.pk===k?' disabled':'')+'>'+(book?esc(o):o)+'</button>';}).join('')+'</div>'+msgP(st);
+        }
+      });
+      return b+'</li>';}).join('')+'</ol>';
+    if(done){
+      h+='<p class="tr-note"><b class="ok">Done.</b> '+(book?'The green rows above, top to bottom, are the book\'s <b>stage table</b> for <code>'+esc(e.asm)+'</code>. Practice 17 asks you to fill in tables like it.':'That\'s all six stages for <code>'+esc(e.asm)+'</code>.')+'</p>';
+      h+='<div class="toy-btns"><button class="btn sm" data-ta="next">'+(L.length===1?'Run it again ▶':st.i+1<L.length?'Next instruction ▶':'Start over ▶')+'</button></div>';
+    }
+    h+='<p class="fine">Instructions done: '+st.n+' · with no slips: '+st.clean+'</p></div>';
+    return h;
+  },
+  act:function(st,a,el,d){
+    var T=seqTr(d.tr||'main'),L=seqmRecs(T,d),R=L[st.i],book=d.mode==='book',U=book?seqBook(R):seqPlain(R);
+    st.seen=st.seen||{};
+    if(a==='next'){st.i=(st.i+1)%L.length;st.u=0;st.pk=null;st.msg='';st.slip=false;return;}
+    if(st.u>=U.length)return;
+    var p=a.split(':');if(p[0]!=='o')return;
+    var x=U[st.u],n=x.o.length,q=(R.pc+st.u*3)%n,ro=x.o.slice(n-q).concat(x.o.slice(0,n-q)),right=ro.indexOf(x.o[x.r]);
+    if(+p[1]!==right){st.pk=+p[1];st.msg=x.h;st.slip=true;return;}
+    if(book)sqNew(x.s,st.seen).forEach(function(nn){st.seen[nn[0]]=1;});
+    st.pk=null;st.msg='';st.u++;
+    if(st.u>=U.length){st.n++;if(!st.slip)st.clean++;}
+  }};
+/* the right answer for unit u, for tests */
+function sqRight(R,d,u){var U=d.mode==='book'?seqBook(R):seqPlain(R),x=U[u],n=x.o.length,q=(R.pc+u*3)%n,ro=x.o.slice(n-q).concat(x.o.slice(0,n-q));return 'o:'+ro.indexOf(x.o[x.r]);}
+
 function seqPP(){return tblS(['Stage','pushq rA','popq rA'],[['Fetch','icode:ifun ← M1[PC]<br>rA:rB ← M1[PC+1]<br>valP ← PC+2','icode:ifun ← M1[PC]<br>rA:rB ← M1[PC+1]<br>valP ← PC+2'],['Decode','valA ← R[rA]<br>valB ← R[%rsp]','valA ← R[%rsp]<br>valB ← R[%rsp]'],['Execute','valE ← valB + (−8)','valE ← valB + 8'],['Memory','M8[valE] ← valA','valM ← M8[valA]'],['Write back','R[%rsp] ← valE','R[%rsp] ← valE<br>R[rA] ← valM'],['PC update','PC ← valP','PC ← valP']]);}
 function seqPart(pc,n){var R=seqAt(pc);return seqTbl(R.steps.slice(0,n),null,{});}
 WALKS.seqsix={steps:[
@@ -4970,7 +5154,7 @@ WALKS.seqsix={steps:[
 ]};
 WALKS.seqpuz={steps:[
  {t:'Why pushq %rsp pushes the old value',
-  intro:'<p>Here is the pushq column, with rA = %rsp:</p>'+seqPP(),
+  intro:'<p>pushq\'s Decode reads valA ← R[%rsp] first. %rsp only changes later, in Write back.</p>',
   asks:[{q:'Decode reads valA ← R[rA] = R[%rsp] before anything changes. Memory stores valA. So it pushes',o:['the original value of %rsp','the value minus 8'],r:0,h:'valA is read in Decode. valE (the minus 8) is only computed in Execute.',say:'The <b>original</b> %rsp. That\'s Practice 17 Q3.'}]},
  {t:'Why popq %rsp keeps the popped value',
   intro:'<p>Write back does two writes, in this order: R[%rsp] ← valE, then R[rA] ← valM. With rA = %rsp, both write %rsp.</p>',
@@ -7688,49 +7872,81 @@ qs:[
 ]},
 
 /* ===================== Part 17: SEQ, instructions in six stages ===================== */
-{id:'seqsix',sec:'p17',name:'Six stages: Fetch to PC update',short:'Six stages',shuffleOpts:true,
-defaults:{m:null,code:false},
-recap:"<b>Fetch</b> reads the instruction and valP. <b>Decode</b> reads valA and valB. <b>Execute</b> computes valE (and the flags). <b>Memory</b> reads valM or writes. <b>Write back</b> writes registers. <b>PC update</b> sets the PC.",
-lesson:`<p>A processor runs each instruction as a list of small steps. You'll do the steps yourself, on a model of the hardware, for one instruction: <code>subq %rdx, %rbx</code>. Each step says what it means and what to tap. The first time through, the right spot glows.</p>`+
-toy('seqm',{tr:'main',at:[0x014],tour:true,teach:true,title:'Try it · run subq, step by step'})+
-`<p>You've done all six stages. A quick check on what you just did:</p>`+
-toy('walk',{w:'seqsix',title:'Try it · what you just did'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
-qs:[
-{prompt:'Put the six SEQ stages in order.',order:['Fetch','Decode','Execute','Memory','Write back','PC update'],explain:'Fetch, decode, execute, memory, write back, PC update.'},
-{prompt:'valP is',options:['the address of the next instruction','the value read from memory','the ALU\'s result'],answer:0,explain:'PC plus the instruction\'s length.'},
-{prompt:'valE is computed in',options:['Execute, by the ALU','Fetch','Memory'],answer:0,explain:'E for execute.'},
-{prompt:'For <code>OPq rA, rB</code>, Execute computes',code:true,options:['valE ← valB OP valA','valE ← valA OP valB','valE ← valB + valC'],answer:0,explain:'rB OP rA, like x86.'},
-{prompt:'Which instructions set the condition codes in Execute?',options:['OPq (addq, subq, andq, xorq)','All of them','Only jumps'],answer:0,explain:'Set CC is only in OPq\'s table.'},
-{prompt:'<code>subq %rdx, %rbx</code> with %rdx = 9 and %rbx = 21. valE =',options:['12','−12','30'],answer:0,explain:'valB − valA = 21 − 9.'},
-{prompt:'For an OPq, which stage does nothing?',options:['Memory','Decode','Write back'],answer:0,explain:'It doesn\'t touch memory.'},
-{prompt:'At 0x014, a 2-byte instruction. valP =',code:true,options:['0x016','0x015','0x024'],answer:0,explain:'0x014 + 2.'}
-]},
-{id:'seqmem',sec:'p17',name:'Moves and the stack, stage by stage',short:'Moves & stack',shuffleOpts:true,
+{id:'seqidea',sec:'p17',name:'Six stages, in plain words',short:'Six stages',shuffleOpts:true,
 defaults:{m:null,code:true},
-recap:"The ALU does all the adding: valE ← 0 + valC (irmovq), valB + valC (an address), valB ± 8 (the stack). popq reads memory at <b>valA</b>, the old %rsp. Registers are read in Decode, before any writes, and the last write wins.",
-lesson:`<p>Same six stages, new steps. Each new kind of step explains itself when you reach it, and the right spot glows the first time through.</p>
-<p><code>irmovq</code> puts a constant in a register. <code>rmmovq</code> stores a register in memory. Run lines 4 and 5 of the program:</p>`+
-toy('seqm',{tr:'main',at:[0x016,0x020],teach:true,title:'Try it · irmovq and rmmovq'})+
-`<p>The stack instructions use %rsp without naming it. <code>pushq</code> moves %rsp down 8, then stores there. <code>popq</code> reads at the <b>old</b> %rsp, then moves it up 8. Run lines 6 and 7:</p>`+
-toy('seqm',{tr:'main',at:[0x02a,0x02c],teach:true,title:'Try it · pushq and popq'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
+recap:"Every instruction goes through the same six stages: Fetch (read the instruction, find the next one), Decode (read registers), Execute (do the math), Memory (use memory), Write back (save to registers), PC update (go to the next instruction).",
+lesson:`<p>A processor runs every instruction in the same <b>six stages</b>. Start with one you know: <code>subq %rdx, %rbx</code>, which means %rbx = %rbx − %rdx. Answer one small question per stage:</p>`+
+toy('seqstrip',{tr:'main',at:[0x014],title:'Try it · subq, stage by stage'})+
+`<p>One more: <code>irmovq $21, %rbx</code>, which puts 21 in %rbx.</p>`+
+toy('seqstrip',{tr:'main',at:[0x00a],title:'Try it · irmovq, stage by stage'}),
 qs:[
-{prompt:'valM is',options:['the value read from memory','the value of rA','the next PC'],answer:0,explain:'M for memory: popq reads it with valM ← M8[valA].'},
-{prompt:'For <code>irmovq V, rB</code>, Execute does',options:['valE ← 0 + valC','valE ← valB + valC','nothing'],answer:0,explain:'The ALU passes valC through.'},
-{prompt:'For <code>rmmovq rA, D(rB)</code>, valE is',options:['the memory address: valB + valC','the value to store','valA + 8'],answer:0,explain:'Then M8[valE] ← valA.'},
-{prompt:'<code>rmmovq %rsp, 100(%rbx)</code> with %rsp = 128, %rbx = 12. Which address is written?',options:['112','228','100'],answer:0,explain:'valE = 12 + 100. The value 128 is stored there.'},
-{prompt:'<code>pushq %rdx</code> with %rsp = 128. valE =',options:['120','136','128'],answer:0,explain:'valB + (−8).'},
-{prompt:'popq reads memory at',options:['valA, the old stack pointer','valE, the new stack pointer','valC'],answer:0,explain:'valM ← M8[valA].'},
+{prompt:'Put the six stages in order.',order:['Fetch','Decode','Execute','Memory','Write back','PC update'],explain:'Fetch, decode, execute, memory, write back, PC update.'},
+{prompt:'Which stage reads registers?',options:['Decode','Fetch','Write back'],answer:0,explain:'Decode reads registers. Write back writes them.'},
+{prompt:'Which stage does the math?',options:['Execute','Decode','Memory'],answer:0,explain:'Execute: the ALU.'},
+{prompt:'Which stage saves a result into a register?',options:['Write back','Memory','Execute'],answer:0,explain:'Write back.'},
+{prompt:'<code>subq %rdx, %rbx</code> with %rdx = 9 and %rbx = 21. Execute computes',options:['12','−12','30'],answer:0,explain:'%rbx − %rdx = 21 − 9.'},
+{prompt:'subq at 0x014 is 2 bytes. Fetch works out that the next instruction starts at',code:true,options:['0x016','0x015','0x024'],answer:0,explain:'0x014 + 2.'},
+{prompt:'<code>irmovq $21, %rbx</code>: which registers does Decode read?',options:['None: 21 is inside the instruction','%rbx','%rsp'],answer:0,explain:'irmovq writes %rbx but reads nothing.'},
+{prompt:'Does <code>subq</code> use the Memory stage?',options:['No','Yes'],answer:0,keep:true,explain:'It only uses registers.'}
+]},
+{id:'seqnames',sec:'p17',name:'The book\'s names and stage table',short:'Names & table',shuffleOpts:true,
+defaults:{m:null,code:true},
+recap:"valP = where the next instruction starts. valA, valB = values read from registers. valE = the ALU's result. valM = a value read from memory. valC = the constant in the instruction. R[r] = the value in register r; ← means gets. Each step is one row of the stage table.",
+lesson:`<p>The book gives each value a name, like <b>valA</b> or <b>valE</b>, and writes each step as one row. Here's <code>subq %rdx, %rbx</code> again: same stages, same numbers, now with the names. Each name is explained the first time it shows up.</p>`+
+toy('seqstrip',{tr:'main',at:[0x014],mode:'book',title:'Try it · subq, with the book\'s names'})+
+`<p>Your turn with <code>irmovq $9, %rdx</code>. Practice 17's Q1 is an irmovq just like it.</p>`+
+toy('seqstrip',{tr:'main',at:[0x000],mode:'book',title:'Try it · irmovq, with the book\'s names'}),
+qs:[
+{prompt:'valP is',options:['where the next instruction starts','the value read from memory','the ALU\'s result'],answer:0,explain:'PC + the instruction\'s length.'},
+{prompt:'valE is',options:['the ALU\'s result, from Execute','a value read from a register','the next PC'],answer:0,explain:'E for Execute.'},
+{prompt:'valA and valB are',options:['values read from registers, in Decode','constants inside the instruction','results from the ALU'],answer:0,explain:'Decode reads them.'},
+{prompt:'<code>R[%rdx]</code> means',options:['the value in register %rdx','the address of %rdx','register number 2'],answer:0,explain:'R[r] = the value in register r.'},
+{prompt:'For <code>subq %rdx, %rbx</code>: <code>valA ← R[rA]</code>. rA is %rdx, which holds 9. valA =',options:['9','21','2'],answer:0,explain:'The value in %rdx.'},
+{prompt:'For <code>irmovq $9, %rdx</code>: <code>valE ← 0 + valC</code>, and valC = 9. valE =',options:['9','0','10'],answer:0,explain:'0 + 9.'},
+{prompt:'The first byte is 61. icode:ifun =',code:true,options:['6:1','1:6','6:0'],answer:0,explain:'Its two hex digits: 6 (OPq) and 1 (subq).'},
+{prompt:'<code>irmovq $128, %rsp</code> at 0x016 is 10 bytes. valP =',code:true,options:['0x020','0x017','0x026'],answer:0,explain:'0x016 + 10 = 0x020 (0x16 is 22, plus 10 is 32 = 0x20).'},
+{prompt:'For <code>subq %rdx, %rbx</code>, the row <code>R[rB] ← valE</code> writes',options:['%rbx','%rdx','memory'],answer:0,explain:'rB is %rbx.'}
+]},
+{id:'seqstack',sec:'p17',name:'The stack: pushq and popq',short:'The stack',shuffleOpts:true,
+defaults:{m:null,code:true},
+recap:"pushq rA: valA = rA, valB = %rsp, valE = %rsp − 8, store valA at valE, %rsp ← valE. popq rA: valA = valB = %rsp, valE = %rsp + 8, valM = memory at valA (the old top), %rsp ← valE, then rA ← valM.",
+lesson:`<p><code>pushq</code> and <code>popq</code> use %rsp, the stack pointer, without naming it. Here %rsp starts at 200 and %rdx holds 7. First in plain words:</p>`+
+toy('seqstrip',{tr:'stack',at:[0x100,0x102],title:'Try it · pushq %rdx, then popq %rcx'})+
+`<p>Now popq with the book's names. Practice 17's Q2 is a popq like this one.</p>`+
+toy('seqstrip',{tr:'stack',at:[0x102],mode:'book',known:['←','M1[','icode:ifun','rA:rB','valC','valP','R[','valA','valE','CC'],title:'Try it · popq %rcx, with the book\'s names'}),
+qs:[
+{prompt:'pushq moves %rsp',options:['down 8, then stores there','up 8, then reads there','nowhere'],answer:0,explain:'The stack grows down.'},
+{prompt:'<code>pushq %rdx</code> with %rsp = 128. valE =',options:['120','136','128'],answer:0,explain:'valB + (−8) = 128 − 8.'},
+{prompt:'popq reads memory at',options:['valA, the old stack top','valE, the new stack top','valC'],answer:0,explain:'valM ← M8[valA].'},
+{prompt:'<code>popq %rax</code> with %rsp = 120 and 9 stored at 120. %rax becomes',options:['9','120','128'],answer:0,explain:'It reads 9 from memory at 120.'},
+{prompt:'After that popq, %rsp =',options:['128','120','112'],answer:0,explain:'120 + 8.'},
+{prompt:'Which registers does popq read in Decode?',options:['only %rsp, as valA and valB','rA and %rsp','none'],answer:0,explain:'valA ← R[%rsp], valB ← R[%rsp].'},
 {prompt:'How many registers does popq write?',options:['Two: %rsp and rA','One','None'],answer:0,explain:'R[%rsp] ← valE, then R[rA] ← valM.'},
-{prompt:'<code>mrmovq D(rB), rA</code> writes rA with',options:['valM','valE','valC'],answer:0,explain:'valM ← M8[valE], then R[rA] ← valM.'},
-{prompt:'<code>irmovq $128, %rsp</code> at 0x016 is 10 bytes. valP =',options:['0x020','0x017','0x026'],answer:0,explain:'0x016 + 10 = 0x020 (0x16 is 22, plus 10 is 32 = 0x20).'}
+{prompt:'valM is',options:['the value read from memory','the value of rA','the next PC'],answer:0,explain:'M for memory.'}
 ]},
-{id:'seqjump',sec:'p17',name:'Jumps, call and ret',short:'Control flow',shuffleOpts:true,
+{id:'seqpuz',sec:'p17',name:'Puzzles: pushq %rsp and popq %rsp',short:'%rsp puzzles',shuffleOpts:true,
 defaults:{m:null,code:true},
-recap:"jXX: Fetch gets valC and valP; Execute finds Cnd; PC ← Cnd ? valC : valP. <b>call</b> stores valP on the stack and sets PC ← valC. <b>ret</b> reads it back: PC ← valM. SEQ is too slow because one cycle must fit every stage.",
-lesson:`<p>Jumps, call and ret change the PC in other ways. Fetch reads valC (where to jump to) and valP (the next line) for each. Run line 8 (<code>je</code>), line 9 (<code>call</code>), and then proc's <code>ret</code>:</p>`+
-toy('seqm',{tr:'main',at:[0x02e,0x037,0x041],teach:true,title:'Try it · je, call and ret'})+
-`<p>You've now run every kind of instruction in the program. They all use the same six stages; only the steps inside change. Sort the steps of a few:</p>`+toy('chain',{c:'stagepick',title:'Play · which stage?'})+
-toy('walk',{w:'seqslow',title:'One more thing'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
+recap:"pushq %rsp: Decode reads valA = the old %rsp, and Memory stores valA, so the <b>original</b> value is pushed. popq %rsp: both Write back rows write %rsp, and R[rA] ← valM comes last, so %rsp ends up holding the <b>value read from memory</b>.",
+lesson:`<p>Practice 17 asks: what if the register you push or pop is %rsp itself? Run each one and watch %rsp.</p>`+
+toy('seqstrip',{tr:'push',at:[0x100],mode:'book',known:['←','M1[','icode:ifun','rA:rB','valC','valP','R[','valA','valE','CC'],title:'Try it · pushq %rsp, with %rsp = 128'})+
+toy('seqstrip',{tr:'pop',at:[0x100],mode:'book',known:['←','M1[','icode:ifun','rA:rB','valC','valP','R[','valA','valE','CC'],title:'Try it · popq %rsp, with %rsp = 120 and 40 stored at 120'})+
+toy('walk',{w:'seqpuz',title:'Try it · why'}),
+qs:[
+{prompt:'<code>pushq %rsp</code> with %rsp = 128. What gets stored at M8[120]?',options:['128','120','136'],answer:0,keep:true,explain:'Memory stores valA, which Decode read as 128 before %rsp changed.'},
+{prompt:'After <code>pushq %rsp</code> (starting from %rsp = 128), %rsp =',options:['120','128','136'],answer:0,keep:true,explain:'Write back: R[%rsp] ← valE = 128 − 8.'},
+{prompt:'<code>popq %rsp</code> with %rsp = 120 and M8[120] = 40. Afterwards %rsp =',options:['40','128','120'],answer:0,keep:true,explain:'R[%rsp] ← valE = 128 happens first, then R[%rsp] ← valM = 40. The last write wins.'},
+{prompt:'popq has two Write back rows. Which happens last?',code:true,options:['R[rA] ← valM','R[%rsp] ← valE'],answer:0,keep:true,explain:'R[%rsp] ← valE first, then R[rA] ← valM.'},
+{code:false,prompt:'Put popq\'s steps in order.',order:['valA, valB ← R[%rsp]','valE ← valB + 8','valM ← M8[valA]','R[%rsp] ← valE','R[rA] ← valM'],explain:'Decode, Execute, Memory, then the two Write back rows.'},
+{prompt:'Why does <code>pushq %rsp</code> push the original value?',options:['valA is read in Decode, before Write back changes %rsp','Memory runs before Execute','pushq doesn\'t change %rsp'],answer:0,explain:'Every register read happens in Decode. %rsp only changes in Write back, after Memory has stored valA.'},
+{prompt:'<code>pushq %rsp</code> pushes',options:['the original %rsp','%rsp − 8'],answer:0,keep:true,explain:'valA is read in Decode, before %rsp changes.'},
+{prompt:'<code>popq %rsp</code> leaves %rsp holding',options:['the value read from memory','the old %rsp + 8'],answer:0,keep:true,explain:'Both writes hit %rsp, and the valM write is last.'}
+]},
+{id:'seqjump',sec:'p17',name:'Jumps, call and ret',short:'Jumps',shuffleOpts:true,
+defaults:{m:null,code:true},
+recap:"jXX: Cnd ← Cond(CC, ifun), PC ← Cnd ? valC : valP. call: valE = %rsp − 8, store valP there, PC ← valC. ret: valM = memory at the old %rsp, %rsp ← %rsp + 8, PC ← valM.",
+lesson:`<p>Jumps, call and ret change the PC in other ways. Run line 8 (<code>je done</code>), line 9 (<code>call proc</code>), then proc's <code>ret</code>:</p>`+
+toy('seqstrip',{tr:'main',at:[0x02e,0x037,0x041],mode:'book',known:['←','M1[','icode:ifun','rA:rB','valC','valP','R[','valA','valE','CC'],title:'Try it · je, call and ret'})+
+toy('walk',{w:'seqslow',title:'One more thing'}),
 qs:[
 {prompt:'For <code>jXX Dest</code>, valC is',options:['the destination address','the condition code','PC + 9'],answer:0,explain:'valP is PC + 9.'},
 {prompt:'For a jump, PC update is',code:true,options:['PC ← Cnd ? valC : valP','PC ← valP','PC ← valM'],answer:0,explain:'Taken: valC. Not taken: valP.'},
@@ -7742,40 +7958,10 @@ qs:[
 {prompt:'<code>call proc</code> at 0x037 with %rsp = 128. What is stored at M8[120]?',options:['0x040','0x041','0x037'],answer:0,explain:'valP = 0x037 + 9 = 0x040.'},
 {prompt:'Why is SEQ too slow to be practical?',options:['Every stage has to fit in one clock cycle','It has too few registers','It can\'t do jumps'],answer:0,explain:'The clock has to be very slow, and hardware sits idle most of each cycle.'}
 ]},
-{id:'seqpuz',sec:'p17',name:'Puzzles: pushq %rsp and popq %rsp',short:'%rsp puzzles',shuffleOpts:true,
-defaults:{m:null,code:true},
-recap:"pushq %rsp: Decode reads valA = the old %rsp, and Memory stores valA, so the <b>original</b> value is pushed. popq %rsp: both Write back rows write %rsp, and R[rA] ← valM comes last, so %rsp ends up holding the <b>value read from memory</b>.",
-lesson:`<p>Practice 17 asks: what if the register you push or pop is %rsp itself? Run each one and watch %rsp and memory.</p>`+
-toy('seqm',{tr:'push',teach:true,title:'Try it · pushq %rsp, with %rsp = 128'})+
-toy('seqm',{tr:'pop',teach:true,title:'Try it · popq %rsp, with %rsp = 120 and 40 stored at 120'})+
-`<p>Now the why, with your book's table:</p>`+toy('walk',{w:'seqpuz',title:'Try it · what the table says'}),
-qs:[
-{prompt:'<code>pushq %rsp</code> with %rsp = 128. What gets stored at M8[120]?',options:['128','120','136'],answer:0,keep:true,explain:'Memory stores valA, which Decode read as 128 before %rsp changed.'},
-{prompt:'After <code>pushq %rsp</code> (starting from %rsp = 128), %rsp =',options:['120','128','136'],answer:0,keep:true,explain:'Write back: R[%rsp] ← valE = 128 − 8.'},
-{prompt:'<code>popq %rsp</code> with %rsp = 120 and M8[120] = 40. Afterwards %rsp =',options:['40','128','120'],answer:0,keep:true,explain:'R[%rsp] ← valE = 128 happens first, then R[%rsp] ← valM = 40. The last write wins.'},
-{prompt:'popq has two Write back rows. Which happens last?',code:true,options:['R[rA] ← valM','R[%rsp] ← valE'],answer:0,keep:true,explain:'R[%rsp] ← valE first, then R[rA] ← valM.'},
-{code:false,prompt:'Put popq\'s steps in order.',order:['valA, valB ← R[%rsp]','valE ← valB + 8','valM ← M8[valA]','R[%rsp] ← valE','R[rA] ← valM'],explain:'Decode, Execute, Memory, then the two Write back rows.'},
-{prompt:'Why does <code>pushq %rsp</code> push the original value?',options:['valA is read in Decode, before Write back changes %rsp','Memory runs before Execute','pushq doesn\'t change %rsp'],answer:0,explain:'Every register read happens in Decode. %rsp only changes in Write back, after Memory has stored valA.'},
-{prompt:'<code>pushq %rsp</code> pushes',options:['the original %rsp','%rsp − 8'],answer:0,keep:true,explain:'valA is read in Decode, before %rsp changes.'},
-{prompt:'<code>popq %rsp</code> leaves %rsp holding',options:['the value read from memory','the old %rsp + 8'],answer:0,keep:true,explain:'Both writes hit %rsp, and the valM write is last.'}
-]},
-{id:'seqrun',sec:'p17',name:'Be the processor',short:'Run it',shuffleOpts:true,
-defaults:{m:null,code:true},
-recap:"Track the machine state as you go: each instruction starts with what the last one left. Read values in Decode, compute in Execute, and write at the end.",
-lesson:`<p>Now run the whole worksheet program, start to finish: 11 instructions. Each one starts with what the last one left behind, so watch the registers and memory carry over. No glow this time, but every step still says what it means, and <b>Show me</b> lights up the answer if you're stuck.</p>`+
-toy('seqm',{tr:'main',at:'all',title:'Play · be the processor'})+`<details class="ref"><summary>The worksheet program</summary>`+seqList(null)+`</details>`,
-qs:[
-{prompt:'After <code>irmovq $9, %rdx</code> and <code>irmovq $21, %rbx</code>, then <code>subq %rdx, %rbx</code>, %rbx =',options:['12','−12','30'],answer:0,explain:'21 − 9.'},
-{prompt:'After <code>irmovq $128, %rsp</code> and <code>pushq %rdx</code>, %rsp =',options:['120','136','128'],answer:0,explain:'128 − 8.'},
-{prompt:'Then <code>popq %rax</code>. %rax =',options:['9','120','128'],answer:0,explain:'It pops the 9 that pushq stored.'},
-{prompt:'<code>je done</code> at 0x02e is not taken. The next PC is',options:['0x037','0x040','0x02f'],answer:0,explain:'valP = 0x02e + 9.'},
-{prompt:'In what order do the last instructions run?',order:['je done (not taken)','call proc','ret','halt'],explain:'call jumps to proc, ret comes back to 0x040, which is halt.'},
-{prompt:'Which address does <code>rmmovq %rsp, 100(%rbx)</code> write to? Type it in decimal.',input:true,dec:true,expect:'112',explain:'%rbx = 12, so 12 + 100 = 112.'}
-]},
 {id:'cls17',sec:'p17',name:'Class Practice 17',short:'Class P17',shuffleOpts:true,
 defaults:{m:null,code:true,tag:'From class'},
 recap:"irmovq $128, %rsp: %rsp = 128, PC + 10. popq %rax: valA = valB = 120, valE = 128, valM = 9, so %rax = 9 and %rsp = 128, PC + 2. pushq %rsp pushes the old %rsp. popq %rsp ends with the popped value.",
-lesson:`<p>Practice 17 has four questions about the worksheet program: two stage tables, filled in row by row, and two puzzles. You've done all four on the machine: Q1 and Q2 in L121, Q3 and Q4 in L123. Each row below says what it means, the same as on the machine.</p>`+seqList(null)+
+lesson:`<p>Practice 17 has four questions about the worksheet program: two stage tables, filled in row by row, and two puzzles. Q1 is like the irmovq in L121, Q2 is like the popq in L122, and Q3 and Q4 are L123's puzzles. Each row below says what it means.</p>`+seqList(null)+
 `<details class="ref"><summary>pushq and popq, stage by stage</summary>`+seqPP()+`</details>`,
 qs:[
 {tag:'From class · Q1',prompt:'Q1: fill in the table for <code>irmovq $128, %rsp</code> on line 4, at 0x016.',board:bSeq(0x016),
@@ -7843,7 +8029,7 @@ LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o=
     p1012:['cblocks','cgeo','caddr','clook','dmsim','sasim','conflict','cwrite','cperf','vmidea','vspace'],
     p1315:['vmuses','vpages','ptable','ptecount','mlevel','vasplit','xlate','pfault','wset','tlbidea','tlbsplit','vmcache'],
     p16:['isa','y86state','y86enc','y86const','y86lay','y86trace'],
-    p17:['seqsix','seqmem','seqjump','seqpuz','seqrun']};
+    p17:['seqidea','seqnames','seqstack','seqpuz','seqjump']};
   function copy(q,g){var o={};for(var k in q)o[k]=q[k];o.grp=g;return o;}
   LEVELS.forEach(function(L){
     if(L.id==='mix')m12=L;
@@ -8000,9 +8186,9 @@ var SECTIONS=[
    '<ul class="facts"><li>Lengths: halt, nop, ret 1 · rrmovq, cmovXX, OPq, pushq, popq 2 · jXX, call 9 · irmovq, rmmovq, mrmovq 10.</li><li>mrmovq D(rB), rA is still encoded rA then rB.</li><li>.pos sets the start address. Labels take no bytes.</li><li>Flags: ZF, SF, OF. Only OPq sets them.</li><li>CISC: memory operands in arithmetic, condition codes, stack-oriented. RISC: fixed-length, many registers, load/store only, no condition codes. Y86-64 has both.</li></ul>'+
    '<p>Practice 16: 25 82 · 30 F3 00 02 00 00 00 00 00 00 · 74 A8 03 01 00 00 00 00 00 · 63 00. sum(0x200, 10): %rax 0, 10 passes, %rdi 0x250. Flags: ZF 1, CF 0, SF 0. Layout: 0x100, 0x10a, loop = 0x10c, 0x10c, 0x116, 0x118.</p>'},
   {id:'p17',part:'Part 17',name:'SEQ Processor',src:'L09 part 2 · In-Class Practice 17',next:'rev',
-   intro:'Part 17 runs Y86-64 instructions on SEQ, the simplest processor: six stages, one instruction per clock cycle. Run the worksheet program on a tap-to-run machine, one table row at a time, then fill in Practice 17\'s tables.',
+   intro:'Part 17 runs Y86-64 instructions on SEQ, the simplest processor: six stages, one instruction per clock cycle. Start with the six stages in plain words, then learn the book\'s names and stage tables, one instruction at a time, then fill in Practice 17\'s tables.',
    after:'or try the Everything mix.',
-   path:[['seqsix','seqsix','Six stages','What each stage does, on one subq.'],['seqmem','seqjump','Every kind','Moves, the stack, jumps, call and ret.'],['seqpuz','seqpuz','Puzzles','pushq %rsp and popq %rsp.'],['seqrun','seqrun','Run it','The whole worksheet program, value by value.'],['cls17','cls17','Class questions','All four Practice 17 questions.'],['ex17','ex17','Exam-style practice','Stage tables for the other lines.']],
+   path:[['seqidea','seqidea','Six stages','In plain words: what each stage does.'],['seqnames','seqnames','Names and tables','valA, valE and the rest, and the stage table.'],['seqstack','seqstack','The stack','pushq and popq.'],['seqpuz','seqpuz','Puzzles','pushq %rsp and popq %rsp.'],['seqjump','seqjump','Jumps','je, call and ret.'],['cls17','cls17','Class questions','All four Practice 17 questions.'],['ex17','ex17','Exam-style practice','Stage tables for the other lines.']],
    sheet:'<div class="rule-box rule-lines"><div>Fetch: icode:ifun, rA:rB, valC, valP</div><div>Decode: valA, valB</div><div>Execute: valE (and CC or Cnd)</div><div>Memory: valM, or a write</div><div>Write back: up to two registers</div><div>PC update</div></div>'+
    tblS(['','valE in Execute','Memory','PC ←'],[['OPq','valB OP valA, set CC','—','valP'],['irmovq','0 + valC','—','valP'],['rmmovq','valB + valC','M8[valE] ← valA','valP'],['mrmovq','valB + valC','valM ← M8[valE]','valP'],['pushq','valB + (−8)','M8[valE] ← valA','valP'],['popq','valB + 8','valM ← M8[valA]','valP'],['jXX','Cnd ← Cond(CC, ifun)','—','Cnd ? valC : valP'],['call','valB + (−8)','M8[valE] ← valP','valC'],['ret','valB + 8','valM ← M8[valA]','valM']])+
    '<ul class="facts"><li>pushq, popq, call and ret read %rsp in Decode (valB, and valA for popq and ret).</li><li>pushq %rsp pushes the original %rsp. popq %rsp leaves the popped value (the valM write is last).</li><li>SEQ is too slow: one cycle must fit instruction memory, registers, ALU and data memory.</li></ul>'+
