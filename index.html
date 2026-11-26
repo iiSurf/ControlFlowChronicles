@@ -1325,6 +1325,87 @@ code.sql-b{background:none;border:0;padding:0;font-size:11px;color:var(--ink)}
 .sql-c{font-family:var(--font-code);font-size:11px;color:var(--muted);white-space:nowrap}
 .sqc th:first-child{width:22%}
 @media (max-width:560px){.sql-r{grid-template-columns:1.5em 3.4em minmax(0,1fr)}.sql-i{grid-column:3/-1}.sql-r.lab .sql-i{grid-column:3/-1}}
+/* ===== v18: Parts 18 and 19 ===== */
+b.nope{color:var(--bad)}
+/* the hardware strip */
+.pf{display:flex;align-items:stretch;gap:0;margin:6px 0 10px;max-width:560px;min-width:0}
+.pf-b,.pf-r{display:grid;justify-items:center;align-content:center;text-align:center;border:2px solid var(--ink);border-radius:4px;background:var(--panel);padding:6px 3px;min-width:0}
+.pf-b{min-width:34px}
+.pf-b i,.pf-r i{font-style:normal;font-size:11px;font-family:var(--font-code);color:var(--muted);white-space:nowrap}
+.pf-b b{font-size:13px;line-height:1.2;overflow-wrap:anywhere}
+.pf-b.hl{background:var(--accent-soft);border-color:var(--accent)}
+.pf-r{flex:0 0 auto;width:34px;background:var(--src-soft);border-color:var(--src)}
+.pf-r b{font-size:11px;color:var(--src)}
+.pf-ar{flex:0 0 8px;align-self:center;height:2px;background:var(--ink);position:relative}
+.pf-r+.pf-b,.pf-r+.pf-r{margin-left:8px}
+.pf-b+.pf-r{margin-left:4px}
+.pf.cw .pf-b{border-width:1px}
+/* the timing diagram */
+.tf{display:grid;gap:3px;margin:4px 0 10px;max-width:560px}
+.tf-row{display:grid;grid-template-columns:3.6em minmax(0,1fr);align-items:center;gap:6px}
+.tf-l{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.tf-tr{position:relative;height:20px}
+.tf-seg{position:absolute;top:1px;bottom:1px;border-radius:3px;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;display:grid;place-items:center;border-right:1px solid var(--panel)}
+.tf-seg.s1{background:var(--src)}
+.tf-seg.s2{background:var(--byte)}
+.tf-seg.s3{background:var(--good)}
+.tf-ax .tf-tr{height:16px;border-top:1px solid var(--line)}
+.tf-tick{position:absolute;top:2px;transform:translateX(-50%);font-size:10px;font-family:var(--font-code);color:var(--muted)}
+.tf-tick:first-child{transform:none}
+.tf-tick:last-child{transform:translateX(-100%)}
+.tf-cap{margin:0;font-size:11px;color:var(--muted);text-align:right}
+/* the split game */
+.ps{display:flex;align-items:stretch;gap:3px;margin:8px 0;max-width:560px;min-width:0}
+.ps-b{display:grid;justify-items:center;align-content:center;border:2px solid var(--ink);border-radius:4px;background:var(--panel);padding:6px 2px;min-width:30px}
+.ps-b i{font-style:normal;font-size:11px;font-family:var(--font-code);color:var(--muted);white-space:nowrap}
+.ps-b b{font-size:14px}
+.ps-g{flex:0 0 auto;width:34px;border:1.5px dashed var(--line);border-radius:6px;background:none;color:var(--muted);font:inherit;font-size:15px;cursor:pointer;display:grid;place-items:center;padding:0}
+.ps-g:hover{border-color:var(--accent);color:var(--accent)}
+.ps-g.on{border:2px solid var(--src);background:var(--src-soft);color:var(--src);font-size:11px;font-weight:700}
+.ps-g.end{border:2px solid var(--src);background:var(--src-soft);color:var(--src);font-size:11px;font-weight:700;cursor:default}
+.ps-st{display:flex;flex-wrap:wrap;gap:4px}
+.ps-st span{font-size:12.5px;padding:3px 8px;border-radius:6px;background:var(--sunk)}
+.ps-st span.slow{background:var(--byte-soft);color:var(--byte-ink)}
+@media (max-width:430px){.ps-g{width:28px}.ps-b{padding:5px 1px;min-width:26px}.ps-b i{font-size:10px}.pf-r{width:28px}.pf-b i,.pf-r i{font-size:10px}}
+/* the pipeline grid */
+.hz{display:grid;gap:1px;margin:6px 0 8px;overflow-x:auto;max-width:100%}
+.hz-r{display:grid;grid-template-columns:minmax(7.5em,max-content) repeat(var(--c),minmax(20px,1fr));gap:1px;align-items:center}
+.hz-r code{font-size:11.5px;white-space:nowrap;background:none;border:0;padding:0 6px 0 0}
+.hz-r.nop code{color:var(--muted)}
+.hz-h span{font-size:10px;color:var(--muted);text-align:center;font-family:var(--font-code)}
+.hz-c{height:20px;display:grid;place-items:center;font-size:11px;font-weight:600;font-family:var(--font-code);border-radius:3px}
+.hz-c:not(:empty){background:var(--sunk)}
+.hz-c.w{background:var(--good-soft);color:var(--good)}
+.hz-c.d.ok{background:var(--good);color:#fff}
+.hz-c.d.bad{background:var(--bad);color:#fff;border:0;box-shadow:none}
+.hz-c.bub{background:none;border:1px dashed var(--line);color:var(--muted)}
+/* the CPI card */
+.cpc{display:grid;gap:4px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--panel);margin:6px 0 10px;max-width:560px}
+.cpc .cb-lab{margin:0}
+.cpc-r{display:grid;gap:1px}
+.cpc-r>b{font-size:13px}
+.cpc-r>b:first-child{font-family:var(--font-code);color:var(--accent);margin-right:6px}
+.cpc-r p{margin:0;font-family:var(--font-code);font-size:12.5px;line-height:1.5}
+.cpc-r p span.hl{background:var(--byte-soft);color:var(--byte-ink);border-radius:4px;padding:0 3px}
+.cpc-r.tot{border-top:1px solid var(--line);padding-top:4px}
+/* the 2-bit predictor */
+.bp{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;margin:8px 0}
+.bp span{padding:6px 10px;border-radius:999px;border:1.5px solid var(--line);font-weight:600;font-size:14px}
+.bp span.y{color:var(--good)}
+.bp span.n{color:var(--bad)}
+.bp span.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.bp i{font-style:normal;color:var(--muted);font-size:12px}
+.bp-seq{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-bottom:6px}
+.bp-seq span{font-size:11px;padding:2px 6px;border-radius:5px;background:var(--sunk);color:var(--muted);min-width:32px;text-align:center}
+.bp-seq span.now{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.bp-seq span.past{color:var(--ink)}
+
+.pf-cap{display:none;margin:-6px 0 10px;font-size:11px;color:var(--muted)}
+@media (max-width:430px){.pf-r{width:22px;padding:6px 0}.pf-r i{display:none}.pf-r b{font-size:10px}.pf-cap{display:block}.pf-b{min-width:30px;padding:6px 1px}.pf-ar{flex-basis:5px}.pf-r+.pf-b,.pf-r+.pf-r{margin-left:4px}.pf-b+.pf-r{margin-left:2px}.pf-b b{font-size:12px}}
+@media (max-width:430px){.ps{gap:2px}.ps-g{width:22px;font-size:13px}.ps-g.on,.ps-g.end{font-size:9.5px}.ps-b{min-width:24px}.ps-b .u{display:none}.ps-b b{font-size:13px}}
+@media (max-width:430px){.hz-r{grid-template-columns:max-content repeat(var(--c),minmax(15px,1fr))}.hz-r code{font-size:10px;padding-right:4px}.hz-c{font-size:10px;height:18px}.hz-h span{font-size:9px}}
+.cpc-r{display:block}
+.cpc-r>b:first-child{display:inline}
 </style>
 </head>
 <body>
@@ -1334,7 +1415,7 @@ code.sql-b{background:none;border:0;padding:0;font-size:11px;color:var(--ink)}
   <header class="top">
     <div>
       <h1><button class="brand" data-go="home">Will It Assemble<span class="qm">?</span></button></h1>
-      <div class="tagline">x86 assembly · memory · caches · virtual memory · Y86-64 · parts 1–17</div>
+      <div class="tagline">x86 assembly · memory · caches · virtual memory · Y86-64 · pipelining · parts 1–19</div>
     </div>
     <div class="stats" id="stats"></div>
   </header>
@@ -5245,6 +5326,322 @@ WALKS.seqslow={steps:[
   asks:[{q:'So the clock has to be',o:['very slow','very fast'],r:0,h:'One cycle has to be long enough for the slowest instruction to get through everything.',say:'Very slow, and most of the hardware sits idle for most of each cycle. That\'s why real processors are pipelined (next lecture).'}]}
 ]};
 
+/* ===================== v18: Part 18, pipelining (L09 part 3, Practice 18) ===================== */
+/* rotate a right answer into a fixed-but-varied position among distinct options */
+function rotO(right,others,seed){
+  var o=[right];others.forEach(function(v){if(v!=null&&o.indexOf(v)<0&&o.length<4)o.push(v);});
+  var n=o.length,k=((seed|0)%n+n)%n;o=o.slice(k).concat(o.slice(0,k));
+  return {o:o,r:o.indexOf(right)};
+}
+function gips(c){var v=1000/c;return (Math.round(v*100)/100).toString();}
+/* the hardware strip, as in the class figures. b = [[name, ps]], cut = gaps (after block i) with a register; a register always ends the strip */
+function pipeFig(b,cut,o){
+  o=o||{};cut=cut||[];var reg=o.reg==null?20:o.reg,h='<div class="pf" role="img" aria-label="'+b.map(function(x,i){return x[0]+' '+x[1]+' ps'+(cut.indexOf(i)>=0||i===b.length-1?', register '+reg+' ps':'');}).join(', ')+'">';
+  b.forEach(function(x,i){
+    h+='<div class="pf-b'+(o.hl&&o.hl.indexOf(i)>=0?' hl':'')+'" style="flex:'+Math.max(x[1],40)+' 1 0"><i>'+x[1]+' ps</i><b>'+x[0]+'</b></div>';
+    if(cut.indexOf(i)>=0||i===b.length-1)h+='<div class="pf-r"><i>'+reg+' ps</i><b>Reg</b></div>';
+    else h+='<span class="pf-ar" aria-hidden="true"></span>';
+  });
+  return h+'</div><p class="pf-cap">Reg = register, '+reg+' ps each</p>';
+}
+/* the timing diagram: n instructions; k stages of c ps each (k = 1: one after another) */
+function timeFig(k,c,o){
+  o=o||{};var n=o.n||3,names=o.names||['A','B','C','D','E','F'],T=(n+k-1)*c,h='<div class="tf" role="img" aria-label="Timing: '+n+' instructions, '+(k>1?k+'-stage pipeline':'one after another')+', '+c+' ps per clock cycle">';
+  for(var i=0;i<n;i++){
+    h+='<div class="tf-row"><span class="tf-l">Inst. '+(i+1)+'</span><div class="tf-tr">';
+    for(var s=0;s<k;s++){var t0=(i+s)*c;h+='<span class="tf-seg s'+s+'" style="left:'+(t0/T*100).toFixed(2)+'%;width:'+(c/T*100).toFixed(2)+'%">'+(k>1?names[s]:'')+'</span>';}
+    h+='</div></div>';
+  }
+  h+='<div class="tf-row tf-ax"><span class="tf-l"></span><div class="tf-tr">';
+  for(var t=0;t<=T;t+=c)h+='<span class="tf-tick" style="left:'+(t/T*100).toFixed(2)+'%">'+t+'</span>';
+  h+='</div></div><p class="tf-cap">Time in ps · one clock cycle = '+c+' ps</p></div>';
+  return h;
+}
+/* ---------------- L127: why pipeline (the car wash) ---------------- */
+var CARW=[['Front',1],['Back',1],['Left',2],['Right',2],['Top',0.5]];
+function carFig(){return '<div class="pf cw" role="img" aria-label="Car wash stations: Front 1 min, Back 1 min, Left 2 min, Right 2 min, Top half a minute">'+CARW.map(function(x,i){return '<div class="pf-b" style="flex:1 1 0"><i>'+x[1]+' min</i><b>'+x[0]+'</b></div>'+(i<CARW.length-1?'<span class="pf-ar" aria-hidden="true"></span>':'');}).join('')+'</div>';}
+WALKS.carwash={steps:[
+ {t:'One car at a time',
+  intro:'<p>A car wash has five stations. A car goes through all five: 6.5 minutes in all.</p>'+carFig(),
+  asks:[{q:'If the next car can\'t start until the car before it has left, how long until 3 cars are clean?',o:['19.5 minutes','6.5 minutes','13 minutes'],r:0,h:'Each car takes 6.5 minutes, one after another.',say:'3 × 6.5 = 19.5 minutes. And while one car is at the Top station, the other four stations sit empty.'}]},
+ {t:'A pipeline',
+  intro:'<p>Now let a new car start as soon as the first station is free. All the cars move forward together, each time the <b>slowest</b> station (2 minutes) is done. Up to five cars are being washed at once.</p>'+carFig(),
+  asks:[{q:'Cars move forward every 2 minutes. How often does a clean car come out?',o:['Every 2 minutes','Every 6.5 minutes','Every 0.5 minutes'],r:0,h:'Every move, one car leaves the last station.',say:'Every 2 minutes, instead of every 6.5. That\'s the <b>throughput</b>: how many finish per unit of time.'},
+        {q:'Each car now spends 2 minutes at each of the 5 stations. How long is one car inside?',o:['10 minutes','6.5 minutes','2 minutes'],r:0,h:'5 stations × 2 minutes.',say:'10 minutes: longer than before. That\'s the <b>latency</b>: how long one takes from start to finish.'}],
+  end:'<div class="tip"><span class="tl">The trade</span>A pipeline finishes <b>more per hour</b> (better throughput), even though each one takes <b>a bit longer</b> (worse latency). A processor works the same way, with instructions instead of cars.</div>'}
+]};
+/* ---------------- L128: cycle time, GIPS, latency ---------------- */
+WALKS.pclock={steps:[
+ {t:'One block of logic',
+  intro:'<p>A processor does its work in <b>logic</b> that takes time (its delay), then saves the result in a <b>register</b>, which takes 20 ps. (1 ps is a trillionth of a second.) A clock tells the register when to save.</p>',
+  vis:function(){return pipeFig([['Logic',300]],[]);},
+  asks:[{q:'An instruction has to get through the logic <b>and</b> into the register before the clock ticks again. So the shortest clock cycle is',o:['320 ps','300 ps','20 ps'],r:0,h:'Add the logic and the register.',say:'300 + 20 = <b>320 ps</b>.'}]},
+ {t:'Instructions per second',
+  intro:'<p>One instruction finishes every clock cycle. To turn a cycle in ps into <b>GIPS</b> (billions of instructions per second), divide 1000 by it.</p>',
+  vis:function(){return pipeFig([['Logic',300]],[]);},
+  asks:[{q:'1000 ÷ 320 =',o:['3.12 GIPS','0.32 GIPS','32 GIPS'],r:0,h:'1000 ÷ 320 is a bit over 3.',say:'<b>3.12 GIPS</b>. (Why 1000? 1 ÷ 320 ps = 1 ÷ (320 × 10<sup>−12</sup> s) = 3.12 × 10<sup>9</sup> per second.)'}]},
+ {t:'Latency',
+  intro:'<p><b>Latency</b> is how long one instruction takes, from start to finish.</p>',
+  vis:function(){return pipeFig([['Logic',300]],[])+timeFig(1,320);},
+  asks:[{q:'With one block, each instruction takes one whole cycle. Latency =',o:['320 ps','300 ps','960 ps'],r:0,h:'One cycle.',say:'<b>320 ps</b>. The next instruction can\'t start until this one is done.'}]},
+ {t:'Split it into three',
+  intro:'<p>Now split the 300 ps of logic into three blocks of 100 ps, with a register after each. A new instruction can start as soon as the one ahead moves on.</p>',
+  vis:function(n){return pipeFig([['A',100],['B',100],['C',100]],[0,1])+(n>=1?timeFig(3,120):'');},
+  asks:[{q:'Each cycle now only has to fit <b>one</b> block and its register. Cycle =',o:['120 ps','100 ps','320 ps'],r:0,h:'100 + 20.',say:'100 + 20 = <b>120 ps</b>.'},
+        {q:'Still one instruction finishes per cycle. GIPS = 1000 ÷ 120 =',o:['8.33','3.12','12'],r:0,h:'1000 ÷ 120 is a bit over 8.',say:'<b>8.33 GIPS</b>, up from 3.12.'},
+        {q:'Each instruction goes through 3 stages, one cycle each. Latency = 3 × 120 =',o:['360 ps','120 ps','320 ps'],r:0,h:'3 cycles of 120 ps.',say:'<b>360 ps</b>, up from 320: the two extra registers add time.'}],
+  end:'<div class="tip"><span class="tl">The three rules</span><b>Cycle</b> = the slowest block + the register.<br><b>GIPS</b> = 1000 ÷ cycle (in ps).<br><b>Latency</b> = number of stages × cycle.</div>'}
+]};
+/* Play: time a pipeline. Uniform blocks only here. */
+var PCLK=[{b:[240],k:1},{b:[80,80,80],k:3},{b:[150,150],k:2},{b:[480],k:1},{b:[60,60,60,60],k:4},{b:[180,180],k:2},{b:[380],k:1},{b:[30,30,30,30,30],k:5}];
+function pclkBlocks(x){var N='ABCDE';return x.b.map(function(t,i){return [x.k===1?'Logic':N[i],t];});}
+function pclkCuts(x){var c=[];for(var i=0;i<x.b.length-1;i++)c.push(i);return c;}
+CHAINS.pclock={pool:PCLK,
+  head:function(x,k){return '<p class="odo-big">'+(x.k===1?'One block':x.k+' stages')+', registers 20 ps</p>'+pipeFig(pclkBlocks(x),pclkCuts(x));},
+  asks:function(x){
+    var s=Math.max.apply(null,x.b),c=s+20,L=c*x.k,seed=x.b.length+c;
+    var a1=rotO(c+' ps',[s+' ps',(s+40)+' ps',(x.b.reduce(function(a,b){return a+b;},0)+20)+' ps'],seed);
+    var a2=rotO(gips(c),[gips(s),gips(c*x.k),(Math.round(c/10)/100).toString()],seed+1);
+    var a3=rotO(L+' ps',[c+' ps',(L-20)+' ps',(L+c)+' ps'],seed+2);
+    return [{q:'Clock cycle (slowest block + register) =',o:a1.o,r:a1.r,h:s+' + 20.',done:'cycle '+c+' ps'},
+      {q:'GIPS = 1000 ÷ '+c+' =',o:a2.o,r:a2.r,h:'Divide 1000 by the cycle in ps.',done:gips(c)+' GIPS'},
+      {q:'Latency ('+x.k+' stage'+(x.k>1?'s':'')+' × cycle) =',o:a3.o,r:a3.r,h:x.k+' × '+c+'.',done:'latency '+L+' ps'}];
+  },
+  end:function(x){var c=Math.max.apply(null,x.b)+20;return '<p class="tr-note"><b class="ok">Timed.</b> '+(x.k===1?'With one block, latency is just one cycle.':'One instruction finishes every '+c+' ps, but each one spends '+x.k+' cycles in the pipeline.')+'</p>';}};
+/* ---------------- L129: uneven stages, and where to put the registers ---------------- */
+WALKS.puneven={steps:[
+ {t:'Uneven blocks',
+  intro:'<p>Real logic rarely splits evenly. Here are three blocks of 50, 150 and 100 ps.</p>',
+  vis:function(){return pipeFig([['A',50],['B',150],['C',100]],[0,1]);},
+  asks:[{q:'Every stage gets the same clock, so the clock has to fit the <b>slowest</b> stage. Cycle =',o:['170 ps','120 ps','320 ps'],r:0,h:'The slowest block is B, 150 ps. Add the register.',say:'150 + 20 = <b>170 ps</b>.'},
+        {q:'GIPS = 1000 ÷ 170 =',o:['5.88','8.33','3.12'],r:0,h:'A bit under 6.',say:'<b>5.88 GIPS</b>.'},
+        {q:'Latency = 3 × 170 =',o:['510 ps','300 ps','170 ps'],r:0,h:'3 stages of 170 ps.',say:'<b>510 ps</b>. Stages A and C sit idle for much of each cycle.'}],
+  end:'<div class="tip"><span class="tl">The goal</span>Put the registers where they make the stages as <b>even</b> as possible. The slowest stage sets the clock.</div>'}
+]};
+/* the split game */
+var PSPL=[
+ {b:[['A',60],['B',40],['C',100],['D',80]],k:2},
+ {b:[['A',30],['B',70],['C',40],['D',60],['E',50]],k:3},
+ {b:[['A',80],['B',10],['C',60],['D',20],['E',50]],k:2},
+ {b:[['A',40],['B',40],['C',90],['D',30],['E',60]],k:3}
+];
+function psStages(b,cuts){var g=[],cur=[];b.forEach(function(x,i){cur.push(i);if(cuts.indexOf(i)>=0||i===b.length-1){g.push(cur);cur=[];}});return g;}
+function psSum(b,g){return g.reduce(function(a,i){return a+b[i][1];},0);}
+function psBest(b,k){var n=b.length,best=1e9,bc=null;
+  (function rec(start,left,cuts){if(left===0){var g=psStages(b,cuts),m=Math.max.apply(null,g.map(function(x){return psSum(b,x);}));if(m<best){best=m;bc=cuts.slice();}return;}
+    for(var i=start;i<n-1;i++){cuts.push(i);rec(i+1,left-1,cuts);cuts.pop();}})(0,k-1,[]);
+  return {max:best,cuts:bc};}
+TOYDEF.psplit={title:'Play · place the registers',
+  init:function(){return {i:0,cuts:[],msg:'',won:0,tries:0,shown:false};},
+  out:function(st,d){
+    var P=(d.set==='ex'?PSPL.slice(2):PSPL),x=P[st.i%P.length],b=x.b,k=x.k,need=k-1,g=psStages(b,st.cuts),B=psBest(b,k),h='';
+    h+='<p class="odo-big">Make a <b>'+k+'-stage</b> pipeline: place '+need+' register'+(need>1?'s':'')+'.</p><p class="fine">Tap a ＋ between two blocks to put a register there. Tap it again to take it away. Registers take 20 ps.</p>';
+    h+='<div class="ps" role="group" aria-label="Blocks and gaps">';
+    b.forEach(function(x2,i){
+      h+='<div class="ps-b" style="flex:'+Math.max(x2[1],30)+' 1 0"><i>'+x2[1]+'<span class="u"> ps</span></i><b>'+x2[0]+'</b></div>';
+      if(i<b.length-1){var on=st.cuts.indexOf(i)>=0;h+='<button class="ps-g'+(on?' on':'')+'" data-ta="g:'+i+'" aria-pressed="'+on+'" aria-label="Register between '+x2[0]+' and '+b[i+1][0]+'">'+(on?'Reg':'＋')+'</button>';}
+      else h+='<div class="ps-g end">Reg</div>';
+    });
+    h+='</div><p class="pf-cap">Delays in ps. Reg = register, 20 ps.</p>';
+    var sums=g.map(function(x2){return psSum(b,x2);}),mx=Math.max.apply(null,sums);
+    h+='<div class="ps-st">'+g.map(function(x2,j){var s=psSum(b,x2);return '<span class="'+(s===mx&&g.length>1?'slow':'')+'">Stage '+(j+1)+': '+x2.map(function(i){return b[i][0];}).join(' + ')+' = <b>'+s+' ps</b></span>';}).join('')+'</div>';
+    if(st.cuts.length<need)h+='<p class="tr-note">'+(need-st.cuts.length)+' more register'+(need-st.cuts.length>1?'s':'')+' to place.</p>';
+    else if(st.cuts.length>need)h+='<p class="tr-note">That makes '+(st.cuts.length+1)+' stages. Take '+(st.cuts.length-need)+' away.</p>';
+    else{
+      var c=mx+20;
+      h+='<p class="tr-note">Slowest stage '+mx+' ps, so the clock cycle = '+mx+' + 20 = <b>'+c+' ps</b>. ('+gips(c)+' GIPS, latency '+k+' × '+c+' = '+(k*c)+' ps.)</p>';
+      if(mx===B.max)h+='<p class="tr-note"><b class="ok">That\'s the fastest clock possible</b> for '+k+' stages.</p><div class="toy-btns"><button class="btn sm" data-ta="next">Next challenge ▶</button></div>';
+      else h+='<p class="bc-msg" role="status">The fastest possible is '+(B.max+20)+' ps. The slowest stage ('+mx+' ps) is too big: move a register so it\'s split more evenly.</p>'+(st.shown?'':'<div class="toy-btns"><button class="link" data-ta="show">Show me the best</button></div>');
+    }
+    return h+'<p class="fine">Challenges solved: '+st.won+'</p>';
+  },
+  act:function(st,a,el,d){
+    var P=(d.set==='ex'?PSPL.slice(2):PSPL),x=P[st.i%P.length],p=a.split(':');
+    if(a==='next'){st.i++;st.cuts=[];st.shown=false;return;}
+    if(a==='show'){st.cuts=psBest(x.b,x.k).cuts.slice();st.shown=true;return;}
+    if(p[0]==='g'){var i=+p[1],j=st.cuts.indexOf(i);if(j>=0)st.cuts.splice(j,1);else st.cuts.push(i);st.cuts.sort(function(a2,b2){return a2-b2;});
+      if(st.cuts.length===x.k-1){var g=psStages(x.b,st.cuts),mx=Math.max.apply(null,g.map(function(y){return psSum(x.b,y);}));if(mx===psBest(x.b,x.k).max&&!st.shown)st.won++;}}
+  }};
+/* ---------------- L130: data hazards, and why the nops ---------------- */
+var HZ_ST=['F','D','E','M','W'];
+TOYDEF.phaz={title:'Play · how many nops?',
+  init:function(){return {n:0,best:false};},
+  out:function(st){
+    var rows=['irmovq $10, %rdx','irmovq $3, %rax'];for(var i=0;i<st.n;i++)rows.push('nop');rows.push('addq %rdx, %rax');rows.push('halt');
+    var ai=2+st.n,dC=ai+2,cyc=rows.length+4,okD=dC>5,okA=dC>6,ok=okD&&okA;
+    var h='<p class="fine">Each instruction starts one cycle after the one before it: Fetch, Decode, Execute, Memory, Write back. Registers are <b>read in Decode</b> and <b>written in Write back</b>.</p>';
+    h+='<div class="hz" style="--c:'+cyc+'" role="table" aria-label="Pipeline diagram"><div class="hz-r hz-h" role="row"><span></span>';
+    for(var c=1;c<=cyc;c++)h+='<span>'+c+'</span>';
+    h+='</div>';
+    rows.forEach(function(r,i){
+      h+='<div class="hz-r'+(r==='nop'?' nop':'')+'" role="row"><code>'+r+'</code>';
+      for(var c2=1;c2<=cyc;c2++){var s=c2-1-i,lab=s>=0&&s<5?HZ_ST[s]:'',cls='';
+        if(lab==='W'&&(i===0||i===1))cls=' w';if(lab==='D'&&i===ai)cls=ok?' d ok':' d bad';
+        h+='<span class="hz-c'+cls+'">'+lab+'</span>';}
+      h+='</div>';
+    });
+    h+='</div>';
+    h+='<p class="tr-note">addq reads in Decode, cycle <b>'+dC+'</b>. %rdx gets 10 at the end of cycle 5; %rax gets 3 at the end of cycle 6. So addq reads %rdx = <b>'+(okD?10:0)+'</b> and %rax = <b>'+(okA?3:0)+'</b>: '+(ok?'<b class="ok">right</b>, 10 + 3 = 13.':'<b class="nope">wrong</b>, it reads an old value.')+'</p>';
+    h+='<div class="toy-btns"><button class="btn sm" data-ta="add"'+(st.n>=4?' disabled':'')+'>Add a nop</button><button class="btn sm ghost" data-ta="rem"'+(st.n<=0?' disabled':'')+'>Remove a nop</button></div>';
+    if(st.best)h+='<p class="tr-note"><b class="ok">3 nops is the fewest that works.</b> With 3, addq\'s Decode (cycle 7) comes after both Write backs (cycles 5 and 6). Each nop is a <b>bubble</b>: a cycle where no real work gets done.</p>';
+    return h;
+  },
+  act:function(st,a){if(a==='add'&&st.n<4)st.n++;if(a==='rem'&&st.n>0)st.n--;if(st.n===3)st.best=true;}};
+
+/* ===================== v18: Part 19, pipeline performance (L09 part 4, Practice 19) ===================== */
+function fx(v){return (Math.round(v*1000)/1000).toString();}
+function f2(v){return v<1?v.toFixed(2):String(v);}
+/* a small static pipeline picture; rows = [label, startCycle, isBubble] */
+function pgrid(rows,cyc){
+  var h='<div class="hz" style="--c:'+cyc+'" role="img" aria-label="Pipeline diagram"><div class="hz-r hz-h"><span></span>';
+  for(var c=1;c<=cyc;c++)h+='<span>'+c+'</span>';h+='</div>';
+  rows.forEach(function(r){h+='<div class="hz-r'+(r[2]?' nop':'')+'"><code>'+r[0]+'</code>';
+    for(var c2=1;c2<=cyc;c2++){var s=c2-r[1];h+='<span class="hz-c'+(r[2]&&s>=0&&s<5?' bub':'')+'">'+(s>=0&&s<5?(r[2]?'·':HZ_ST[s]):'')+'</span>';}
+    h+='</div>';});
+  return h+'</div>';
+}
+/* the class's typical values. V = {loads, lstall, jumps, miss, mbub, rets, rbub}; n = how many results to show (0 to 4) */
+var CPI0={loads:0.25,lstall:0.20,jumps:0.20,miss:0.40,mbub:2,rets:0.02,rbub:3};
+function cpiVals(V){var lp=V.loads*V.lstall*1,mp=V.jumps*V.miss*V.mbub,rp=V.rets*V.rbub;return {lp:lp,mp:mp,rp:rp,cpi:1+lp+mp+rp};}
+function cpiCard(V,n,hl){
+  V=V||CPI0;var R=cpiVals(V),q='<b class="unk">?</b>',F=typeof n==='object'?n:{lp:n>=1,mp:n>=2,rp:n>=3,cpi:n>=4},m=function(k,txt){return '<span'+(hl&&hl.indexOf(k)>=0?' class="hl"':'')+'>'+txt+'</span>';};
+  return '<div class="cpc" role="group" aria-label="Typical values"><div class="cb-lab">Typical values (from the lecture)</div>'+
+    '<div class="cpc-r"><b>lp</b> load/use stall<p>'+m('loads','loads '+f2(V.loads))+' × '+m('lstall','need a stall '+f2(V.lstall))+' × '+m('lb','1 bubble')+' = '+(F.lp?'<b>'+fx(R.lp)+'</b>':q)+'</p></div>'+
+    '<div class="cpc-r"><b>mp</b> mispredicted branch<p>'+m('jumps','cond. jumps '+f2(V.jumps))+' × '+m('miss','mispredicted '+f2(V.miss))+' × '+m('mbub',V.mbub+' bubbles')+' = '+(F.mp?'<b>'+fx(R.mp)+'</b>':q)+'</p></div>'+
+    '<div class="cpc-r"><b>rp</b> return<p>'+m('rets','returns '+f2(V.rets))+' × '+m('rbub',V.rbub+' bubbles')+' = '+(F.rp?'<b>'+fx(R.rp)+'</b>':q)+'</p></div>'+
+    '<div class="cpc-r tot"><b>CPI</b><p>1 + lp + mp + rp = '+(F.cpi?'<b>'+fx(R.cpi)+'</b>':q)+'</p></div></div>';
+}
+/* ---------------- L133: CPI ---------------- */
+WALKS.cpi1={steps:[
+ {t:'One instruction per cycle',
+  intro:'<p>In a full pipeline, a new instruction starts every cycle, so one finishes every cycle too.</p>',
+  vis:function(){return pgrid([['I1',1],['I2',2],['I3',3],['I4',4],['I5',5]],9);},
+  asks:[{q:'Once the pipeline is full (from cycle 5 on), how many instructions finish each cycle?',o:['1','5','0.2'],r:0,h:'Look at the W column: one W per cycle.',say:'One. So on average each instruction costs one cycle: <b>CPI</b> (cycles per instruction) <b>= 1</b>, even though each one takes 5 cycles from start to finish.'}]},
+ {t:'Bubbles',
+  intro:'<p>Sometimes the pipeline has to wait, or throw away work it started by mistake. Each wasted cycle is a <b>bubble</b> (·).</p>',
+  vis:function(){return pgrid([['I1',1],['I2',2],['bubble',3,true],['I3',4],['I4',5]],9);},
+  asks:[{q:'A program runs 100 instructions, and 27 bubbles get added along the way. Total cycles =',o:['127','100','73'],r:0,h:'Every instruction and every bubble takes a cycle.',say:'127 cycles.'},
+        {q:'CPI = cycles ÷ instructions = 127 ÷ 100 =',o:['1.27','0.27','127'],r:0,h:'Divide by the number of instructions.',say:'<b>1.27</b>: on average, each instruction costs 1.27 cycles.'}],
+  end:'<div class="tip"><span class="tl">The rule</span>CPI = (instructions + bubbles) ÷ instructions = <b>1 + bubbles ÷ instructions</b>.</div>'}
+]};
+CHAINS.cpicount={pool:[[100,27],[200,30],[50,10],[1000,150],[400,100],[80,4]],
+  head:function(x){return '<p class="odo-big">'+x[0]+' instructions, '+x[1]+' bubbles</p>';},
+  asks:function(x){var c=x[0]+x[1],seed=x[0]+x[1];var a=rotO(String(c),[String(x[0]),String(x[0]-x[1]),String(x[1])],seed),b=rotO(fx(c/x[0]),[fx(x[1]/x[0]),fx(x[0]/c),String(c)],seed+1);
+    return [{q:'Total cycles =',o:a.o,r:a.r,h:'Instructions + bubbles.',done:c+' cycles'},{q:'CPI = '+c+' ÷ '+x[0]+' =',o:b.o,r:b.r,h:'Cycles ÷ instructions.',done:'CPI '+fx(c/x[0])}];},
+  end:function(x){return '<p class="tr-note"><b class="ok">Right.</b> The bubbles add '+fx(x[1]/x[0])+' to the ideal CPI of 1.</p>';}};
+/* ---------------- L134: lp, mp, rp ---------------- */
+WALKS.cpi2={steps:[
+ {t:'Load penalty (lp)',
+  intro:'<p>A <b>load/use</b> hazard: an instruction needs a value that a load (like mrmovq) is still reading from memory, so the pipeline waits <b>1 bubble</b>.</p>',
+  vis:function(n){return cpiCard(CPI0,n?1:0,['loads','lstall','lb']);},
+  asks:[{q:'Loads are 0.25 of all instructions, 0.20 of loads need the wait, and each wait is 1 bubble. lp = 0.25 × 0.20 × 1 =',o:['0.05','0.45','0.5'],r:0,h:'Multiply: a quarter of a fifth.',say:'<b>lp = 0.05</b> bubbles per instruction, on average.'}]},
+ {t:'Mispredicted branch (mp)',
+  intro:'<p>A <b>mispredicted branch</b>: fetch guessed wrong at a conditional jump, so the 2 instructions it already started get thrown away: <b>2 bubbles</b>.</p>',
+  vis:function(n){return cpiCard(CPI0,n?2:1,['jumps','miss','mbub']);},
+  asks:[{q:'Conditional jumps are 0.20 of instructions, 0.40 of them are guessed wrong, 2 bubbles each. mp = 0.20 × 0.40 × 2 =',o:['0.16','0.08','0.8'],r:0,h:'0.20 × 0.40 = 0.08, then × 2.',say:'<b>mp = 0.16</b>.'}]},
+ {t:'Return penalty (rp)',
+  intro:'<p><b>ret</b> doesn\'t guess where it returns to. The pipeline waits for the address: <b>3 bubbles</b>.</p>',
+  vis:function(n){return cpiCard(CPI0,n?3:2,['rets','rbub']);},
+  asks:[{q:'ret is 0.02 of instructions, 3 bubbles each. rp = 0.02 × 3 =',o:['0.06','0.6','0.006'],r:0,h:'2 hundredths, times 3.',say:'<b>rp = 0.06</b>.'}]},
+ {t:'Add them up',
+  intro:'<p>CPI = 1 (the ideal) + all the bubbles per instruction.</p>',
+  vis:function(n){return cpiCard(CPI0,n?4:3);},
+  asks:[{q:'CPI = 1 + 0.05 + 0.16 + 0.06 =',o:['1.27','0.27','1.16'],r:0,h:'Add the three penalties to 1.',say:'<b>CPI = 1.27</b>. Not bad: 27% slower than perfect.'}],
+  end:'<div class="tip"><span class="tl">The pattern</span>Each penalty = <b>how often it happens × bubbles each time</b>. CPI = 1 + lp + mp + rp.</div>'}
+]};
+/* What if one number changes? */
+var CPIW=[
+ {t:'Only 0.30 of conditional jumps are guessed wrong, instead of 0.40.',ch:{miss:0.30},k:'mp'},
+ {t:'Loads are 0.30 of instructions, instead of 0.25.',ch:{loads:0.30},k:'lp'},
+ {t:'A better predictor is right 75% of the time.',ch:{miss:0.25},k:'mp',succ:0.75},
+ {t:'Returns are 0.04 of instructions, instead of 0.02.',ch:{rets:0.04},k:'rp'},
+ {t:'A wrong guess costs 3 bubbles, instead of 2.',ch:{mbub:3},k:'mp'},
+ {t:'The predictor is "never taken", which is right only 40% of the time.',ch:{miss:0.60},k:'mp',succ:0.40},
+ {t:'0.40 of loads need a stall, instead of 0.20.',ch:{lstall:0.40},k:'lp'}
+];
+function cpiApply(ch){var V={};for(var k in CPI0)V[k]=CPI0[k];for(var k2 in ch)V[k2]=ch[k2];return V;}
+CHAINS.cpiwhatif={pool:CPIW,
+  head:function(x,k){var V=cpiApply(x.ch);return '<p class="odo-big">What if…</p><p class="tr-note">'+x.t+' Everything else stays at the typical values.</p>'+cpiCard(V,0,Object.keys(x.ch));},
+  asks:function(x){
+    var V=cpiApply(x.ch),R=cpiVals(V),A=[],seed=Math.round(R.cpi*100);
+    if(x.succ!=null){var a0=rotO(fx(1-x.succ),[fx(x.succ),fx(1-x.succ+0.1),fx((1-x.succ)/2)],seed);A.push({q:'Right '+Math.round(x.succ*100)+'% of the time means the fraction mispredicted is',o:a0.o,r:a0.r,h:'1 − '+x.succ+'.',done:'mispredicted '+fx(1-x.succ)});}
+    var nm={lp:'lp = '+f2(V.loads)+' × '+f2(V.lstall)+' × 1',mp:'mp = '+f2(V.jumps)+' × '+f2(V.miss)+' × '+V.mbub,rp:'rp = '+f2(V.rets)+' × '+V.rbub}[x.k],nv=R[x.k],old=cpiVals(CPI0)[x.k];
+    var a1=rotO(fx(nv),[fx(old),fx(nv*2),fx(nv/2)],seed+1);A.push({q:nm+' =',o:a1.o,r:a1.r,h:'Multiply them.',done:x.k+' '+fx(nv)});
+    var a2=rotO(fx(R.cpi),[fx(1.27),fx(R.cpi-1),fx(R.cpi+0.1)],seed+2);A.push({q:'New CPI = 1 + lp + mp + rp =',o:a2.o,r:a2.r,h:'The other two penalties stay the same: lp 0.05, mp 0.16, rp 0.06, except the one that changed.',done:'CPI '+fx(R.cpi)});
+    return A;},
+  end:function(x){var R=cpiVals(cpiApply(x.ch));return '<p class="tr-note"><b class="ok">'+(R.cpi<1.27?'Faster':'Slower')+' than the typical 1.27.</b></p>';}};
+/* ---------------- L135: branch prediction ---------------- */
+WALKS.bpwhy={steps:[
+ {t:'Why guess?',
+  intro:'<p>Fetch starts a new instruction every cycle. But a conditional jump isn\'t decided until it reaches Execute, two cycles later. Fetch can\'t wait, so it <b>guesses</b> what comes next.</p>',
+  asks:[{q:'If the guess was wrong, what happens to the instructions fetched after the jump?',o:['They\'re thrown away (2 bubbles)','They run anyway','The jump gets undone'],r:0,h:'They were the wrong instructions.',say:'They\'re cancelled. That\'s the 2 bubbles in mp.'}]},
+ {t:'How good is the guess?',
+  intro:'<p>Three ways to guess at a conditional jump:</p><ul class="facts"><li><b>Always taken</b> (Y86-64\'s choice): right about 60% of the time.</li><li><b>Never taken</b>: right about 40%.</li><li><b>Backward taken, forward not taken</b> (BTFNT): right about 65%.</li></ul>',
+  asks:[{q:'Always taken is right 60% of the time. How often is it wrong?',o:['40%: 0.40','60%: 0.60','6%: 0.06'],r:0,h:'100% − 60%.',say:'0.40: that\'s the "mispredicted 0.40" in mp.'},
+        {q:'BTFNT is right 65% of the time. So it\'s wrong',o:['35%: 0.35','65%: 0.65','6.5%: 0.065'],r:0,h:'100% − 65%.',say:'<b>0.35</b>. Wrong fraction = 1 − right fraction.'}],
+  end:'<div class="tip"><span class="tl">The rule</span>Fraction mispredicted = <b>1 − success rate</b>. That number goes into mp.</div>'}
+]};
+SORTS.bpnext={cols:['valP: the next line','valC: the jump target','Don\'t guess: wait'],hint:'Is it a jump? If it always jumps, guess the target. If it never jumps, guess the next line.',
+ items:[
+  {t:'<code>irmovq $1, %rax</code>',s:'irmovq',c:0,why:'Not a jump, so the next instruction is always the next line. Never wrong.'},
+  {t:'<code>call proc</code>',s:'call',c:1,why:'call always jumps, so guessing the target is never wrong.'},
+  {t:'<code>ret</code>',s:'ret',c:2,why:'The return address comes from the stack, so fetch waits for it: 3 bubbles (rp).'},
+  {t:'<code>jmp top</code>',s:'jmp',c:1,why:'jmp always jumps. Never wrong.'},
+  {t:'<code>jne loop</code>, with Y86-64\'s "always taken" guess',s:'jne (always taken)',c:1,why:'It guesses the jump happens. Right about 60% of the time.'},
+  {t:'<code>addq %rdx, %rax</code>',s:'addq',c:0,why:'Not a jump.'},
+  {t:'<code>ret</code>, at the end of a different function',s:'ret (again)',c:2,why:'Every ret waits for its return address, whatever function it\'s in.'}]};
+SORTS.btfnt={cols:['Guess taken','Guess not taken'],hint:'Backward jumps (to a lower address) are usually loops: taken. Forward jumps are usually if-statements: not taken.',
+ items:[
+  {t:'<code>jne loop</code>, where <code>loop:</code> is <b>above</b> it (a backward jump)',s:'jne loop (backward)',c:0,why:'A backward jump is usually a loop going around again.'},
+  {t:'<code>je done</code>, where <code>done:</code> is <b>below</b> it (a forward jump)',s:'je done (forward)',c:1,why:'A forward jump usually skips code, like an if-statement. Guess it doesn\'t.'},
+  {t:'<code>jl top</code> at 0x140, where <code>top:</code> is at 0x100',s:'jl top (back)',c:0,why:'0x100 is lower than 0x140: backward.'},
+  {t:'<code>jg skip</code> at 0x200, where <code>skip:</code> is at 0x230',s:'jg skip (fwd)',c:1,why:'0x230 is higher: forward.'}]};
+/* the 2-bit predictor from the lecture: Yes!, Yes?, No?, No! */
+var BP_ST=['Yes!','Yes?','No?','No!'],BP_SEQ=[['T','T','N','T','T','T','N','N','T','T'],['T','N','T','N','T','N','T','N']];
+TOYDEF.bp2={title:'Play · the predictor',
+  init:function(){return {q:0,i:0,s:0,pk:null,msg:'',right:0,note:''};},
+  out:function(st){
+    var S=BP_SEQ[st.q%BP_SEQ.length],h='<p class="fine">This predictor remembers. Each time the branch is taken, it moves one step left; not taken, one step right. It guesses <b>taken</b> in Yes! or Yes?, <b>not taken</b> in No? or No!.</p>';
+    h+='<div class="bp" role="img" aria-label="Predictor state: '+BP_ST[st.s]+'">'+BP_ST.map(function(n,i){return '<span class="'+(i===st.s?'on':'')+(i<2?' y':' n')+'">'+n+'</span>';}).join('<i>⇄</i>')+'</div>';
+    h+='<div class="bp-seq">'+S.map(function(o,i){return '<span class="'+(i<st.i?'past':i===st.i&&!st.done?'now':'')+'">'+(i<st.i?(o==='T'?'taken':'not'):'?')+'</span>';}).join('')+'</div>';
+    if(st.note)h+='<p class="tr-note">'+st.note+'</p>';
+    if(st.i<S.length){var g=st.s<2?0:1;
+      h+=chipAsk('Branch '+(st.i+1)+' of '+S.length+'. The predictor is in <b>'+BP_ST[st.s]+'</b>. What does it guess?',['Taken','Not taken'],'o',st.pk,g)+msgP(st);
+    } else h+='<p class="tr-note"><b class="ok">Done.</b> The predictor guessed right <b>'+st.right+' of '+S.length+'</b> times.'+(st.q%BP_SEQ.length===1?' Branches that flip every time fool it.':' One surprise doesn\'t change its mind: it needs two in a row.')+'</p><div class="toy-btns"><button class="btn sm" data-ta="again">Try another pattern ▶</button></div>';
+    return h;
+  },
+  act:function(st,a){
+    var S=BP_SEQ[st.q%BP_SEQ.length],p=a.split(':');
+    if(a==='again'){st.q++;st.i=0;st.s=0;st.pk=null;st.msg='';st.right=0;st.note='';return;}
+    if(p[0]==='o'&&st.i<S.length){var g=st.s<2?0:1,v=+p[1];
+      if(v!==g){st.pk=v;st.msg='In '+BP_ST[st.s]+' it guesses '+(g===0?'taken':'not taken')+'.';return;}
+      var o=S[st.i],ok=(o==='T')===(g===0);if(ok)st.right++;
+      var was=BP_ST[st.s];st.msg='';st.pk=null;st.s=o==='T'?Math.max(0,st.s-1):Math.min(3,st.s+1);st.i++;
+      st.note='Branch '+st.i+' was <b>'+(o==='T'?'taken':'not taken')+'</b>: the guess was '+(ok?'<b class="ok">right</b>':'<b class="nope">wrong</b>')+'. '+(BP_ST[st.s]===was?'It stays in '+was+'.':'It moves from '+was+' to <b>'+BP_ST[st.s]+'</b>.');}
+  }};
+/* ---------------- L136: exceptions and modern processors ---------------- */
+SORTS.excstage={cols:['Fetch','Memory'],hint:'Fetch finds problems with the instruction itself. Memory finds problems with the data address.',
+ items:[
+  {t:'<code>halt</code>',s:'halt',c:0,why:'Fetch sees the halt code right away.'},
+  {t:'<code>.byte 0xFF</code>: not a real instruction',s:'invalid instruction',c:0,why:'Fetch reads the byte and finds no instruction with that code.'},
+  {t:'<code>jmp</code> to an address that doesn\'t exist',s:'bad jump target',c:0,why:'Fetch can\'t read an instruction from there.'},
+  {t:'<code>rmmovq %rax, 0x10000(%rax)</code>: store to a bad address',s:'bad store',c:1,why:'The address is only used in the Memory stage.'},
+  {t:'<code>mrmovq 0x10000(%rax), %rdx</code>: load from a bad address',s:'bad load',c:1,why:'Memory is where it reads data.'}]};
+WALKS.exc={steps:[
+ {t:'When something goes wrong',
+  intro:'<p>An <b>exception</b> is when the processor can\'t go on normally: a <code>halt</code>, a bad address, or an invalid instruction.</p>',
+  vis:function(){return pgrid([['irmovq',1],['rmmovq (bad address)',2],['nop',3],['.byte 0xFF',4]],8);},
+  asks:[{q:'rmmovq finds its bad address in Memory (cycle 5). The .byte 0xFF behind it is found in Fetch earlier (cycle 4). Which one should stop the program?',o:['rmmovq: it comes first in the program','.byte 0xFF: it was found first','Both'],r:0,h:'The program should act as if instructions ran one at a time, in order.',say:'rmmovq. Each stage passes a <b>status</b> along, and the exception only takes effect when the instruction reaches <b>Write back</b>. So the earliest instruction wins, and nothing after it changes the registers, memory or flags.'}]}
+]};
+WALKS.modern={steps:[
+ {t:'Modern processors',
+  intro:'<p>Real processors like the Intel Core i7 have several units working at once (loads, stores, integer math, floating point). Each operation runs <b>as soon as its inputs are ready</b> and a unit is free, not always in program order. Control logic makes sure the results come out as if it were in order.</p>',
+  asks:[{q:'An operation runs as soon as',o:['its inputs are ready and a unit is free','the instruction before it is finished','the clock reaches its stage'],r:0,h:'That\'s what "out of order" means.',say:'Right: <b>out-of-order execution</b>.'}]},
+ {t:'Bigger penalties, better guesses',
+  intro:'<p>Their pipelines are long, so a wrong branch guess costs about <b>11 to 15 cycles</b>, not 2. That\'s why they remember each branch\'s history (like the Yes!/No! predictor) and can learn patterns.</p>',
+  asks:[{q:'If a wrong guess costs 12 bubbles instead of 2, mp gets',o:['6 times bigger','2 times bigger','smaller'],r:0,h:'12 ÷ 2.',say:'6 times bigger. Good prediction matters a lot.'}]}
+]};
+
 var LEVELS=[
 /* ===== Part 1 · Moving Data ===== */
 {id:'dir',sec:'p1',name:'Which way does it go?',short:'Which way',
@@ -8066,6 +8463,197 @@ qs:[
 {code:false,prompt:'For <code>rmmovq %rsp, 100(%rbx)</code> on line 5, what does Write back do?',options:['Nothing: rmmovq writes memory, not a register','R[%rbx] ← valE','R[%rsp] ← valE'],answer:0,explain:'Its result goes to memory in the Memory stage.'}
 ]},
 
+/* ===================== Part 18: pipelining (L09 part 3, Practice 18) ===================== */
+{id:'pipewhy',sec:'p18',name:'Why pipeline? The car wash',short:'Why pipeline',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"A pipeline lets several jobs be in progress at once, one per stage, all moving forward together at the pace of the slowest stage. Throughput (how many finish per unit of time) goes up a lot; latency (how long one takes from start to finish) goes up a little.",
+lesson:`<p>Before the processor, a car wash. Two words to know: <b>throughput</b> (how many finish per unit of time) and <b>latency</b> (how long one takes from start to finish).</p>`+
+toy('walk',{w:'carwash',title:'Try it · the car wash'}),
+qs:[
+{prompt:'Throughput is',options:['how many finish per unit of time','how long one takes from start to finish','the number of stages'],answer:0,explain:'For example, cars per hour, or instructions per second.'},
+{prompt:'Latency is',options:['how long one takes from start to finish','how many finish per second','the slowest stage'],answer:0,explain:'For example, how long one car is inside the car wash.'},
+{prompt:'Pipelining mostly improves',options:['throughput','latency','both equally'],answer:0,explain:'Many more finish per unit of time; each one takes a little longer.'},
+{prompt:'In a pipeline, everything moves forward together. How often?',options:['each time the slowest stage is done','each time the fastest stage is done','once every stage is empty'],answer:0,explain:'Nobody can move on until the slowest stage has finished.'},
+{prompt:'A car wash has 4 stations: 3, 1, 2 and 2 minutes. Pipelined, how often does a clean car come out?',options:['every 3 minutes','every 8 minutes','every 2 minutes'],answer:0,explain:'The slowest station sets the pace: 3 minutes.'},
+{prompt:'Same car wash, pipelined: how long is each car inside now?',options:['12 minutes','8 minutes','3 minutes'],answer:0,explain:'4 stations × 3 minutes. Without the pipeline it was 3 + 1 + 2 + 2 = 8.'}
+]},
+{id:'pipeclock',sec:'p18',name:'Cycle time, GIPS and latency',short:'Clock & GIPS',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"Cycle time = the slowest stage's logic + the register (20 ps here). GIPS (billions of instructions per second) = 1000 ÷ cycle time in ps. Latency = number of stages × cycle time. Not pipelined: one stage, so latency = the cycle time.",
+lesson:`<p>Now a processor. Same idea as the car wash: the slowest piece sets the pace.</p>`+
+toy('walk',{w:'pclock',title:'Try it · time a processor'})+
+`<p>Your turn: time a few more.</p>`+toy('chain',{c:'pclock',title:'Play · time a pipeline'}),
+qs:[
+{vis:pipeFig([['Logic',300]],[]),prompt:'One block of 300 ps logic, then a 20 ps register. Clock cycle =',options:['320 ps','300 ps','340 ps'],answer:0,explain:'300 + 20.'},
+{prompt:'A 320 ps clock cycle gives how many GIPS?',options:['3.12','0.32','32'],answer:0,explain:'1000 ÷ 320 = 3.12 billion instructions per second.'},
+{prompt:'GIPS = 1000 ÷ cycle (in ps). A 200 ps cycle gives',options:['5 GIPS','0.2 GIPS','200 GIPS'],answer:0,explain:'1000 ÷ 200.'},
+{vis:pipeFig([['A',100],['B',100],['C',100]],[0,1]),prompt:'Three 100 ps blocks, a 20 ps register after each. Clock cycle =',options:['120 ps','100 ps','360 ps'],answer:0,explain:'One block and its register: 100 + 20.'},
+{vis:pipeFig([['A',100],['B',100],['C',100]],[0,1]),prompt:'Same pipeline. Latency =',options:['360 ps','120 ps','300 ps'],answer:0,explain:'3 stages × 120 ps.'},
+{vis:pipeFig([['A',100],['B',100],['C',100]],[0,1]),prompt:'Same pipeline. GIPS =',options:['8.33','3.12','2.78'],answer:0,explain:'1000 ÷ 120. (2.78 would be 1000 ÷ 360, the latency: but one instruction finishes every cycle, not every 360 ps.)'},
+{prompt:'Why does latency go up when you pipeline?',options:['Each extra stage adds another register delay','The logic gets slower','Fewer instructions finish'],answer:0,explain:'300 ps of logic plus three 20 ps registers is 360 ps, instead of 320.'},
+{prompt:'"Warm-up": a 3-stage pipeline with a 120 ps cycle takes (3 − 1) × 120 ps before it\'s full. That\'s',options:['240 ps','360 ps','120 ps'],answer:0,explain:'2 × 120.'}
+]},
+{id:'pipesplit',sec:'p18',name:'Uneven stages: where to put the registers',short:'Uneven stages',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"With uneven blocks, the slowest stage sets the clock: cycle = slowest stage + register. Put the registers where they make the stages as even as possible. More stages also means more register time, so each extra stage helps less.",
+lesson:toy('walk',{w:'puneven',title:'Try it · uneven blocks'})+
+`<p>Now you place the registers. Try to get the fastest clock.</p>`+toy('psplit',{title:'Play · place the registers'}),
+qs:[
+{vis:pipeFig([['A',50],['B',150],['C',100]],[0,1]),prompt:'Blocks of 50, 150 and 100 ps, a register after each. Clock cycle =',options:['170 ps','120 ps','320 ps'],answer:0,explain:'The slowest stage, 150, plus 20.'},
+{prompt:'With uneven stages, what sets the clock?',options:['the slowest stage','the fastest stage','the average stage'],answer:0,explain:'Every stage gets the same clock, so it has to fit the slowest.'},
+{vis:pipeFig([['A',60],['B',40],['C',100],['D',80]],[]),prompt:'Blocks A 60, B 40, C 100, D 80. For 2 stages, where should the extra register go?',options:['between B and C','between A and B','between C and D'],answer:0,explain:'B | C gives stages of 100 and 180. A | B gives 60 and 220; C | D gives 200 and 80. 180 is the smallest slowest stage.'},
+{vis:pipeFig([['A',60],['B',40],['C',100],['D',80]],[1]),prompt:'With the register between B and C, the clock cycle is',options:['200 ps','180 ps','120 ps'],answer:0,explain:'Slowest stage 180 (C + D), plus 20.'},
+{prompt:'A 6-stage pipeline of 50 ps blocks has a 70 ps cycle. How much of each cycle is spent loading the register?',options:['20 of 70 ps: about 29%','50 of 70 ps: about 71%','20 of 50 ps: 40%'],answer:0,explain:'The register takes 20 ps of every 70 ps cycle. The lecture\'s number: 28.57%.'},
+{prompt:'Why not use 100 stages?',options:['Register time becomes most of each cycle, and it needs more hardware and power','The logic would get slower','Instructions would run out of order'],answer:0,explain:'Each stage adds a 20 ps register, so the gains shrink while the cost grows.'},
+{prompt:'300 ps of logic, split into 3 perfectly even stages. Best clock cycle =',options:['120 ps','100 ps','320 ps'],answer:0,explain:'100 ps per stage, plus 20.'}
+]},
+{id:'pipehaz',sec:'p18',name:'Data hazards: why the nops',short:'Data hazards',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"The pipeline has five stages: Fetch, Decode, Execute, Memory, Write back. Registers are read in Decode and written in Write back. If an instruction reads a register too soon after an earlier one writes it, it gets the old value: a read-after-write (RAW) data hazard. Three nops (bubbles) in between fix it.",
+lesson:`<p>Pipelining has a catch. An instruction can start before the one ahead of it has saved its result. If it needs that result, it reads the <b>old</b> value. Add nops until <code>addq</code> reads the right values.</p><p class="fine">The slides use the older 32-bit names (irmovl, %edx). It\'s the same idea.</p>`+
+toy('phaz',{title:'Play · how many nops?'}),
+qs:[
+{prompt:'Put the pipeline\'s five stages in order.',order:['Fetch','Decode','Execute','Memory','Write back'],explain:'The PC update from SEQ happens inside Fetch now.'},
+{prompt:'Registers are read in',options:['Decode','Execute','Write back'],answer:0,explain:'Decode reads them.'},
+{prompt:'Registers are written in',options:['Write back','Decode','Memory'],answer:0,explain:'Write back is the last stage.'},
+{prompt:'<code>irmovq $3, %rax</code> followed right away by <code>addq %rdx, %rax</code> is a',options:['read-after-write (RAW) dependency','control dependency','register overhead'],answer:0,explain:'addq reads %rax after irmovq writes it.'},
+{prompt:'With no nops in between, addq reads %rax',options:['before irmovq has written it: the old value','after irmovq has written it','twice'],answer:0,explain:'addq\'s Decode comes long before irmovq\'s Write back.'},
+{prompt:'How many nops between <code>irmovq $3, %rax</code> and an addq that uses %rax make it read 3?',options:['3','1','2'],answer:0,explain:'With 3, addq\'s Decode comes the cycle after irmovq\'s Write back.'},
+{prompt:'A nop is',options:['an instruction that does nothing: a bubble','a register','a guess about a branch'],answer:0,explain:'It just fills a slot in the pipeline.'},
+{prompt:'A control dependency comes from',options:['jumps and returns: the pipeline may fetch the wrong next instruction','two instructions using the same register','slow memory'],answer:0,explain:'Mispredicted branches and returns. That\'s Part 19.'}
+]},
+{id:'cls18',sec:'p18',name:'Class Practice 18',short:'Class P18',shuffleOpts:true,
+defaults:{m:null,code:false,tag:'From class'},
+recap:"Q1: 240 + 20 = 260 ps cycle, 1000 ÷ 260 = 3.85 GIPS, latency 260 ps. Q2: 80 + 20 = 100 ps cycle, 10 GIPS, latency 3 × 100 = 300 ps. Q3: registers between A and B and between C and D: stages 80, 70, 70, so the cycle is 80 + 20 = 100 ps.",
+lesson:`<p>Practice 18 has three questions. Each one shows its figure from the class page, and each is broken into small steps.</p><div class="tip"><span class="tl">The three rules</span><b>Cycle</b> = the slowest stage + the register.<br><b>GIPS</b> = 1000 ÷ cycle (in ps).<br><b>Latency</b> = number of stages × cycle.</div>`,
+qs:[
+{tag:'From class · Q1',prompt:'Q1: a sequential (non-pipelined) processor: 240 ps of combinational logic and a 20 ps register. One instruction per clock cycle.',
+ board:function(f){return pipeFig([['Combinational logic',240]],[])+timeFig(1,260)+rowBoard(['Minimum cycle time','Execution rate','Latency'],[{k:'a'},{k:'b'},{k:'c'}])(f);},
+ guided:[
+  {label:'Cycle',ask:'The clock has to fit the logic <b>and</b> the register. Minimum cycle time =',options:['260 ps','240 ps','220 ps'],answer:0,hint:'240 + 20.',say:'240 + 20 = 260 ps.',fill:{a:'260 ps'}},
+  {label:'Rate',ask:'One instruction finishes per cycle. GIPS = 1000 ÷ 260 =',options:['3.85 GIPS','4.17 GIPS','0.26 GIPS'],answer:0,hint:'A bit under 4. (4.17 would be 1000 ÷ 240, leaving out the register.)',say:'3.85 GIPS.',fill:{b:'3.85 GIPS'}},
+  {label:'Latency',ask:'It isn\'t pipelined, so each instruction takes one whole cycle. Latency =',options:['260 ps','780 ps','240 ps'],answer:0,hint:'One cycle.',say:'260 ps.',fill:{c:'260 ps'}}],
+ explain:'Cycle <b>260 ps</b>, rate <b>3.85 GIPS</b>, latency <b>260 ps</b>.'},
+{tag:'From class · Q2',prompt:'Q2: the logic is split into three stages of 80 ps, with a 20 ps register after each: a three-stage pipeline.',
+ board:function(f){return pipeFig([['A',80],['B',80],['C',80]],[0,1])+timeFig(3,100)+rowBoard(['Minimum cycle time','Execution rate','Latency'],[{k:'a'},{k:'b'},{k:'c'}])(f);},
+ guided:[
+  {label:'Cycle',ask:'Each cycle only has to fit one stage and its register. Minimum cycle time =',options:['100 ps','80 ps','260 ps'],answer:0,hint:'80 + 20.',say:'80 + 20 = 100 ps.',fill:{a:'100 ps'}},
+  {label:'Rate',ask:'Still one instruction finishes per cycle. GIPS = 1000 ÷ 100 =',options:['10 GIPS','3.85 GIPS','3.33 GIPS'],answer:0,hint:'1000 ÷ 100.',say:'10 GIPS, up from 3.85.',fill:{b:'10 GIPS'}},
+  {label:'Latency',ask:'Each instruction goes through 3 stages, one cycle each. Latency = 3 × 100 =',options:['300 ps','100 ps','260 ps'],answer:0,hint:'3 cycles.',say:'300 ps, up from 260: the two extra registers add 40 ps.',fill:{c:'300 ps'}}],
+ explain:'Cycle <b>100 ps</b>, rate <b>10 GIPS</b>, latency <b>300 ps</b>.'},
+{tag:'From class · Q3',prompt:'Q3: five blocks, A 80, B 10, C 60, D 20 and E 50 ps, then a 20 ps register. Make it a three-stage pipeline with the fastest clock.',
+ board:function(f){var c=f.cut?[0,2]:[];return pipeFig([['A',80],['B',10],['C',60],['D',20],['E',50]],c)+(f.cut?'<p class="tr-note">Stages: A = 80 ps · B + C = 70 ps · D + E = 70 ps</p>':'')+rowBoard(['Registers between','Minimum clock cycle'],[{k:'w'},{k:'c'}])(f);},
+ guided:[
+  {label:'How many',ask:'Three stages need how many extra registers, besides the one at the end?',options:['2','3','1'],answer:0,hint:'One between each pair of stages.',say:'Two.'},
+  {label:'Aim',ask:'All five blocks add up to 220 ps, so three even stages would be about 73 ps each. But block A alone is 80 ps and can\'t be split. So the slowest stage can\'t be less than',options:['80 ps','73 ps','220 ps'],answer:0,hint:'A has to fit in some stage.',say:'80 ps. Now look for a split where no stage is over 80.'},
+  {label:'Split',ask:'Which split keeps every stage at 80 ps or less?',options:['A | B C | D E: stages 80, 70, 70','A B | C D | E: stages 90, 80, 50','A | B | C D E: stages 80, 10, 130'],answer:0,hint:'Add up each stage.',say:'A | B C | D E: registers between A and B, and between C and D.',fill:{cut:'1',w:'A and B; C and D'}},
+  {label:'Clock',ask:'Slowest stage 80 ps, plus the register. Minimum clock cycle =',options:['100 ps','80 ps','110 ps'],answer:0,hint:'80 + 20.',say:'80 + 20 = 100 ps.',fill:{c:'100 ps'}},
+  {label:'Answer',ask:'So the class\'s answer choice is',options:['A and B; C and D; 100 ps','B and C; D and E; 110 ps','C and D; D and E; 80 ps','A and B; B and C; 150 ps'],answer:0,hint:'The registers you placed, and the cycle you found.',say:'"A and B; C and D; 100 ps".'}],
+ explain:'Registers between <b>A and B</b> and between <b>C and D</b>: stages 80, 70, 70 ps, so the cycle is <b>100 ps</b>. (B and C; D and E gives 90, 80, 50: 110 ps. A and B; B and C gives 80, 10, 130: 150 ps.)'}
+]},
+{id:'ex18',sec:'p18',name:'Exam-style practice',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"Cycle = slowest stage + register. GIPS = 1000 ÷ cycle. Latency = stages × cycle. Place registers to make the stages even. Three nops between a write and a read of the same register.",
+lesson:`<p>Practice 18's questions with new numbers.</p>`,
+qs:[
+{vis:pipeFig([['Combinational logic',380]],[]),prompt:'Not pipelined: 380 ps of logic and a 20 ps register. Cycle, rate and latency?',options:['400 ps · 2.5 GIPS · 400 ps','380 ps · 2.63 GIPS · 380 ps','400 ps · 2.5 GIPS · 1200 ps'],answer:0,explain:'380 + 20 = 400 ps; 1000 ÷ 400 = 2.5 GIPS; one stage, so latency = 400 ps.'},
+{vis:pipeFig([['A',60],['B',60],['C',60],['D',60]],[0,1,2]),prompt:'Four 60 ps stages, a 20 ps register after each. Cycle, rate and latency?',options:['80 ps · 12.5 GIPS · 320 ps','60 ps · 16.67 GIPS · 240 ps','80 ps · 12.5 GIPS · 80 ps'],answer:0,explain:'60 + 20 = 80 ps; 1000 ÷ 80 = 12.5 GIPS; 4 × 80 = 320 ps.'},
+{vis:pipeFig([['A',70],['B',120],['C',90]],[0,1]),prompt:'Stages of 70, 120 and 90 ps, a 20 ps register after each. Clock cycle =',options:['140 ps','110 ps','300 ps'],answer:0,explain:'The slowest stage, 120, plus 20.'},
+{vis:pipeFig([['A',40],['B',40],['C',90],['D',30],['E',60]],[]),prompt:'Blocks A 40, B 40, C 90, D 30, E 60, then a 20 ps register. For three stages, the extra registers should go between',options:['B and C; C and D','A and B; C and D','C and D; D and E'],answer:0,explain:'A B | C | D E gives 80, 90, 90: cycle 110 ps. A | B C | D E gives 40, 130, 90; A B | C D | E gives 80, 120, 60.'},
+{prompt:'A 5-stage pipeline of 40 ps blocks with 20 ps registers. How much of each cycle goes to the register?',options:['20 of 60 ps: a third','20 of 40 ps: half','40 of 60 ps: two thirds'],answer:0,explain:'Cycle = 40 + 20 = 60 ps, and 20 of it is the register.'},
+{prompt:'<code>irmovq $5, %rbx</code>, then <code>rrmovq %rbx, %rcx</code>. How many nops in between so rrmovq reads 5?',options:['3','2','5'],answer:0,explain:'Same as the lesson: rrmovq\'s Decode has to come after irmovq\'s Write back.'},
+{prompt:'Practice 18 Q2 used three 80 ps stages. Four 60 ps stages instead would give',options:['cycle 80 ps, 12.5 GIPS, latency 320 ps','cycle 100 ps, 10 GIPS, latency 300 ps','cycle 60 ps, 16.67 GIPS, latency 240 ps'],answer:0,explain:'60 + 20 = 80; 1000 ÷ 80 = 12.5; 4 × 80 = 320. Faster clock, but longer latency.'}
+]},
+/* ===================== Part 19: pipeline performance (L09 part 4, Practice 19) ===================== */
+{id:'cpiidea',sec:'p19',name:'CPI: cycles per instruction',short:'CPI',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"A full pipeline finishes one instruction per cycle: CPI = 1. Every wasted cycle is a bubble. CPI = (instructions + bubbles) ÷ instructions = 1 + bubbles ÷ instructions.",
+lesson:`<p>How fast is a pipeline, really? Count the cycles.</p>`+toy('walk',{w:'cpi1',title:'Try it · cycles per instruction'})+
+`<p>A few more to count:</p>`+toy('chain',{c:'cpicount',title:'Play · count the cycles'}),
+qs:[
+{prompt:'CPI stands for',options:['cycles per instruction','clocks per interrupt','calls per instruction'],answer:0,explain:'On average, how many clock cycles each instruction costs.'},
+{prompt:'A perfect pipeline has CPI =',options:['1','5','0'],answer:0,explain:'One instruction finishes every cycle.'},
+{prompt:'Each instruction takes 5 cycles from start to finish, but CPI is still 1. Why?',options:['One instruction finishes every cycle','Instructions skip stages','The clock is 5 times faster'],answer:0,explain:'Five are in progress at once, so one comes out every cycle.'},
+{prompt:'A bubble is',options:['a wasted cycle, where no real instruction moves through','an instruction that fails','a kind of register'],answer:0,explain:'Like a nop that the hardware adds by itself.'},
+{prompt:'200 instructions and 30 bubbles. CPI =',options:['1.15','0.15','1.3'],answer:0,explain:'230 cycles ÷ 200 instructions.'},
+{prompt:'1000 instructions and 270 bubbles. CPI =',options:['1.27','2.7','0.27'],answer:0,explain:'1 + 270 ÷ 1000.'}
+]},
+{id:'cpipen',sec:'p19',name:'Where bubbles come from: lp, mp, rp',short:'lp, mp, rp',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"lp (load/use) = loads × fraction that stall × 1 bubble = 0.25 × 0.20 × 1 = 0.05. mp (mispredicted branch) = cond. jumps × fraction mispredicted × 2 bubbles = 0.20 × 0.40 × 2 = 0.16. rp (return) = returns × 3 bubbles = 0.02 × 3 = 0.06. CPI = 1 + lp + mp + rp = 1.27.",
+lesson:`<p>Bubbles come from three places. Each one gets a penalty: how often it happens × the bubbles it costs. These are the lecture\'s typical values.</p>`+
+toy('walk',{w:'cpi2',title:'Try it · the three penalties'})+
+`<p>Now change one number at a time and see what happens to CPI.</p>`+toy('chain',{c:'cpiwhatif',title:'Play · what if?'}),
+qs:[
+{prompt:'lp, the load penalty, comes from',options:['load/use hazards: waiting for a value a load is still reading','mispredicted branches','ret instructions'],answer:0,explain:'1 bubble each time.'},
+{prompt:'A mispredicted branch costs',options:['2 bubbles','1 bubble','3 bubbles'],answer:0,explain:'The two instructions fetched after it get thrown away.'},
+{prompt:'A ret costs',options:['3 bubbles','2 bubbles','1 bubble'],answer:0,explain:'The pipeline waits for the return address.'},
+{vis:cpiCard(CPI0,0,['loads','lstall','lb']),prompt:'lp = 0.25 × 0.20 × 1 =',options:['0.05','0.45','0.5'],answer:0,explain:'A quarter of a fifth.'},
+{vis:cpiCard(CPI0,1,['jumps','miss','mbub']),prompt:'mp = 0.20 × 0.40 × 2 =',options:['0.16','0.08','0.8'],answer:0,explain:'0.08 × 2.'},
+{vis:cpiCard(CPI0,2,['rets','rbub']),prompt:'rp = 0.02 × 3 =',options:['0.06','0.6','0.006'],answer:0,explain:'Six hundredths.'},
+{vis:cpiCard(CPI0,3),prompt:'CPI = 1 + lp + mp + rp =',options:['1.27','0.27','1.16'],answer:0,explain:'1 + 0.05 + 0.16 + 0.06.'},
+{vis:cpiCard(CPI0,4),prompt:'If mp dropped to 0.10 and the others stayed the same, CPI would be',options:['1.21','1.27','1.10'],answer:0,explain:'1 + 0.05 + 0.10 + 0.06.'}
+]},
+{id:'bpredict',sec:'p19',name:'Branch prediction',short:'Prediction',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"Fetch guesses the next PC: valP for most instructions, valC for call and jmp (always right). Conditional jumps: always taken (Y86-64) is right about 60% of the time, never taken about 40%, backward taken / forward not taken (BTFNT) about 65%. ret doesn't guess. Fraction mispredicted = 1 − success rate; it goes into mp.",
+lesson:toy('walk',{w:'bpwhy',title:'Try it · why guess?'})+
+`<p>What does fetch guess for each instruction? (Y86-64 guesses that conditional jumps are taken.)</p>`+toy('sorter',{s:'bpnext',title:'Play · what comes next?'})+
+`<p>BTFNT guesses by direction: jumping <b>back</b> (to a lower address) is usually a loop going around again, jumping <b>forward</b> is usually an if-statement skipping code.</p>`+toy('sorter',{s:'btfnt',title:'Play · backward or forward?'}),
+qs:[
+{prompt:'Why does the pipeline guess at a conditional jump?',options:['Fetch needs the next instruction before the jump is decided','Guessing is faster than adding','Jumps are rare'],answer:0,explain:'The jump is only decided in Execute.'},
+{prompt:'For an instruction that isn\'t a jump, fetch predicts the next PC is',options:['valP','valC','valM'],answer:0,explain:'The next line. Always right.'},
+{prompt:'For call and jmp, fetch predicts',options:['valC, the target: always right','valP, the next line','nothing'],answer:0,explain:'They always jump.'},
+{prompt:'For ret, fetch',options:['doesn\'t guess: it waits, 3 bubbles','guesses valP','guesses valC'],answer:0,explain:'The return address is on the stack.'},
+{prompt:'Y86-64 guesses that conditional jumps are',options:['always taken: right about 60% of the time','never taken: right about 40%','backward taken, forward not taken'],answer:0,explain:'That\'s where the 0.40 mispredicted comes from.'},
+{prompt:'BTFNT guesses that a jump back to a lower address is',options:['taken','not taken'],answer:0,keep:true,explain:'It\'s probably a loop.'},
+{prompt:'A strategy is right 70% of the time. Fraction mispredicted =',options:['0.30','0.70','0.07'],answer:0,explain:'1 − 0.70.'},
+{prompt:'With 0.30 mispredicted (and 0.20 of instructions being conditional jumps), mp = 0.20 × 0.30 × 2 =',options:['0.12','0.06','0.6'],answer:0,explain:'0.06 × 2.'}
+]},
+{id:'pexcept',sec:'p19',name:'Exceptions and modern processors',short:'Exceptions',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"Exceptions: halt (HLT), a bad address (ADR), an invalid instruction (INS); normal is AOK. Fetch finds halts, invalid instructions and bad jump targets; Memory finds bad data addresses. They take effect in Write back. Modern CPUs run operations out of order and predict branches from history (a miss costs 11–15 cycles).",
+lesson:toy('walk',{w:'exc',title:'Try it · when something goes wrong'})+
+`<p>Where does the pipeline notice each problem?</p>`+toy('sorter',{s:'excstage',title:'Play · Fetch or Memory?'})+
+toy('walk',{w:'modern',title:'Try it · modern processors'})+
+`<p>Last, the history-based predictor from the lecture. Predict what it predicts.</p>`+toy('bp2',{title:'Play · the predictor'}),
+qs:[
+{prompt:'Three causes of exceptions are',options:['halt, a bad address, an invalid instruction','add, sub, jump','load, store, return'],answer:0,explain:'Status HLT, ADR and INS.'},
+{prompt:'A load from a bad data address is noticed in',options:['Memory','Fetch','Decode'],answer:0,explain:'That\'s where data addresses get used.'},
+{prompt:'An invalid instruction code is noticed in',options:['Fetch','Memory','Write back'],answer:0,explain:'Fetch reads the instruction\'s bytes.'},
+{prompt:'An exception takes effect when the instruction reaches',options:['Write back','Fetch','Execute'],answer:0,explain:'So instructions before it finish, and ones after it change nothing.'},
+{prompt:'Status ADR means',options:['a bad address','all OK','halt'],answer:0,explain:'AOK = OK, HLT = halt, ADR = bad address, INS = invalid instruction.'},
+{prompt:'Out-of-order execution runs an operation when',options:['its inputs are ready and a unit is free','the instruction before it finishes','the program says so'],answer:0,explain:'Not necessarily in program order.'},
+{prompt:'On a modern CPU, a mispredicted branch costs about',options:['11 to 15 cycles','2 cycles','1 cycle'],answer:0,explain:'Long pipelines, so good prediction matters.'},
+{prompt:'The lecture\'s predictor is in state Yes?. It guesses',options:['taken','not taken'],answer:0,keep:true,explain:'It guesses taken in Yes! and Yes?.'}
+]},
+{id:'cls19',sec:'p19',name:'Class Practice 19',short:'Class P19',shuffleOpts:true,
+defaults:{m:null,code:false,tag:'From class'},
+recap:"65% right means 0.35 mispredicted. mp = 0.20 × 0.35 × 2 = 0.14. lp (0.05) and rp (0.06) stay the same, so CPI = 1 + 0.05 + 0.14 + 0.06 = 1.25.",
+lesson:`<p>Practice 19 has one question. It changes one number in the lecture\'s CPI example, so the example\'s typical values are shown with it:</p>`+cpiCard(CPI0,4),
+qs:[
+{tag:'From class',prompt:'Suppose we use a branch prediction strategy that achieves a success rate of 65%, such as backward taken, forward not taken (BTFNT). What would be the impact on CPI, assuming all of the other frequencies are not affected?',
+ board:function(f){var V=cpiApply(f.miss?{miss:0.35}:{});return '<p class="fine">The lecture\'s example, which this question changes'+(f.miss?' (mispredicted 0.40 → <b>0.35</b>)':'')+':</p>'+cpiCard(V,{lp:true,rp:true,mp:!f.miss||!!f.mp,cpi:!f.miss||!!f.cpi},f.miss?['miss']:null)+rowBoard(['Misprediction frequency','mp','CPI'],[{k:'miss'},{k:'mp'},{k:'cpi'}])(f);},
+ guided:[
+  {label:'Wrong guesses',ask:'Right 65% of the time means the fraction <b>mis</b>predicted is',options:['0.35','0.65','0.40'],answer:0,hint:'1 − 0.65.',say:'0.35, instead of the example\'s 0.40.',fill:{miss:'0.35'}},
+  {label:'mp',ask:'mp = cond. jumps × mispredicted × bubbles = 0.20 × 0.35 × 2 =',options:['0.14','0.07','0.16'],answer:0,hint:'0.20 × 0.35 = 0.07, then × 2.',say:'0.14, down from 0.16.',fill:{mp:'0.14'}},
+  {label:'CPI',ask:'"All other frequencies are not affected," so lp = 0.05 and rp = 0.06 stay. CPI = 1 + 0.05 + 0.14 + 0.06 =',options:['1.25','1.27','1.19'],answer:0,hint:'Add them up.',say:'1.25, down from 1.27.',fill:{cpi:'1.25'}},
+  {label:'Answer',ask:'Which answer choice matches?',options:['We would then have a misprediction frequency of 0.35, giving mp = 0.20 × 0.35 × 2 = 0.14, giving an overall CPI of 1.25.','We would then have a misprediction frequency of 0.20, giving mp = 0.20 × 0.20 × 2 = 0.08, giving an overall CPI of 1.19.','We would then have a misprediction frequency of 0.25, giving mp = 0.20 × 0.25 × 2 = 0.10, giving an overall CPI of 1.01.','We would then have a misprediction frequency of 0.30, giving mp = 0.20 × 0.30 × 2 = 0.12, giving an overall CPI of 1.23.'],answer:0,hint:'Look for 0.35, 0.14 and 1.25.',say:'That\'s the one.'}],
+ explain:'Misprediction frequency <b>0.35</b>, mp = 0.20 × 0.35 × 2 = <b>0.14</b>, CPI = 1 + 0.05 + 0.14 + 0.06 = <b>1.25</b>.'}
+]},
+{id:'ex19',sec:'p19',name:'Exam-style practice',short:'Exam practice',shuffleOpts:true,
+defaults:{m:null,code:false},
+recap:"CPI = 1 + lp + mp + rp. Each penalty = how often × bubbles. Fraction mispredicted = 1 − success rate. Typical values: lp 0.05, mp 0.16, rp 0.06, CPI 1.27.",
+lesson:`<p>CPI questions with new numbers. The typical values are shown with each one.</p>`,
+qs:[
+{vis:cpiCard(CPI0,4),prompt:'"Never taken" is right only 40% of the time. With everything else the same, CPI =',options:['1.35','1.27','1.19'],answer:0,explain:'Mispredicted 0.60, so mp = 0.20 × 0.60 × 2 = 0.24. CPI = 1 + 0.05 + 0.24 + 0.06.'},
+{vis:cpiCard(CPI0,4),prompt:'A predictor that is right 80% of the time gives',options:['mp = 0.08, CPI = 1.19','mp = 0.32, CPI = 1.43','mp = 0.16, CPI = 1.27'],answer:0,explain:'Mispredicted 0.20: mp = 0.20 × 0.20 × 2 = 0.08; CPI = 1 + 0.05 + 0.08 + 0.06.'},
+{vis:cpiCard(CPI0,4),prompt:'If returns were 0.05 of instructions, rp and CPI would be',options:['rp = 0.15, CPI = 1.36','rp = 0.05, CPI = 1.26','rp = 0.15, CPI = 1.27'],answer:0,explain:'0.05 × 3 = 0.15; 1 + 0.05 + 0.16 + 0.15.'},
+{vis:cpiCard(CPI0,4),prompt:'If 0.40 of loads needed a stall (instead of 0.20), CPI would be',options:['1.32','1.27','1.37'],answer:0,explain:'lp = 0.25 × 0.40 × 1 = 0.10; 1 + 0.10 + 0.16 + 0.06.'},
+{vis:cpiCard(CPI0,4),prompt:'If a wrong guess cost 3 bubbles instead of 2, CPI would be',options:['1.35','1.27','1.43'],answer:0,explain:'mp = 0.20 × 0.40 × 3 = 0.24; 1 + 0.05 + 0.24 + 0.06.'},
+{prompt:'Which change makes CPI smaller?',options:['a better branch predictor','more ret instructions','more load/use stalls'],answer:0,explain:'Fewer wrong guesses means fewer bubbles.'}
+]},
+
 /* ===== Review ===== */
 {id:'mix',sec:'rev',name:'Quiz 1 mix: Parts 1–2',short:'Quiz 1 mix',shuffleOpts:true,pick:{p1:4,p2:5,both:3},
 defaults:{m:'practice',ask:'value',code:true,prompt:'What value does this operand give?'},
@@ -8101,14 +8689,16 @@ qs:[
 ];
 LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o={};for(var k in d)o[k]=d[k];for(var k2 in q)o[k2]=q[k2];return o;});});
 (function(){
-  var m12=null, pools={p3:[],p45:[],p69:[],p1012:[],p1315:[],p16:[],p17:[]};
+  var m12=null, pools={p3:[],p45:[],p69:[],p1012:[],p1315:[],p16:[],p17:[],p18:[],p19:[]};
   var src={p3:['c1','c2','c3','c4','c5','c6','cflags','c7','c8','c9'],
     p45:['stk','callret','args','frame','saves','tsize','decl','eaddr','parith','leamov','grid2d','mat','multi','struct'],
     p69:['pyr','sram','dram','rascas','module','nvm','bus','disk','cap','atime','iobus','dread','ssd','ssdw','ssdvs','gap','loc','stride','rowcol','rcbits','fileread','wear','loop3d'],
     p1012:['cblocks','cgeo','caddr','clook','dmsim','sasim','conflict','cwrite','cperf','vmidea','vspace'],
     p1315:['vmuses','vpages','ptable','ptecount','mlevel','vasplit','xlate','pfault','wset','tlbidea','tlbsplit','vmcache'],
     p16:['isa','y86state','y86enc','y86const','y86lay','y86trace'],
-    p17:['seqidea','seqnames','seqstack','seqpuz','seqjump']};
+    p17:['seqidea','seqnames','seqstack','seqpuz','seqjump'],
+    p18:['pipewhy','pipeclock','pipesplit','pipehaz'],
+    p19:['cpiidea','cpipen','bpredict','pexcept']};
   function copy(q,g){var o={};for(var k in q)o[k]=q[k];o.grp=g;return o;}
   LEVELS.forEach(function(L){
     if(L.id==='mix')m12=L;
@@ -8124,9 +8714,11 @@ LEVELS.forEach(function(L){var d=L.defaults||{};L.qs=L.qs.map(function(q){var o=
     lesson:'<p>Twelve questions from Parts 10 to 12, caches, hits and misses, and virtual addresses, in a random order with a new pick every time.</p>',qs:pools.p1012});
   LEVELS.push({id:'mix1315',sec:'rev',name:'Parts 13–15 mix: virtual memory',short:'Parts 13–15 mix',desc:'Page tables, address translation and the TLB, 12 questions.',shuffleOpts:true,pick:{p1315:12},
     lesson:'<p>Twelve questions from Parts 13 to 15, page tables, address translation and the TLB, in a random order with a new pick every time.</p>',qs:pools.p1315});
-  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',desc:'All seventeen parts, 22 questions.',shuffleOpts:true,pick:{p1:2,p2:2,both:1,p3:2,p45:3,p69:3,p1012:2,p1315:3,p16:2,p17:2},
-    lesson:'<p>Twenty-two questions drawn from all seventeen parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Part 2.</p>'+machineHTML(MACHINES.practice),
-    qs:m12.qs.concat(pools.p3).concat(pools.p45).concat(pools.p69).concat(pools.p1012).concat(pools.p1315).concat(pools.p16).concat(pools.p17)});
+  LEVELS.push({id:'mix1619',sec:'rev',name:'Parts 16–19 mix: the processor',short:'Parts 16–19 mix',desc:'Y86-64, SEQ, pipelining and CPI, 12 questions.',shuffleOpts:true,pick:{p16:3,p17:3,p18:3,p19:3},
+    lesson:'<p>Twelve questions from Parts 16 to 19, the Y86-64 instruction set, SEQ, pipelining and CPI, in a random order with a new pick every time.</p>',qs:pools.p16.concat(pools.p17).concat(pools.p18).concat(pools.p19)});
+  LEVELS.push({id:'mixall',sec:'rev',name:'Everything mix',short:'Everything mix',desc:'All nineteen parts, 26 questions.',shuffleOpts:true,pick:{p1:2,p2:2,both:1,p3:2,p45:3,p69:3,p1012:2,p1315:3,p16:2,p17:2,p18:2,p19:2},
+    lesson:'<p>Twenty-six questions drawn from all nineteen parts, in a random order, with a new pick every time. Questions about operand values use the practice table from Part 2.</p>'+machineHTML(MACHINES.practice),
+    qs:m12.qs.concat(pools.p3).concat(pools.p45).concat(pools.p69).concat(pools.p1012).concat(pools.p1315).concat(pools.p16).concat(pools.p17).concat(pools.p18).concat(pools.p19)});
 })();
 
 var T_=function(rows,head){return '<div class="tbl-wrap"><table class="t">'+(head?'<thead><tr>'+head.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead>':'')+'<tbody>'+rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';};
@@ -8264,14 +8856,28 @@ var SECTIONS=[
    sheet:'<div class="rule-box rule-lines"><div>byte 0: icode ifun</div><div>byte 1: rA rB (F = no register)</div><div>last 8 bytes: constant, little-endian</div></div>'+yTable({})+yFns({})+yRegs({})+
    '<ul class="facts"><li>Lengths: halt, nop, ret 1 · rrmovq, cmovXX, OPq, pushq, popq 2 · jXX, call 9 · irmovq, rmmovq, mrmovq 10.</li><li>mrmovq D(rB), rA is still encoded rA then rB.</li><li>.pos sets the start address. Labels take no bytes.</li><li>Flags: ZF, SF, OF. Only OPq sets them.</li><li>CISC: memory operands in arithmetic, condition codes, stack-oriented. RISC: fixed-length, many registers, load/store only, no condition codes. Y86-64 has both.</li></ul>'+
    '<p>Practice 16: 25 82 · 30 F3 00 02 00 00 00 00 00 00 · 74 A8 03 01 00 00 00 00 00 · 63 00. sum(0x200, 10): %rax 0, 10 passes, %rdi 0x250. Flags: ZF 1, CF 0, SF 0. Layout: 0x100, 0x10a, loop = 0x10c, 0x10c, 0x116, 0x118.</p>'},
-  {id:'p17',part:'Part 17',name:'SEQ Processor',src:'L09 part 2 · In-Class Practice 17',next:'rev',
+  {id:'p17',part:'Part 17',name:'SEQ Processor',src:'L09 part 2 · In-Class Practice 17',next:'p18',
    intro:'Part 17 runs Y86-64 instructions on SEQ, the simplest processor: six stages, one instruction per clock cycle. Start with the six stages in plain words, then learn the book\'s names and stage tables, one instruction at a time, then fill in Practice 17\'s tables.',
-   after:'or try the Everything mix.',
+   after:'or go on to Part 18.',
    path:[['seqidea','seqidea','Six stages','In plain words: what each stage does.'],['seqnames','seqnames','Names and tables','valA, valE and the rest, and the stage table.'],['seqstack','seqstack','The stack','pushq and popq.'],['seqpuz','seqpuz','Puzzles','pushq %rsp and popq %rsp.'],['seqjump','seqjump','Jumps','je, call and ret.'],['cls17','cls17','Class questions','All four Practice 17 questions.'],['ex17','ex17','Exam-style practice','Stage tables for the other lines.']],
    sheet:'<div class="rule-box rule-lines"><div>Fetch: icode:ifun, rA:rB, valC, valP</div><div>Decode: valA, valB</div><div>Execute: valE (and CC or Cnd)</div><div>Memory: valM, or a write</div><div>Write back: up to two registers</div><div>PC update</div></div>'+
    tblS(['','valE in Execute','Memory','PC ←'],[['OPq','valB OP valA, set CC','—','valP'],['irmovq','0 + valC','—','valP'],['rmmovq','valB + valC','M8[valE] ← valA','valP'],['mrmovq','valB + valC','valM ← M8[valE]','valP'],['pushq','valB + (−8)','M8[valE] ← valA','valP'],['popq','valB + 8','valM ← M8[valA]','valP'],['jXX','Cnd ← Cond(CC, ifun)','—','Cnd ? valC : valP'],['call','valB + (−8)','M8[valE] ← valP','valC'],['ret','valB + 8','valM ← M8[valA]','valM']])+
    '<ul class="facts"><li>pushq, popq, call and ret read %rsp in Decode (valB, and valA for popq and ret).</li><li>pushq %rsp pushes the original %rsp. popq %rsp leaves the popped value (the valM write is last).</li><li>SEQ is too slow: one cycle must fit instruction memory, registers, ALU and data memory.</li></ul>'+
    '<p>Practice 17: irmovq $128, %rsp: 3:0, f:4, valC = 128, valP = 0x020, valE = 128, R[%rsp] ← 128, PC ← 0x020. popq %rax: b:0, 0:f, valP = 0x02e, valA = valB = 120, valE = 128, valM = 9, %rsp ← 128, %rax ← 9, PC ← 0x02e.</p>'},
+  {id:'p18',part:'Part 18',name:'Pipelining',src:'L09 part 3 · In-Class Practice 18',next:'p19',
+   intro:'Part 18 speeds up the processor with a pipeline: several instructions in progress at once, one per stage. Start with a car wash, then time real pipelines (clock cycle, GIPS, latency), place the registers yourself, and see why some instructions need nops.',
+   after:'or go on to Part 19.',
+   path:[['pipewhy','pipewhy','Why pipeline','The car wash: throughput and latency.'],['pipeclock','pipeclock','Clock & GIPS','Cycle time, instructions per second, latency.'],['pipesplit','pipesplit','Uneven stages','Where to put the registers.'],['pipehaz','pipehaz','Data hazards','Why the nops.'],['cls18','cls18','Class questions','All three Practice 18 questions.'],['ex18','ex18','Exam-style practice','The same, with new numbers.']],
+   sheet:'<div class="rule-box rule-lines"><div>Cycle = slowest stage + register</div><div>GIPS = 1000 ÷ cycle (ps)</div><div>Latency = stages × cycle</div></div>'+
+   '<ul class="facts"><li>Throughput (how many per second) goes up a lot; latency (time for one) goes up a little.</li><li>Uneven stages: the slowest one sets the clock. Place registers to even them out.</li><li>More stages: register time becomes a bigger share of each cycle.</li><li>Registers are read in Decode and written in Write back: 3 nops between a write and a read of the same register.</li></ul>'+
+   '<p>Practice 18: Q1 260 ps, 3.85 GIPS, 260 ps. Q2 100 ps, 10 GIPS, 300 ps. Q3 A and B; C and D; 100 ps.</p>'},
+  {id:'p19',part:'Part 19',name:'Pipeline Performance',src:'L09 part 4 · In-Class Practice 19',next:'rev',
+   intro:'Part 19 measures how close the pipeline gets to one instruction per cycle. Count bubbles to get CPI, work out the three penalties (lp, mp, rp), see how branch prediction changes mp, then look at exceptions and modern processors.',
+   after:'or try the Parts 16–19 mix.',
+   path:[['cpiidea','cpiidea','CPI','Cycles per instruction, and bubbles.'],['cpipen','cpipen','lp, mp, rp','The three penalties.'],['bpredict','bpredict','Prediction','Guessing the next instruction.'],['pexcept','pexcept','Exceptions','And modern processors.'],['cls19','cls19','Class question','Practice 19.'],['ex19','ex19','Exam-style practice','CPI with new numbers.']],
+   sheet:'<div class="rule-box rule-lines"><div>CPI = 1 + lp + mp + rp</div><div>penalty = how often × bubbles</div><div>mispredicted = 1 − success rate</div></div>'+cpiCard(CPI0,4)+
+   '<ul class="facts"><li>Load/use: 1 bubble. Mispredicted branch: 2. ret: 3.</li><li>Always taken ≈ 60% right, never taken ≈ 40%, BTFNT ≈ 65%.</li><li>Exceptions (HLT, ADR, INS) take effect in Write back.</li></ul>'+
+   '<p>Practice 19: 0.35 mispredicted, mp = 0.14, CPI 1.25.</p>'},
   {id:'rev',part:'Review',name:'Mixed practice'}
 ];
 var LAB_FLAG_EX=[
@@ -8467,7 +9073,7 @@ function doneHTML(){
     acts='<button class="btn" data-act="replay">Play a new '+L.short+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="'+nextLi+'">Try the '+LEVELS[nextLi].short+'</button>';
   } else if(secEnd){
     var nxt=LEVELS[nextLi].sec;
-    var NEXTTXT={p2:'Part 2 covers memory addressing.',p3:'Part 3 covers condition codes and jumps.',p4:'Part 4 covers procedures: the stack, call and ret, and argument registers.',p5:'Part 5 covers arrays, 2D arrays and structs.',p6:'Part 6 starts the memory hierarchy: SRAM, DRAM, and what happens inside a DRAM chip.',p7:'Part 7 covers buses, memory reads and writes, and spinning disks.',p8:'Part 8 covers I/O devices and solid state disks.',p9:'Part 9 covers locality, the reason the memory hierarchy works.',p10:'Part 10 opens up the cache: blocks, hits and misses, S, E and B, and reading a byte.',p11:'Part 11 runs a cache: direct-mapped and 2-way simulations, conflict misses, writes, and speed.',p12:'Part 12 starts virtual memory: the MMU and address spaces.',p13:'Part 13 covers what virtual memory is for, and page tables.',p14:'Part 14 translates addresses, and handles page faults.',p15:'Part 15 adds the TLB and follows one address all the way to the cache.',p16:'Part 16 starts the processor: the Y86-64 instruction set and how instructions become bytes.',p17:'Part 17 runs instructions on SEQ, stage by stage.',rev:'The Review tab has mixes that shuffle the parts together, the way a quiz would.'};
+    var NEXTTXT={p2:'Part 2 covers memory addressing.',p3:'Part 3 covers condition codes and jumps.',p4:'Part 4 covers procedures: the stack, call and ret, and argument registers.',p5:'Part 5 covers arrays, 2D arrays and structs.',p6:'Part 6 starts the memory hierarchy: SRAM, DRAM, and what happens inside a DRAM chip.',p7:'Part 7 covers buses, memory reads and writes, and spinning disks.',p8:'Part 8 covers I/O devices and solid state disks.',p9:'Part 9 covers locality, the reason the memory hierarchy works.',p10:'Part 10 opens up the cache: blocks, hits and misses, S, E and B, and reading a byte.',p11:'Part 11 runs a cache: direct-mapped and 2-way simulations, conflict misses, writes, and speed.',p12:'Part 12 starts virtual memory: the MMU and address spaces.',p13:'Part 13 covers what virtual memory is for, and page tables.',p14:'Part 14 translates addresses, and handles page faults.',p15:'Part 15 adds the TLB and follows one address all the way to the cache.',p16:'Part 16 starts the processor: the Y86-64 instruction set and how instructions become bytes.',p17:'Part 17 runs instructions on SEQ, stage by stage.',p18:'Part 18 pipelines the processor: clock cycles, GIPS, latency and hazards.',p19:'Part 19 measures pipeline performance: CPI and branch prediction.',rev:'The Review tab has mixes that shuffle the parts together, the way a quiz would.'};
     extra=(secCleared(L.sec)===secLevels(L.sec).length?'<div class="cleared">'+L.sec.replace('p','Part ')+' complete</div>':'')+'<p>That\'s all of '+L.sec.replace('p','Part ')+'. Its cheat sheet has the whole part on one page. '+(NEXTTXT[nxt]||'')+'</p>';
     acts='<button class="btn" data-act="nextlevel">'+(nxt.charAt(0)==='p'?'Start '+nxt.replace('p','Part ')+': Level '+(nextLi+1):'Go to the mixed practice')+' <span class="kbd">Enter</span></button><button class="btn ghost" data-go="sheet-'+L.sec+'">Cheat sheet</button><button class="btn ghost" data-act="replay">Replay this level</button>';
   } else {
